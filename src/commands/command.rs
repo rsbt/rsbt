@@ -1,2 +1,6 @@
+use crate::tasks::App;
+
 #[derive(Debug)]
-pub struct Command;
+pub enum Command {
+
+}
