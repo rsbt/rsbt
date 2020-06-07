@@ -1,6 +1,8 @@
 use crate::{
-    tasks::{App, AppCommandReceiver, AppCommandSender, AppFactory, AppHandler, AppProperties},
-    tokio::{TokioAppCommandReceiver, TokioAppCommandSender, TokioFactory},
+    tasks::{App, AppCommandReceiver, AppCommandSender, AppHandler, AppProperties, AppRuntime},
+    tokio::{
+        TokioAppCommandChannel, TokioAppCommandReceiver, TokioAppCommandSender, TokioAppRuntime,
+    },
     RsbtAppProperties,
 };
 use std::sync::Arc;
@@ -12,8 +14,11 @@ pub struct TokioApp {
 }
 
 impl App for TokioApp {
-    type Factory = TokioFactory;
+    type CommandChannel = TokioAppCommandChannel;
+    type CommandReceiver = TokioAppCommandReceiver;
+    type CommandSender = TokioAppCommandSender;
     type Properties = RsbtAppProperties;
+    type Runtime = TokioAppRuntime;
 
     fn init(
         properties: Self::Properties,

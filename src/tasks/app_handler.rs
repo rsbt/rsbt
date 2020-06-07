@@ -9,6 +9,4 @@ impl<S: AppCommandSender> From<S> for AppHandler<S> {
     }
 }
 
-impl <S: AppCommandSender> AppHandler<S> {
-
-}
+impl<S: AppCommandSender> AppHandler<S> {}

@@ -7,11 +7,8 @@ use tokio::sync::mpsc;
 
 pub struct TokioAppCommandChannel;
 
-impl AppCommandChannel for TokioAppCommandChannel {
-    type CommandSender = TokioAppCommandSender;
-    type CommandReceiver = TokioAppCommandReceiver;
-
-    fn create() -> (Self::CommandSender, Self::CommandReceiver) {
+impl AppCommandChannel<TokioAppCommandSender, TokioAppCommandReceiver> for TokioAppCommandChannel {
+    fn create() -> (TokioAppCommandSender, TokioAppCommandReceiver) {
         let (sender, receiver) = mpsc::channel::<Command>(1);
         (
             TokioAppCommandSender::from(TokioSender::from(sender)),

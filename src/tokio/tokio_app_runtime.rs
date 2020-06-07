@@ -1,10 +1,9 @@
-use crate::{tasks::AppFactory, tokio::TokioAppCommandChannel};
+use crate::tasks::AppRuntime;
 use futures::future::BoxFuture;
 
-pub struct TokioFactory;
+pub struct TokioAppRuntime;
 
-impl AppFactory for TokioFactory {
-    type CommandChannel = TokioAppCommandChannel;
+impl AppRuntime for TokioAppRuntime {
     fn spawn<F>(f: F) -> BoxFuture<'static, ()>
     where
         F: futures::Future<Output = ()> + Send + 'static,

@@ -1,4 +1,4 @@
-use rsbt_draf::{RsbtApp, RsbtTokioApp, RsbtAppProperties};
+use rsbt_draf::{RsbtApp, RsbtAppProperties, RsbtTokioApp};
 
 #[tokio::main]
 async fn main() {
