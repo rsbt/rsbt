@@ -1,0 +1,51 @@
+[package]
+name = "rsbt-draf"
+version = "0.1.0"
+authors = ["Alexander Korolev <kilork@yandex.ru>"]
+edition = "2018"
+categories = []
+description = """
+rsbt-draf description.
+"""
+homepage = "https://github.com/kilork/rsbt-draf"
+keywords = []
+license = "Unlicense OR MIT"
+readme = "README.md"
+repository = "https://github.com/kilork/rsbt-draf"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0"
+
+nom = "5"
+structopt = "0.3"
+failure = "0.1"
+log = "0.4"
+
+dirs = "2"
+
+sha-1 = "0.8"
+percent-encoding = "2"
+
+uuid = { version = "0.8", features = ["v4"] }
+rand = "0.7"
+
+http = "0.2"
+http-body = "0.3"
+bytes = "0.5"
+hyper = "0.13"
+futures = "0.3"
+async-trait = "0.1"
+pin-utils = "0.1"
+
+tokio = { version = "0.2", features = ["full"] }
+tokio-util = { version = "0.3", features = ["full"] }
+
+
+serde = { version = "1.0", features = ["derive"] }
+serde_with = "1.4"
+
+byteorder = "1.3"
+
+toml = "0.5"
