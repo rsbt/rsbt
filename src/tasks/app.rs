@@ -62,7 +62,7 @@ pub trait App: Send + Sized + 'static {
             };
             f.await;
         } else {
-            panic!("you must set command receiver");
+            panic!("you must set app command receiver");
         }
     }
 

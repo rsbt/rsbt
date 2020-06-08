@@ -1,4 +1,4 @@
-use crate::{any_result::AnyResult, methods::AnyRequest};
+use crate::methods::{AnyRequest, AnyResult};
 use async_trait::async_trait;
 use std::fmt::Debug;
 
@@ -17,6 +17,7 @@ where
 {
     async fn any_request(&mut self, o: &mut A) -> AnyResult {
         let typed_result = self.request(o).await;
+
         Box::new(typed_result)
     }
 }

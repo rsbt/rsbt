@@ -1,4 +1,4 @@
-use crate::any_result::AnyResult;
+use crate::methods::AnyResult;
 use async_trait::async_trait;
 use std::fmt::Debug;
 

@@ -14,7 +14,6 @@ rsbt-draf = "0.1"
 
 */
 
-mod any_result;
 mod commands;
 mod error;
 mod methods;
