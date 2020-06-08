@@ -1,14 +1,15 @@
 use crate::{
-    methods::{AnyRequest, Method},
-    tasks::App,
+    methods::{AnyRequest, AnyResult, Method},
+    tasks::{App, OneshotChannel, OneshotSender},
 };
 use async_trait::async_trait;
-use std::any::Any;
 
 #[derive(Debug)]
-pub enum Command<A> {
-    Request(Box<dyn AnyRequest<A>>),
-    Complex(Box<dyn Any + Send + Sync>),
+pub enum Command<A: App> {
+    Request(
+        <A::AnyResultOneshotChannel as OneshotChannel<A, AnyResult>>::OneshotSender,
+        Box<dyn AnyRequest<A> + 'static + Send>,
+    ),
 }
 
 #[async_trait]
@@ -16,13 +17,13 @@ impl<T> Method<T> for Command<T>
 where
     T: App,
 {
-    async fn exec(&mut self, o: &mut T) {
+    async fn exec(self, o: &mut T) {
         match self {
-            Command::Request(_) => {}
-            Command::Complex(_) => {}
+            Command::Request(sender, mut any_request) => {
+                let any_result = any_request.any_request(o).await;
+                sender.send(any_result).ok();
+            }
         }
-        let properties = o.properties();
-        eprintln!("hello world: {:?}", properties);
     }
 }
 

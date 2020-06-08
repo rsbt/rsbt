@@ -1,4 +1,5 @@
-use rsbt_draf::{App, AppHandler, Command, RsbtAppProperties, RsbtResult, TokioApp};
+use futures::future::join;
+use rsbt_draf::{App, RsbtAppProperties, RsbtResult, TokioApp};
 
 #[tokio::main]
 async fn main() -> RsbtResult<()> {
@@ -8,13 +9,12 @@ async fn main() -> RsbtResult<()> {
 
     let mut app_handler = app.app_handler().clone();
 
-    app.spawn();
+    let f1 = app.spawn();
+    let f2 = async move {
+        app_handler.quit().await.ok();
+    };
 
-    app_handler.quit().await?;
-
-    // app_handler.send(RsbtCommand::Simple).await?;
-
-    // app.run().await;
+    join(f1, f2).await;
 
     println!("best bittorrent client in the world!");
 

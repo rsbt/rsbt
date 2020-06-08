@@ -1,10 +1,6 @@
-use crate::{tasks::Sender, RsbtError, RsbtResult};
+use crate::{tasks::Sender, RsbtResult};
 use async_trait::async_trait;
-use std::{
-    fmt::Debug,
-    pin::Pin,
-    task::{Context, Poll},
-};
+use std::fmt::Debug;
 use tokio::sync::mpsc;
 
 #[derive(Debug)]

@@ -3,6 +3,9 @@ mod tokio_app_command_channel;
 mod tokio_app_command_receiver;
 mod tokio_app_command_sender;
 mod tokio_app_runtime;
+mod tokio_oneshot_channel;
+mod tokio_oneshot_receiver;
+mod tokio_oneshot_sender;
 mod tokio_receiver;
 mod tokio_sender;
 
@@ -11,5 +14,8 @@ pub(crate) use tokio_app_command_channel::TokioAppCommandChannel;
 pub(crate) use tokio_app_command_receiver::TokioAppCommandReceiver;
 pub(crate) use tokio_app_command_sender::TokioAppCommandSender;
 pub(crate) use tokio_app_runtime::TokioAppRuntime;
+pub(crate) use tokio_oneshot_channel::TokioOneshotChannel;
+pub(crate) use tokio_oneshot_receiver::TokioOneshotReceiver;
+pub(crate) use tokio_oneshot_sender::TokioOneshotSender;
 pub(crate) use tokio_receiver::TokioReceiver;
 pub(crate) use tokio_sender::TokioSender;

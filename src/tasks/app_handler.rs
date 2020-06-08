@@ -1,9 +1,10 @@
 use crate::{
     commands::{Command, QuitCommandRequest},
     methods::AnyRequest,
-    tasks::{App, Sender},
+    tasks::{App, OneshotChannel, Sender},
     RsbtResult,
 };
+use std::any::Any;
 
 #[derive(Debug)]
 pub struct AppHandler<A: App>(A::CommandSender);
@@ -26,14 +27,43 @@ where
         self.0.send(command).await
     }
 
-    pub async fn request<C, R>(&mut self, command_request: C) -> RsbtResult<R>
+    pub async fn request<C: 'static, R>(&mut self, command_request: C) -> RsbtResult<R>
     where
         C: AnyRequest<A>,
+        R: 'static,
     {
-        todo!();
+        let (sender, receiver) = A::AnyResultOneshotChannel::create();
+
+        self.send(Command::Request(sender, Box::new(command_request)))
+            .await?;
+
+        let result = receiver.await?;
+
+        if let Ok(any) = <Box<dyn Any + Send>>::downcast::<R>(result) {
+            Ok(*any)
+        } else {
+            Err(anyhow::anyhow!(
+                "cannot downcast from request, caller and cally types do not match"
+            ))
+        }
     }
 
     pub async fn quit(&mut self) -> RsbtResult<()> {
         self.request(QuitCommandRequest).await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::methods::AnyResult;
+    use std::any::Any;
+
+    #[test]
+    fn check_downcast() {
+        let q: AnyResult = Box::new(String::from("qqq"));
+
+        let res = <Box<dyn Any + Send>>::downcast::<String>(q);
+        let res = *res.unwrap();
+        assert_eq!(String::from("qqq"), res);
     }
 }

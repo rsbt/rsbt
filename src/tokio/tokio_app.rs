@@ -1,7 +1,9 @@
 use crate::{
-    tasks::{App, AppCommandReceiver, AppCommandSender, AppHandler, AppProperties, AppRuntime},
+    methods::AnyResult,
+    tasks::{App, AppHandler},
     tokio::{
         TokioAppCommandChannel, TokioAppCommandReceiver, TokioAppCommandSender, TokioAppRuntime,
+        TokioOneshotChannel,
     },
     RsbtAppProperties,
 };
@@ -23,6 +25,7 @@ impl App for TokioApp {
     type CommandSender = TokioAppCommandSender;
     type Properties = RsbtAppProperties;
     type Runtime = TokioAppRuntime;
+    type AnyResultOneshotChannel = TokioOneshotChannel<AnyResult>;
 
     fn init(
         properties: Self::Properties,

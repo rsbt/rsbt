@@ -1,3 +1,3 @@
 use std::any::Any;
 
-pub(crate) type AnyResult = Box<dyn Any + Send + Sync>;
+pub(crate) type AnyResult = Box<dyn Any + Send>;

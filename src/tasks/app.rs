@@ -1,19 +1,13 @@
 use crate::{
-    commands::Command,
-    methods::Method,
+    methods::{AnyResult, Method},
     tasks::{
         AppCommandChannel, AppCommandReceiver, AppCommandSender, AppHandler, AppProperties,
-        AppRuntime, Receiver, Sender,
+        AppRuntime, OneshotChannel,
     },
 };
 use async_trait::async_trait;
 use futures::{future::BoxFuture, StreamExt};
-use std::{
-    future::Future,
-    pin::Pin,
-    sync::Arc,
-    task::{Context, Poll},
-};
+use std::sync::Arc;
 
 #[async_trait]
 pub trait App: Send + Sized + 'static {
@@ -22,6 +16,7 @@ pub trait App: Send + Sized + 'static {
     type CommandSender: AppCommandSender<Self>;
     type Properties: AppProperties;
     type Runtime: AppRuntime;
+    type AnyResultOneshotChannel: OneshotChannel<Self, AnyResult>;
 
     fn init(
         properties: Self::Properties,
@@ -53,7 +48,7 @@ pub trait App: Send + Sized + 'static {
     async fn run(mut self) {
         if let Some(mut command_receiver) = self.command_receiver().take() {
             let f = async move {
-                while let Some(mut cmd) = command_receiver.next().await {
+                while let Some(cmd) = command_receiver.next().await {
                     cmd.exec(&mut self).await;
                     if !self.is_running() {
                         break;
