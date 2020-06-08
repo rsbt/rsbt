@@ -9,8 +9,8 @@ use std::sync::Arc;
 
 pub struct TokioApp {
     properties: Arc<RsbtAppProperties>,
-    app_handler: AppHandler<TokioAppCommandSender>,
-    command_receiver: TokioAppCommandReceiver,
+    app_handler: AppHandler<TokioApp>,
+    command_receiver: Option<TokioAppCommandReceiver>,
 }
 
 impl App for TokioApp {
@@ -22,13 +22,13 @@ impl App for TokioApp {
 
     fn init(
         properties: Self::Properties,
-        app_handler: AppHandler<TokioAppCommandSender>,
+        app_handler: AppHandler<TokioApp>,
         command_receiver: TokioAppCommandReceiver,
     ) -> Self {
         Self {
             properties: Arc::new(properties),
             app_handler,
-            command_receiver,
+            command_receiver: Some(command_receiver),
         }
     }
 
@@ -36,11 +36,11 @@ impl App for TokioApp {
         self.properties.clone()
     }
 
-    fn app_handler(&mut self) -> &mut AppHandler<TokioAppCommandSender> {
+    fn app_handler(&mut self) -> &mut AppHandler<TokioApp> {
         &mut self.app_handler
     }
 
-    fn command_receiver(&mut self) -> &mut TokioAppCommandReceiver {
+    fn command_receiver(&mut self) -> &mut Option<TokioAppCommandReceiver> {
         &mut self.command_receiver
     }
 }

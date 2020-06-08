@@ -16,6 +16,7 @@ rsbt-draf = "0.1"
 
 mod commands;
 mod error;
+mod methods;
 mod properties;
 mod result;
 mod sync;
@@ -26,6 +27,7 @@ mod transport;
 pub use tasks::App as RsbtApp;
 
 pub use crate::tokio::TokioApp as RsbtTokioApp;
+pub use commands::Command as RsbtCommand;
 pub use error::RsbtError;
 pub use properties::RsbtAppProperties;
 pub use result::RsbtResult;

@@ -1,12 +1,13 @@
 use crate::{
     commands::Command,
+    methods::Method,
     tasks::{
         AppCommandChannel, AppCommandReceiver, AppCommandSender, AppHandler, AppProperties,
         AppRuntime, Receiver, Sender,
     },
 };
 use async_trait::async_trait;
-use futures::future::BoxFuture;
+use futures::{future::BoxFuture, StreamExt};
 use std::{
     future::Future,
     pin::Pin,
@@ -24,13 +25,13 @@ pub trait App: Send + Sized + 'static {
 
     fn init(
         properties: Self::Properties,
-        app_handler: AppHandler<Self::CommandSender>,
+        app_handler: AppHandler<Self>,
         command_receiver: Self::CommandReceiver,
     ) -> Self;
 
     fn new(properties: Self::Properties) -> Self {
         let (command_sender, command_receiver) = Self::CommandChannel::create();
-        Self::init(properties, command_sender.into(), command_receiver)
+        Self::init(properties, AppHandler::new(command_sender), command_receiver)
     }
 
     fn spawn(mut self) -> BoxFuture<'static, ()> {
@@ -41,9 +42,15 @@ pub trait App: Send + Sized + 'static {
 
     fn properties(&self) -> Arc<Self::Properties>;
 
-    fn app_handler(&mut self) -> &mut AppHandler<Self::CommandSender>;
+    fn app_handler(&mut self) -> &mut AppHandler<Self>;
 
-    fn command_receiver(&mut self) -> &mut Self::CommandReceiver;
+    fn command_receiver(&mut self) -> &mut Option<Self::CommandReceiver>;
 
-    async fn run(&mut self) {}
+    async fn run(&mut self) {
+        if let Some(mut command_receiver) = self.command_receiver().take() {
+            while let Some(mut cmd) = command_receiver.next().await {
+                cmd.exec(self).await;
+            }
+        }
+    }
 }

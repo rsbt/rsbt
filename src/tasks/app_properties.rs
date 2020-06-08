@@ -1,1 +1,3 @@
-pub trait AppProperties {}
+use std::fmt::Debug;
+
+pub trait AppProperties: Debug {}

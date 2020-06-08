@@ -1,12 +1,21 @@
-use crate::tasks::AppCommandSender;
+use crate::{
+    commands::Command,
+    tasks::{App, Sender},
+    RsbtResult,
+};
 
 #[derive(Clone)]
-pub struct AppHandler<S>(S);
+pub struct AppHandler<A: App>(A::CommandSender);
 
-impl<S: AppCommandSender> From<S> for AppHandler<S> {
-    fn from(value: S) -> Self {
-        Self(value)
+impl<A> AppHandler<A>
+where
+    A: App,
+{
+    pub fn new(from: A::CommandSender) -> Self {
+        Self(from)
+    }
+
+    pub async fn send(&mut self, command: Command) -> RsbtResult<()> {
+        self.0.send(command).await
     }
 }
-
-impl<S: AppCommandSender> AppHandler<S> {}
