@@ -1,17 +1,20 @@
-use rsbt_draf::{RsbtApp, RsbtAppProperties, RsbtCommand, RsbtResult, RsbtTokioApp};
+use rsbt_draf::{App, AppHandler, Command, RsbtAppProperties, RsbtResult, TokioApp};
 
 #[tokio::main]
 async fn main() -> RsbtResult<()> {
     let properties = RsbtAppProperties;
 
-    let mut app = RsbtTokioApp::new(properties);
+    let mut app = TokioApp::new(properties);
 
-    let app_handler = app.app_handler();
+    let mut app_handler = app.app_handler().clone();
+
+    app.spawn();
+
+    app_handler.quit().await?;
 
     // app_handler.send(RsbtCommand::Simple).await?;
 
-    // app.spawn();
-    app.run().await;
+    // app.run().await;
 
     println!("best bittorrent client in the world!");
 

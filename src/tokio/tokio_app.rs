@@ -6,14 +6,17 @@ use crate::{
     RsbtAppProperties,
 };
 use std::sync::Arc;
+use async_trait::async_trait;
 
 #[derive(Debug)]
 pub struct TokioApp {
+    running: bool,
     properties: Arc<RsbtAppProperties>,
     app_handler: AppHandler<TokioApp>,
     command_receiver: Option<TokioAppCommandReceiver>,
 }
 
+#[async_trait]
 impl App for TokioApp {
     type CommandChannel = TokioAppCommandChannel;
     type CommandReceiver = TokioAppCommandReceiver;
@@ -27,6 +30,7 @@ impl App for TokioApp {
         command_receiver: TokioAppCommandReceiver,
     ) -> Self {
         Self {
+            running: true,
             properties: Arc::new(properties),
             app_handler,
             command_receiver: Some(command_receiver),
@@ -43,5 +47,13 @@ impl App for TokioApp {
 
     fn command_receiver(&mut self) -> &mut Option<TokioAppCommandReceiver> {
         &mut self.command_receiver
+    }
+
+    fn is_running(&self) -> bool {
+        self.running
+    }
+
+    async fn quit(&mut self) {
+        self.running = false;
     }
 }

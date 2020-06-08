@@ -52,9 +52,19 @@ pub trait App: Send + Sized + 'static {
 
     async fn run(&mut self) {
         if let Some(mut command_receiver) = self.command_receiver().take() {
-            while let Some(mut cmd) = command_receiver.next().await {
-                cmd.exec(self).await;
-            }
+            let f = async move {
+                while let Some(mut cmd) = command_receiver.next().await {
+                    cmd.exec(self).await;
+                    if !self.is_running() {
+                        break;
+                    }
+                }
+            };
+            f.await;
         }
     }
+
+    fn is_running(&self) -> bool;
+
+    async fn quit(&mut self);
 }

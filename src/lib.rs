@@ -25,11 +25,13 @@ mod tasks;
 mod tests;
 mod tokio;
 mod transport;
+mod any_result;
 
-pub use tasks::App as RsbtApp;
+pub use tasks::App;
 
-pub use crate::tokio::TokioApp as RsbtTokioApp;
-pub use commands::Command as RsbtCommand;
+pub use crate::tokio::TokioApp;
+pub use commands::Command;
 pub use error::RsbtError;
 pub use properties::RsbtAppProperties;
 pub use result::RsbtResult;
+pub use tasks::AppHandler;

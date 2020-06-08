@@ -4,7 +4,7 @@ use std::any::Any;
 
 #[derive(Debug)]
 pub enum Command<A> {
-    Request(Box<dyn CommandRequest<A> + Sync>),
+    Request(Box<dyn CommandRequest<A>>),
     Complex(Box<dyn Any + Send + Sync>),
 }
 
@@ -22,15 +22,20 @@ where
         eprintln!("hello world: {:?}", properties);
     }
 }
-/*
+
 #[cfg(test)]
 mod tests {
     use super::Command;
+    use crate::TokioApp;
     use std::mem::size_of;
+
+    fn size_check<T>(required: usize) {
+        assert_eq!(size_of::<T>(), size_of::<usize>() * required);
+    }
 
     #[test]
     fn size_checks() {
-        assert_eq!(size_of::<Command>(), 0);
+        size_check::<Command<TokioApp>>(3);
     }
 }
-*/
+
