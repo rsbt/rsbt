@@ -5,8 +5,8 @@ use crate::{
     },
     RsbtAppProperties,
 };
-use std::sync::Arc;
 use async_trait::async_trait;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct TokioApp {

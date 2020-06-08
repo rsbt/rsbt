@@ -38,7 +38,7 @@ pub trait App: Send + Sized + 'static {
         )
     }
 
-    fn spawn(mut self) -> BoxFuture<'static, ()> {
+    fn spawn(self) -> BoxFuture<'static, ()> {
         Self::Runtime::spawn(async move {
             self.run().await;
         })
@@ -50,17 +50,19 @@ pub trait App: Send + Sized + 'static {
 
     fn command_receiver(&mut self) -> &mut Option<Self::CommandReceiver>;
 
-    async fn run(&mut self) {
+    async fn run(mut self) {
         if let Some(mut command_receiver) = self.command_receiver().take() {
             let f = async move {
                 while let Some(mut cmd) = command_receiver.next().await {
-                    cmd.exec(self).await;
+                    cmd.exec(&mut self).await;
                     if !self.is_running() {
                         break;
                     }
                 }
             };
             f.await;
+        } else {
+            panic!("you must set command receiver");
         }
     }
 

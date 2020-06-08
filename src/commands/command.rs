@@ -1,10 +1,13 @@
-use crate::{commands::CommandRequest, methods::Method, tasks::App};
+use crate::{
+    methods::{AnyRequest, Method},
+    tasks::App,
+};
 use async_trait::async_trait;
 use std::any::Any;
 
 #[derive(Debug)]
 pub enum Command<A> {
-    Request(Box<dyn CommandRequest<A>>),
+    Request(Box<dyn AnyRequest<A>>),
     Complex(Box<dyn Any + Send + Sync>),
 }
 
@@ -38,4 +41,3 @@ mod tests {
         size_check::<Command<TokioApp>>(3);
     }
 }
-

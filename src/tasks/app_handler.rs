@@ -1,5 +1,6 @@
 use crate::{
-    commands::{Command, CommandRequest, QuitCommandRequest},
+    commands::{Command, QuitCommandRequest},
+    methods::AnyRequest,
     tasks::{App, Sender},
     RsbtResult,
 };
@@ -7,7 +8,7 @@ use crate::{
 #[derive(Debug)]
 pub struct AppHandler<A: App>(A::CommandSender);
 
-impl <A: App> Clone for AppHandler<A> {
+impl<A: App> Clone for AppHandler<A> {
     fn clone(&self) -> Self {
         Self(self.0.clone())
     }
@@ -27,7 +28,7 @@ where
 
     pub async fn request<C, R>(&mut self, command_request: C) -> RsbtResult<R>
     where
-        C: CommandRequest<A>,
+        C: AnyRequest<A>,
     {
         todo!();
     }
