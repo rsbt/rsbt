@@ -8,7 +8,7 @@ async fn main() -> RsbtResult<()> {
 
     let app_handler = app.app_handler();
 
-    app_handler.send(RsbtCommand::Simple).await?;
+    // app_handler.send(RsbtCommand::Simple).await?;
 
     // app.spawn();
     app.run().await;

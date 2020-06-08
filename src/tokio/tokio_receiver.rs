@@ -5,6 +5,7 @@ use std::{
 };
 use tokio::sync::mpsc;
 
+#[derive(Debug)]
 pub struct TokioReceiver<M>(mpsc::Receiver<M>);
 
 impl<M> Stream for TokioReceiver<M> {

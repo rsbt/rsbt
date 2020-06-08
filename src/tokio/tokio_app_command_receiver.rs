@@ -1,7 +1,7 @@
 use crate::{
     commands::Command,
     tasks::{AppCommandReceiver, Receiver},
-    tokio::TokioReceiver,
+    tokio::{TokioApp, TokioReceiver},
 };
 use futures::stream::Stream;
 use std::{
@@ -9,22 +9,23 @@ use std::{
     task::{Context, Poll},
 };
 
-pub struct TokioAppCommandReceiver(TokioReceiver<Command>);
+#[derive(Debug)]
+pub struct TokioAppCommandReceiver(TokioReceiver<Command<TokioApp>>);
 
-impl AppCommandReceiver for TokioAppCommandReceiver {}
+impl AppCommandReceiver<TokioApp> for TokioAppCommandReceiver {}
 
-impl Receiver<Command> for TokioAppCommandReceiver {}
+impl Receiver<Command<TokioApp>> for TokioAppCommandReceiver {}
 
 impl Stream for TokioAppCommandReceiver {
-    type Item = Command;
+    type Item = Command<TokioApp>;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         Pin::new(&mut self.0).poll_next(cx)
     }
 }
 
-impl From<TokioReceiver<Command>> for TokioAppCommandReceiver {
-    fn from(value: TokioReceiver<Command>) -> Self {
+impl From<TokioReceiver<Command<TokioApp>>> for TokioAppCommandReceiver {
+    fn from(value: TokioReceiver<Command<TokioApp>>) -> Self {
         Self(value)
     }
 }

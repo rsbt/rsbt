@@ -7,6 +7,7 @@ use crate::{
 };
 use std::sync::Arc;
 
+#[derive(Debug)]
 pub struct TokioApp {
     properties: Arc<RsbtAppProperties>,
     app_handler: AppHandler<TokioApp>,

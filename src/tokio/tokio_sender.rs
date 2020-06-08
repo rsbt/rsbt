@@ -7,6 +7,7 @@ use std::{
 };
 use tokio::sync::mpsc;
 
+#[derive(Debug)]
 pub(crate) struct TokioSender<M>(mpsc::Sender<M>);
 
 impl<M> Clone for TokioSender<M> {

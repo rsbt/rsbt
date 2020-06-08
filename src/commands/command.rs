@@ -1,29 +1,28 @@
-use crate::{methods::Method, tasks::App};
-use std::any::Any;
+use crate::{commands::CommandRequest, methods::Method, tasks::App};
 use async_trait::async_trait;
-
+use std::any::Any;
 
 #[derive(Debug)]
-pub enum Command {
-    Simple,
+pub enum Command<A> {
+    Request(Box<dyn CommandRequest<A> + Sync>),
     Complex(Box<dyn Any + Send + Sync>),
 }
 
 #[async_trait]
-impl<T> Method<T> for Command
+impl<T> Method<T> for Command<T>
 where
     T: App,
 {
     async fn exec(&mut self, o: &mut T) {
         match self {
-            Command::Simple => {}
+            Command::Request(_) => {}
             Command::Complex(_) => {}
         }
         let properties = o.properties();
         eprintln!("hello world: {:?}", properties);
     }
 }
-
+/*
 #[cfg(test)]
 mod tests {
     use super::Command;
@@ -34,3 +33,4 @@ mod tests {
         assert_eq!(size_of::<Command>(), 0);
     }
 }
+*/

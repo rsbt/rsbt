@@ -1,3 +1,6 @@
-use crate::{commands::Command, tasks::Receiver};
+use crate::{
+    commands::Command,
+    tasks::{App, Receiver},
+};
 
-pub trait AppCommandReceiver: Receiver<Command> {}
+pub trait AppCommandReceiver<A: App>: Receiver<Command<A>> {}

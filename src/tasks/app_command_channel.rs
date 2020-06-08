@@ -1,4 +1,4 @@
-use crate::tasks::{AppCommandReceiver, AppCommandSender};
-pub trait AppCommandChannel<CommandSender: AppCommandSender, CommandReceiver: AppCommandReceiver> {
-    fn create() -> (CommandSender, CommandReceiver);
+use crate::tasks::{App, AppCommandReceiver, AppCommandSender};
+pub trait AppCommandChannel<A: App> {
+    fn create() -> (A::CommandSender, A::CommandReceiver);
 }

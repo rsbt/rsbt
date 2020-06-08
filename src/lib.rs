@@ -21,6 +21,8 @@ mod properties;
 mod result;
 mod sync;
 mod tasks;
+#[cfg(test)]
+mod tests;
 mod tokio;
 mod transport;
 
@@ -31,11 +33,3 @@ pub use commands::Command as RsbtCommand;
 pub use error::RsbtError;
 pub use properties::RsbtAppProperties;
 pub use result::RsbtResult;
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}

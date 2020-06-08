@@ -17,9 +17,9 @@ use std::{
 
 #[async_trait]
 pub trait App: Send + Sized + 'static {
-    type CommandChannel: AppCommandChannel<Self::CommandSender, Self::CommandReceiver>;
-    type CommandReceiver: AppCommandReceiver;
-    type CommandSender: AppCommandSender;
+    type CommandChannel: AppCommandChannel<Self>;
+    type CommandReceiver: AppCommandReceiver<Self>;
+    type CommandSender: AppCommandSender<Self>;
     type Properties: AppProperties;
     type Runtime: AppRuntime;
 
@@ -31,7 +31,11 @@ pub trait App: Send + Sized + 'static {
 
     fn new(properties: Self::Properties) -> Self {
         let (command_sender, command_receiver) = Self::CommandChannel::create();
-        Self::init(properties, AppHandler::new(command_sender), command_receiver)
+        Self::init(
+            properties,
+            AppHandler::new(command_sender),
+            command_receiver,
+        )
     }
 
     fn spawn(mut self) -> BoxFuture<'static, ()> {
