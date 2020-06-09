@@ -1,8 +1,9 @@
 use crate::{
     application::{
         AppCommandChannel, AppCommandReceiver, AppCommandSender, AppHandler, AppProperties,
-        AppRuntime, OneshotChannel,
+        AppRuntime,
     },
+    bridge::OneshotChannel,
     methods::{AnyResult, Method},
 };
 use async_trait::async_trait;
@@ -10,7 +11,7 @@ use futures::{future::BoxFuture, StreamExt};
 use std::sync::Arc;
 
 #[async_trait]
-pub trait App: Send + Sized + 'static {
+pub trait App: sealed::AppPriv + Send + Sized + 'static {
     type CommandChannel: AppCommandChannel<Self>;
     type CommandReceiver: AppCommandReceiver<Self>;
     type CommandSender: AppCommandSender<Self>;
@@ -62,4 +63,12 @@ pub trait App: Send + Sized + 'static {
     fn is_running(&self) -> bool;
 
     async fn quit(&mut self);
+}
+
+mod sealed {
+    use crate::TokioApp;
+
+    pub trait AppPriv {}
+
+    impl AppPriv for TokioApp {}
 }

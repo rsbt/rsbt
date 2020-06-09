@@ -1,4 +1,8 @@
-use crate::application::{App, OneshotReceiver, OneshotSender};
+use crate::{
+    application::App,
+    bridge::{OneshotReceiver, OneshotSender},
+};
+
 use std::fmt::Debug;
 
 pub trait OneshotChannel<A: App, M>: Debug {

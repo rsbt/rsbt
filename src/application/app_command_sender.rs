@@ -1,8 +1,4 @@
-use crate::{
-    commands::Command,
-    application::{App, Sender},
-    RsbtResult,
-};
+use crate::{application::App, bridge::Sender, commands::Command, RsbtResult};
 use async_trait::async_trait;
 
 #[async_trait]

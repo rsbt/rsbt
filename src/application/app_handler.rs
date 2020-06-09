@@ -1,7 +1,8 @@
 use crate::{
-    commands::{Command, QuitCommandRequest},
+    application::App,
+    bridge::{OneshotChannel, Sender},
+    commands::{Command, CommandRequestQuit},
     methods::AnyRequest,
-    application::{App, OneshotChannel, Sender},
     RsbtResult,
 };
 use std::any::Any;
@@ -49,7 +50,7 @@ where
     }
 
     pub async fn quit(&mut self) -> RsbtResult<()> {
-        self.request(QuitCommandRequest).await
+        self.request(CommandRequestQuit).await
     }
 }
 

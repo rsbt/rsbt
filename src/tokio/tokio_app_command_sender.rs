@@ -1,6 +1,7 @@
 use crate::{
+    application::AppCommandSender,
+    bridge::Sender,
     commands::Command,
-    application::{AppCommandSender, Sender},
     tokio::{TokioApp, TokioSender},
     RsbtResult,
 };

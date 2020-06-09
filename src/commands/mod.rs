@@ -1,5 +1,5 @@
 mod command;
-mod quit_command_request;
+mod command_request_quit;
 
 pub use command::Command;
-pub use quit_command_request::QuitCommandRequest;
+pub use command_request_quit::CommandRequestQuit;

@@ -15,12 +15,14 @@ rsbt-draf = "0.1"
 */
 
 mod application;
+mod bridge;
 mod commands;
 mod error;
 mod methods;
 mod properties;
 mod result;
 mod sync;
+
 #[cfg(test)]
 mod tests;
 mod tokio;

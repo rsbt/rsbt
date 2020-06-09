@@ -1,4 +1,4 @@
-use crate::{application::OneshotReceiver, RsbtResult};
+use crate::{bridge::OneshotReceiver, RsbtResult};
 use futures::Future;
 use std::{
     fmt::Debug,

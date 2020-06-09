@@ -1,6 +1,7 @@
 use crate::{
+    application::App,
+    bridge::{OneshotChannel, OneshotSender},
     methods::{AnyRequest, AnyResult, Method},
-    application::{App, OneshotChannel, OneshotSender},
 };
 use async_trait::async_trait;
 

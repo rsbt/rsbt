@@ -1,4 +1,4 @@
-use crate::application::OneshotSender;
+use crate::bridge::OneshotSender;
 use std::fmt::Debug;
 use tokio::sync::oneshot;
 

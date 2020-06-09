@@ -1,4 +1,4 @@
-use crate::{application::Sender, RsbtResult};
+use crate::{bridge::Sender, RsbtResult};
 use async_trait::async_trait;
 use std::fmt::Debug;
 use tokio::sync::mpsc;
