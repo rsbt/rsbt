@@ -51,10 +51,20 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
 
     async fn run(mut self) {
         if let Some(mut command_receiver) = self.command_receiver().take() {
+            // let incoming_connections_loop = Self::
             let properties = self.properties();
             let app_handler = self.app_handler().clone();
             let incoming_connections_loop = async move {
-                Self::SocketListener::bind(*properties.listen_addr()).await;
+                match Self::SocketListener::bind(*properties.listen_addr()).await {
+                    Ok(mut listener) => {
+                        while let Some(socket) = listener.next().await {
+                            eprintln!("peer connection attempted...");
+                        }
+                    }
+                    Err(err) => {
+                        eprintln!("{}", err);
+                    }
+                }
             };
             let command_loop = async move {
                 while let Some(cmd) = command_receiver.next().await {
@@ -76,9 +86,13 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
 }
 
 mod sealed {
+    #[cfg(test)]
+    use crate::tests::TestApp;
     use crate::TokioApp;
 
     pub trait AppPriv {}
 
     impl AppPriv for TokioApp {}
+    #[cfg(test)]
+    impl AppPriv for TestApp {}
 }
