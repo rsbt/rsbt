@@ -20,7 +20,7 @@ impl Receiver<Command<TestApp>> for TestAppCommandReceiver {}
 impl Stream for TestAppCommandReceiver {
     type Item = Command<TestApp>;
 
-    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         todo!()
     }
 }
