@@ -1,7 +1,7 @@
 use crate::{
     commands::{Command, QuitCommandRequest},
     methods::AnyRequest,
-    tasks::{App, OneshotChannel, Sender},
+    application::{App, OneshotChannel, Sender},
     RsbtResult,
 };
 use std::any::Any;

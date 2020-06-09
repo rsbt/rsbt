@@ -1,5 +1,5 @@
 use crate::{
-    tasks::OneshotChannel,
+    application::OneshotChannel,
     tokio::{TokioApp, TokioOneshotReceiver, TokioOneshotSender},
 };
 use std::{fmt::Debug, marker::PhantomData};

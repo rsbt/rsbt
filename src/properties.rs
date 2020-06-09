@@ -1,4 +1,4 @@
-use crate::tasks::AppProperties;
+use crate::application::AppProperties;
 
 #[derive(Debug)]
 pub struct RsbtAppProperties;

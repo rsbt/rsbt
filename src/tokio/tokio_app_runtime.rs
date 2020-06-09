@@ -1,4 +1,4 @@
-use crate::tasks::AppRuntime;
+use crate::application::AppRuntime;
 use futures::future::BoxFuture;
 
 pub struct TokioAppRuntime;

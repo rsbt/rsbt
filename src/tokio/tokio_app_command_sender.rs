@@ -1,6 +1,6 @@
 use crate::{
     commands::Command,
-    tasks::{AppCommandSender, Sender},
+    application::{AppCommandSender, Sender},
     tokio::{TokioApp, TokioSender},
     RsbtResult,
 };

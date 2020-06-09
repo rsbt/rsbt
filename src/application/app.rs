@@ -1,9 +1,9 @@
 use crate::{
-    methods::{AnyResult, Method},
-    tasks::{
+    application::{
         AppCommandChannel, AppCommandReceiver, AppCommandSender, AppHandler, AppProperties,
         AppRuntime, OneshotChannel,
     },
+    methods::{AnyResult, Method},
 };
 use async_trait::async_trait;
 use futures::{future::BoxFuture, StreamExt};
@@ -34,9 +34,7 @@ pub trait App: Send + Sized + 'static {
     }
 
     fn spawn(self) -> BoxFuture<'static, ()> {
-        Self::Runtime::spawn(async move {
-            self.run().await;
-        })
+        Self::Runtime::spawn(self.run())
     }
 
     fn properties(&self) -> Arc<Self::Properties>;
@@ -47,7 +45,7 @@ pub trait App: Send + Sized + 'static {
 
     async fn run(mut self) {
         if let Some(mut command_receiver) = self.command_receiver().take() {
-            let f = async move {
+            let command_loop = async move {
                 while let Some(cmd) = command_receiver.next().await {
                     cmd.exec(&mut self).await;
                     if !self.is_running() {
@@ -55,7 +53,7 @@ pub trait App: Send + Sized + 'static {
                     }
                 }
             };
-            f.await;
+            command_loop.await;
         } else {
             panic!("you must set app command receiver");
         }

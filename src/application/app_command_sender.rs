@@ -1,6 +1,6 @@
 use crate::{
     commands::Command,
-    tasks::{App, Sender},
+    application::{App, Sender},
     RsbtResult,
 };
 use async_trait::async_trait;

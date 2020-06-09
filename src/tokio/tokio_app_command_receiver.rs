@@ -1,6 +1,6 @@
 use crate::{
     commands::Command,
-    tasks::{AppCommandReceiver, Receiver},
+    application::{AppCommandReceiver, Receiver},
     tokio::{TokioApp, TokioReceiver},
 };
 use futures::stream::Stream;

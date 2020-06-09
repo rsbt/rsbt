@@ -1,6 +1,6 @@
 use crate::{
     methods::AnyResult,
-    tasks::{App, AppHandler},
+    application::{App, AppHandler},
     tokio::{
         TokioAppCommandChannel, TokioAppCommandReceiver, TokioAppCommandSender, TokioAppRuntime,
         TokioOneshotChannel,

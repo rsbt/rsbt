@@ -1,6 +1,6 @@
 use crate::{
     methods::{AnyRequest, AnyResult, Method},
-    tasks::{App, OneshotChannel, OneshotSender},
+    application::{App, OneshotChannel, OneshotSender},
 };
 use async_trait::async_trait;
 

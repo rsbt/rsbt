@@ -1,6 +1,6 @@
 use crate::{
     commands::Command,
-    tasks::AppCommandChannel,
+    application::AppCommandChannel,
     tokio::{TokioApp, TokioAppCommandReceiver, TokioAppCommandSender, TokioReceiver, TokioSender},
 };
 use tokio::sync::mpsc;
