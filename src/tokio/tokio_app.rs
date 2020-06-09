@@ -3,7 +3,7 @@ use crate::{
     methods::AnyResult,
     tokio::{
         TokioAppCommandChannel, TokioAppCommandReceiver, TokioAppCommandSender, TokioAppRuntime,
-        TokioOneshotChannel,
+        TokioOneshotChannel, TokioSocketListener, TokioSocketStream,
     },
     RsbtAppProperties,
 };
@@ -26,6 +26,8 @@ impl App for TokioApp {
     type Properties = RsbtAppProperties;
     type Runtime = TokioAppRuntime;
     type AnyResultOneshotChannel = TokioOneshotChannel<AnyResult>;
+    type SocketStream = TokioSocketStream;
+    type SocketListener = TokioSocketListener;
 
     fn init(
         properties: Self::Properties,

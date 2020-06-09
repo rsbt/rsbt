@@ -1,3 +1,7 @@
-use std::fmt::Debug;
+use std::{net::SocketAddr, fmt::Debug};
 
-pub trait AppProperties: Debug {}
+pub trait AppProperties: Send + Sync + Debug {
+
+    fn listen_addr(&self) -> &SocketAddr;
+
+}

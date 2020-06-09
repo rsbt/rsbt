@@ -3,11 +3,14 @@ use crate::{
         AppCommandChannel, AppCommandReceiver, AppCommandSender, AppHandler, AppProperties,
         AppRuntime,
     },
-    bridge::OneshotChannel,
+    bridge::{OneshotChannel, SocketListener, SocketStream},
     methods::{AnyResult, Method},
 };
 use async_trait::async_trait;
-use futures::{future::BoxFuture, StreamExt};
+use futures::{
+    future::{join, BoxFuture},
+    StreamExt,
+};
 use std::sync::Arc;
 
 #[async_trait]
@@ -18,6 +21,8 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
     type Properties: AppProperties;
     type Runtime: AppRuntime;
     type AnyResultOneshotChannel: OneshotChannel<Self, AnyResult>;
+    type SocketStream: SocketStream;
+    type SocketListener: SocketListener<Self::SocketStream>;
 
     fn init(
         properties: Self::Properties,
@@ -46,6 +51,11 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
 
     async fn run(mut self) {
         if let Some(mut command_receiver) = self.command_receiver().take() {
+            let properties = self.properties();
+            let app_handler = self.app_handler().clone();
+            let incoming_connections_loop = async move {
+                Self::SocketListener::bind(*properties.listen_addr()).await;
+            };
             let command_loop = async move {
                 while let Some(cmd) = command_receiver.next().await {
                     cmd.exec(&mut self).await;
@@ -54,7 +64,7 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
                     }
                 }
             };
-            command_loop.await;
+            join(command_loop, incoming_connections_loop).await;
         } else {
             panic!("you must set app command receiver");
         }

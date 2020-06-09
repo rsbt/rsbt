@@ -4,7 +4,7 @@ use std::fmt::Debug;
 use tokio::sync::mpsc;
 
 #[derive(Debug)]
-pub(crate) struct TokioSender<M>(mpsc::Sender<M>);
+pub struct TokioSender<M>(mpsc::Sender<M>);
 
 impl<M> Clone for TokioSender<M> {
     fn clone(&self) -> Self {
