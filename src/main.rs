@@ -1,8 +1,10 @@
 use futures::future::join;
 use rsbt_draf::{App, RsbtAppProperties, RsbtResult, TokioApp};
+use env_logger;
 
 #[tokio::main]
 async fn main() -> RsbtResult<()> {
+    env_logger::init();
     let properties = Default::default();
 
     let app = TokioApp::new(properties);
