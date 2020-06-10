@@ -1,5 +1,5 @@
 use futures::future::join;
-use rsbt_draf::{App, RsbtAppProperties, RsbtResult, TokioApp};
+use rsbt::{App, RsbtAppProperties, RsbtResult, TokioApp};
 use env_logger;
 
 #[tokio::main]
