@@ -1,5 +1,5 @@
 /*!
-# rsbt-draf description
+# rsbt description
 
 ## Features
 
@@ -9,7 +9,7 @@ Add dependency to Cargo.toml:
 
 ```toml
 [dependencies]
-rsbt-draf = "0.1"
+rsbt = "0.1"
 ```
 
 */

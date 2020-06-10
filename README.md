@@ -1,4 +1,6 @@
-# rsbt-draf description
+# rsbt description
+
+This is placeholder for future migration of <https://github.com/kilork/rustorrent>.
 
 ## Legal
 
@@ -12,5 +14,5 @@ Add dependency to Cargo.toml:
 
 ```toml
 [dependencies]
-rsbt-draf = "0.1"
+rsbt = "0.1"
 ```

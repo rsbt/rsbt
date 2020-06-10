@@ -1,17 +1,17 @@
 [package]
-name = "rsbt-draf"
-version = "0.1.0"
+name = "rsbt"
+version = "0.1.1"
 authors = ["Alexander Korolev <kilork@yandex.ru>"]
 edition = "2018"
 categories = []
 description = """
-rsbt-draf description.
+rsbt description.
 """
-homepage = "https://github.com/kilork/rsbt-draf"
+homepage = "https://github.com/rsbt/rsbt"
 keywords = []
 license = "Unlicense OR MIT"
 readme = "README.md"
-repository = "https://github.com/kilork/rsbt-draf"
+repository = "https://github.com/rsbt/rsbt"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
