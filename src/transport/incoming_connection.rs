@@ -1,5 +1,5 @@
 use crate::{
-    application::AppProperties,
+    application::{AppProperties, AppRuntime},
     bridge::{OneshotChannel, SocketListener, SocketStream},
     App, AppHandler,
 };
@@ -18,17 +18,36 @@ pub trait IncomingConnection<A: App>: sealed::IncomingConnectionPriv {
             Ok(mut listener) => {
                 while let Some(socket) = listener.next().await {
                     debug!("peer connection attempted...");
+                    match socket {
+                        Ok(socket) => {
+                            let app_handler = app_handler.clone();
+                            A::Runtime::spawn(async move {
+                                sealed::process_incoming_connection(socket, app_handler).await;
+                            });
+                        }
+                        Err(err) => {
+                            // FIXME: need to check which class of errors come here
+                        }
+                    }
                 }
             }
             Err(err) => {
                 error!("{}", err);
+                // FIXME: ask app about it is running
+                // if running - sleep retry interval
             }
         }
     }
 }
 
 mod sealed {
-    use crate::{transport::DefaultIncomingConnection, App};
+    use crate::{bridge::SocketStream, transport::DefaultIncomingConnection, App, AppHandler};
+
+    pub async fn process_incoming_connection<S: SocketStream, A: App>(
+        socket: S,
+        app_handler: AppHandler<A>,
+    ) {
+    }
 
     pub trait IncomingConnectionPriv {}
 

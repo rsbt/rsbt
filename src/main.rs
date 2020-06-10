@@ -1,6 +1,6 @@
+use env_logger;
 use futures::future::join;
 use rsbt::{App, RsbtAppProperties, RsbtResult, TokioApp};
-use env_logger;
 
 #[tokio::main]
 async fn main() -> RsbtResult<()> {

@@ -5,7 +5,8 @@ use crate::{
         TestOneshotChannel, TestSocketListener, TestSocketStream,
     },
     tokio::{TokioAppRuntime, TokioOneshotChannel},
-    App, AppHandler, RsbtAppProperties, transport::DefaultIncomingConnection,
+    transport::DefaultIncomingConnection,
+    App, AppHandler, RsbtAppProperties,
 };
 use async_trait::async_trait;
 use std::sync::Arc;

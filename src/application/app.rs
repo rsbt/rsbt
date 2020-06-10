@@ -55,7 +55,8 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
         if let Some(mut command_receiver) = self.command_receiver().take() {
             let properties = self.properties();
             let app_handler = self.app_handler().clone();
-            let incoming_connections_loop = Self::IncomingConnection::process(properties, app_handler);
+            let incoming_connections_loop =
+                Self::IncomingConnection::process(properties, app_handler);
             let command_loop = async move {
                 while let Some(cmd) = command_receiver.next().await {
                     cmd.exec(&mut self).await;
