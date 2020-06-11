@@ -1,11 +1,7 @@
-use std::{error::Error, fmt};
-#[derive(Debug)]
-pub struct RsbtError;
+use thiserror::Error;
 
-impl fmt::Display for RsbtError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "RsbtError is here!")
-    }
+#[derive(Error, Debug)]
+pub enum RsbtError {
+    #[error("handshake failure {0}")]
+    Handshake(String),
 }
-
-impl Error for RsbtError {}

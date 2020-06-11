@@ -17,10 +17,10 @@ repository = "https://github.com/rsbt/rsbt"
 
 [dependencies]
 anyhow = "1.0"
+thiserror = "1.0"
 
 nom = "5"
 structopt = "0.3"
-failure = "0.1"
 log = "0.4"
 
 dirs = "2"

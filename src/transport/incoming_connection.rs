@@ -58,8 +58,11 @@ mod sealed {
         app_handler: AppHandler<A>,
     ) -> RsbtResult<()> {
         let mut incoming_handshake = vec![0u8; 68];
+
         debug!("read incoming handshake");
+
         socket.read_exact(&mut incoming_handshake).await?;
+
         debug!("done...");
 
         todo!();
