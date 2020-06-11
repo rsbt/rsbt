@@ -19,7 +19,6 @@ repository = "https://github.com/rsbt/rsbt"
 anyhow = "1.0"
 thiserror = "1.0"
 
-nom = "5"
 structopt = "0.3"
 log = "0.4"
 
@@ -51,3 +50,6 @@ byteorder = "1.3"
 toml = "0.5"
 
 env_logger = "0.7"
+
+rsbt-bencode = { path = "../rsbt-bencode" }
+rsbt-types = { path = "../rsbt-types" }
