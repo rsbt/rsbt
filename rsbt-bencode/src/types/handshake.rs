@@ -16,3 +16,18 @@ impl TryFrom<Vec<u8>> for Handshake {
         parse_handshake(&value)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{Handshake, SHA1_SIZE};
+    use std::mem::size_of;
+
+    fn size_check<T>(required: usize) {
+        assert_eq!(size_of::<T>(), required);
+    }
+
+    #[test]
+    fn size_checks() {
+        size_check::<Handshake>(20 + 8 + SHA1_SIZE + 20)
+    }
+}

@@ -52,6 +52,8 @@ mod sealed {
     };
     use futures::AsyncReadExt;
     use log::debug;
+    use rsbt_bencode::Handshake;
+    use std::convert::TryInto;
 
     pub async fn process_incoming_connection<S: SocketStream, A: App>(
         mut socket: S,
@@ -62,6 +64,8 @@ mod sealed {
         debug!("read incoming handshake");
 
         socket.read_exact(&mut incoming_handshake).await?;
+
+        let handshake: Handshake = incoming_handshake.try_into()?;
 
         debug!("done...");
 

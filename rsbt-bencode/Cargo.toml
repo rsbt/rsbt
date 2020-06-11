@@ -17,3 +17,4 @@ repository = "https://github.com/rsbt/rsbt"
 
 [dependencies]
 nom = "5"
+thiserror = "1.0"

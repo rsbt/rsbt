@@ -1,3 +1,3 @@
 mod handshake;
 
-pub(crate) use handshake::Handshake;
+pub use handshake::Handshake;
