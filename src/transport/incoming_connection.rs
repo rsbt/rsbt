@@ -22,11 +22,17 @@ pub trait IncomingConnection<A: App>: sealed::IncomingConnectionPriv {
                         Ok(socket) => {
                             let app_handler = app_handler.clone();
                             A::Runtime::spawn(async move {
-                                sealed::process_incoming_connection(socket, app_handler).await;
+                                debug!("process incoming connection");
+                                if let Err(err) =
+                                    sealed::process_incoming_connection(socket, app_handler).await
+                                {
+                                    error!("peer connection attempt processing failed: {}", err);
+                                }
                             });
                         }
                         Err(err) => {
                             // FIXME: need to check which class of errors come here
+                            error!("peer connection attempt failed: {}", err);
                         }
                     }
                 }
@@ -41,12 +47,24 @@ pub trait IncomingConnection<A: App>: sealed::IncomingConnectionPriv {
 }
 
 mod sealed {
-    use crate::{bridge::SocketStream, transport::DefaultIncomingConnection, App, AppHandler};
+    use crate::{
+        bridge::SocketStream, transport::DefaultIncomingConnection, App, AppHandler, RsbtResult,
+    };
+    use futures::AsyncReadExt;
+    use log::debug;
 
     pub async fn process_incoming_connection<S: SocketStream, A: App>(
-        socket: S,
+        mut socket: S,
         app_handler: AppHandler<A>,
-    ) {
+    ) -> RsbtResult<()> {
+        let mut incoming_handshake = vec![0u8; 68];
+        debug!("read incoming handshake");
+        socket.read_exact(&mut incoming_handshake).await?;
+        debug!("done...");
+
+        todo!();
+
+        Ok(())
     }
 
     pub trait IncomingConnectionPriv {}

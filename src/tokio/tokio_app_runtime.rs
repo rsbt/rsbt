@@ -1,15 +1,16 @@
-use crate::application::AppRuntime;
-use futures::future::BoxFuture;
+use crate::{application::AppRuntime, RsbtResult};
+use futures::{future::BoxFuture, Future, FutureExt};
 
 pub struct TokioAppRuntime;
 
 impl AppRuntime for TokioAppRuntime {
-    fn spawn<F>(f: F) -> BoxFuture<'static, ()>
+    fn spawn<F>(f: F) -> BoxFuture<'static, RsbtResult<F::Output>>
     where
-        F: futures::Future<Output = ()> + Send + 'static,
+        F: Future + Send + 'static,
+        F::Output: Send + 'static,
     {
-        Box::pin(async move {
-            tokio::spawn(f);
-        })
+        tokio::spawn(f)
+            .map(|x| x.map_err(anyhow::Error::from))
+            .boxed()
     }
 }

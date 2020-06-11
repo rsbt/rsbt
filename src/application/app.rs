@@ -6,6 +6,7 @@ use crate::{
     bridge::{OneshotChannel, SocketListener, SocketStream},
     methods::{AnyResult, Method},
     transport::IncomingConnection,
+    RsbtResult,
 };
 use async_trait::async_trait;
 use futures::{
@@ -41,7 +42,7 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
         )
     }
 
-    fn spawn(self) -> BoxFuture<'static, ()> {
+    fn spawn(self) -> BoxFuture<'static, RsbtResult<()>> {
         Self::Runtime::spawn(self.run())
     }
 
