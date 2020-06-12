@@ -5,8 +5,9 @@ use crate::{
     },
     bridge::{OneshotChannel, SocketListener, SocketStream},
     methods::{AnyResult, Method},
+    torrent::TorrentProcess,
     transport::IncomingConnection,
-    RsbtResult,
+    RsbtResult, SHA1_SIZE,
 };
 use async_trait::async_trait;
 use futures::{
@@ -75,6 +76,10 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
     fn is_running(&self) -> bool;
 
     async fn quit(&mut self);
+
+    fn find_torrent_by_hash_id(&self, hash_id: &[u8; SHA1_SIZE]) -> Option<&TorrentProcess> {
+        todo!()
+    }
 }
 
 mod sealed {

@@ -10,7 +10,7 @@ use tokio::sync::oneshot;
 #[derive(Debug)]
 pub struct TokioOneshotReceiver<M>(oneshot::Receiver<M>);
 
-impl<M: Debug> OneshotReceiver<M> for TokioOneshotReceiver<M> {}
+impl<M: Debug + Send> OneshotReceiver<M> for TokioOneshotReceiver<M> {}
 
 impl<M> Future for TokioOneshotReceiver<M> {
     type Output = RsbtResult<M>;

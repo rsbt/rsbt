@@ -50,26 +50,40 @@ mod sealed {
     use crate::{
         bridge::SocketStream, transport::DefaultIncomingConnection, App, AppHandler, RsbtResult,
     };
-    use futures::AsyncReadExt;
+    use futures::{AsyncReadExt, AsyncWriteExt};
     use log::debug;
     use rsbt_bencode::Handshake;
     use std::convert::TryInto;
 
     pub async fn process_incoming_connection<S: SocketStream, A: App>(
         mut socket: S,
-        app_handler: AppHandler<A>,
+        mut app_handler: AppHandler<A>,
     ) -> RsbtResult<()> {
         let mut incoming_handshake = vec![0u8; 68];
 
-        debug!("read incoming handshake");
+        debug!("reading incoming handshake...");
 
         socket.read_exact(&mut incoming_handshake).await?;
 
+        debug!("handshake received");
+
+        debug!("parsing handshake...");
+
         let handshake: Handshake = incoming_handshake.try_into()?;
 
-        debug!("done...");
+        debug!("handshake parsed");
 
-        todo!();
+        debug!("finding a torrent process by hash id...");
+        if let Some(mut torrent_token) = app_handler
+            .find_torrent_by_hash_id(&handshake.info_hash)
+            .await?
+        {
+            socket.write_all(torrent_token.handshake()).await?;
+
+            torrent_token.accept_peer_connection(socket).await?;
+        } else {
+            debug!("torrent not found, closing connection");
+        }
 
         Ok(())
     }

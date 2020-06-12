@@ -1,9 +1,10 @@
 use crate::{
     application::App,
     bridge::{OneshotChannel, Sender},
-    commands::{Command, CommandRequestQuit},
+    commands::{Command, CommandRequestFindTorrentByHashId, CommandRequestQuit},
     methods::AnyRequest,
-    RsbtResult,
+    torrent::TorrentToken,
+    RsbtResult, SHA1_SIZE,
 };
 use std::any::Any;
 
@@ -51,6 +52,14 @@ where
 
     pub async fn quit(&mut self) -> RsbtResult<()> {
         self.request(CommandRequestQuit).await
+    }
+
+    pub async fn find_torrent_by_hash_id(
+        &mut self,
+        hash_id: &[u8; SHA1_SIZE],
+    ) -> RsbtResult<Option<TorrentToken>> {
+        self.request(CommandRequestFindTorrentByHashId::from(hash_id))
+            .await
     }
 }
 
