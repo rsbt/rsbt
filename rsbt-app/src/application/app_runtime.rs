@@ -1,8 +1,5 @@
 use crate::RsbtResult;
-use futures::{
-    future::{BoxFuture, LocalBoxFuture},
-    Future,
-};
+use futures::{future::BoxFuture, Future};
 use std::time::Duration;
 
 pub trait AppRuntime {
@@ -11,8 +8,8 @@ pub trait AppRuntime {
         F: Future + Send + 'static,
         F::Output: Send + 'static;
 
-    fn delay_for(duration: Duration) -> LocalBoxFuture<'static, ()>;
-    fn timeout<T>(duration: Duration, future: T) -> LocalBoxFuture<'static, RsbtResult<T::Output>>
+    fn delay_for(duration: Duration) -> BoxFuture<'static, ()>;
+    fn timeout<T>(duration: Duration, future: T) -> BoxFuture<'static, RsbtResult<T::Output>>
     where
-        T: Future + 'static;
+        T: Future + Send + 'static;
 }

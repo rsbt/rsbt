@@ -8,39 +8,51 @@ use futures::{
     future::{join, BoxFuture},
     StreamExt,
 };
-use log::{debug, error};
-use std::sync::Arc;
+use log::{debug, error, info};
+use std::{sync::Arc, time::Duration};
 
 #[async_trait]
 pub trait IncomingConnection<A: App>: sealed::IncomingConnectionPriv {
     async fn process(properties: Arc<A::Properties>, app_handler: AppHandler<A>) {
-        match A::SocketListener::bind(*properties.listen_addr()).await {
-            Ok(mut listener) => {
-                while let Some(socket) = listener.next().await {
-                    debug!("peer connection attempted...");
-                    match socket {
-                        Ok(socket) => {
-                            let app_handler = app_handler.clone();
-                            A::Runtime::spawn(async move {
-                                debug!("process incoming connection");
-                                if let Err(err) =
-                                    sealed::process_incoming_connection(socket, app_handler).await
-                                {
-                                    error!("peer connection attempt processing failed: {}", err);
-                                }
-                            });
-                        }
-                        Err(err) => {
-                            // FIXME: need to check which class of errors come here
-                            error!("peer connection attempt failed: {}", err);
+        let listen_addr = *properties.listen_addr();
+
+        info!("incoming connection listener on {}", listen_addr);
+
+        loop {
+            match A::SocketListener::bind(listen_addr).await {
+                Ok(mut listener) => {
+                    while let Some(socket) = listener.next().await {
+                        debug!("peer connection attempted...");
+                        match socket {
+                            Ok(socket) => {
+                                let app_handler = app_handler.clone();
+                                A::Runtime::spawn(async move {
+                                    debug!("process incoming connection");
+                                    if let Err(err) =
+                                        sealed::process_incoming_connection(socket, app_handler)
+                                            .await
+                                    {
+                                        error!(
+                                            "peer connection attempt processing failed: {}",
+                                            err
+                                        );
+                                    }
+                                });
+                            }
+                            Err(err) => {
+                                // FIXME: need to check which class of errors come here
+                                error!("peer connection attempt failed: {}", err);
+                            }
                         }
                     }
                 }
-            }
-            Err(err) => {
-                error!("{}", err);
-                // FIXME: ask app about it is running
-                // if running - sleep retry interval
+                Err(err) => {
+                    error!("cannot start listener: {}", err);
+                    // FIXME: ask app about it is running
+                    // if running - sleep retry interval
+                    error!("retry in 5 seconds...");
+                    A::Runtime::delay_for(Duration::from_secs(5)).await;
+                }
             }
         }
     }

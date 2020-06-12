@@ -18,16 +18,16 @@ impl AppRuntime for TokioAppRuntime {
             .boxed()
     }
 
-    fn delay_for(duration: Duration) -> LocalBoxFuture<'static, ()> {
-        tokio::time::delay_for(duration).boxed_local()
+    fn delay_for(duration: Duration) -> BoxFuture<'static, ()> {
+        tokio::time::delay_for(duration).boxed()
     }
 
-    fn timeout<T>(duration: Duration, future: T) -> LocalBoxFuture<'static, RsbtResult<T::Output>>
+    fn timeout<T>(duration: Duration, future: T) -> BoxFuture<'static, RsbtResult<T::Output>>
     where
-        T: Future + 'static,
+        T: Future + Send + 'static,
     {
         tokio::time::timeout(duration, future)
             .map(|x| x.map_err(anyhow::Error::from))
-            .boxed_local()
+            .boxed()
     }
 }
