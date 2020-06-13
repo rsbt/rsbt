@@ -31,12 +31,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::Command;
-    use crate::TokioApp;
-    use std::mem::size_of;
-
-    fn size_check<T>(required: usize) {
-        assert_eq!(size_of::<T>(), size_of::<usize>() * required);
-    }
+    use crate::{tests_common::size_check, TokioApp};
 
     #[test]
     fn size_checks() {

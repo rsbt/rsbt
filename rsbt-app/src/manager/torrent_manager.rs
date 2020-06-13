@@ -1,5 +1,7 @@
 use crate::App;
 
-pub trait TorrentManager<A: App> {}
+pub trait TorrentManager<A: App>: private::TorrentManagerPriv {}
 
-mod sealed {}
+mod private {
+    pub trait TorrentManagerPriv {}
+}

@@ -1,6 +1,13 @@
-use crate::{bridge::SocketStream, RsbtResult};
+use crate::{
+    bridge::SocketStream,
+    torrent::{TorrentHeader, TorrentProcess},
+    RsbtResult,
+};
+use std::sync::Arc;
 
-pub struct TorrentToken;
+pub struct TorrentToken {
+    header: Arc<TorrentHeader>,
+}
 
 impl TorrentToken {
     pub(crate) fn handshake(&self) -> &[u8] {
@@ -12,5 +19,11 @@ impl TorrentToken {
         socket: S,
     ) -> RsbtResult<()> {
         todo!()
+    }
+}
+
+impl From<Arc<TorrentHeader>> for TorrentToken {
+    fn from(header: Arc<TorrentHeader>) -> Self {
+        Self { header }
     }
 }

@@ -12,7 +12,7 @@ use log::{debug, error, info};
 use std::{sync::Arc, time::Duration};
 
 #[async_trait]
-pub trait IncomingConnection<A: App>: sealed::IncomingConnectionPriv {
+pub trait IncomingConnection<A: App>: private::IncomingConnectionPriv {
     async fn process(properties: Arc<A::Properties>, app_handler: AppHandler<A>) {
         let listen_addr = *properties.listen_addr();
 
@@ -29,7 +29,7 @@ pub trait IncomingConnection<A: App>: sealed::IncomingConnectionPriv {
                                 A::Runtime::spawn(async move {
                                     debug!("process incoming connection");
                                     if let Err(err) =
-                                        sealed::process_incoming_connection(socket, app_handler)
+                                        private::process_incoming_connection(socket, app_handler)
                                             .await
                                     {
                                         error!(
@@ -58,7 +58,7 @@ pub trait IncomingConnection<A: App>: sealed::IncomingConnectionPriv {
     }
 }
 
-mod sealed {
+mod private {
     use crate::{
         bridge::SocketStream, transport::DefaultIncomingConnection, App, AppHandler, RsbtResult,
     };
