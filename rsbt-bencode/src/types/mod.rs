@@ -8,7 +8,9 @@ mod torrent_info;
 mod torrent_info_file;
 mod torrent_info_file_raw;
 mod torrent_info_raw;
+mod message;
 
+pub use message::Message;
 pub use bendcode::{BencodeBlob, BencodeValue};
 pub use handshake::Handshake;
 pub use peer::Peer;
