@@ -4,6 +4,7 @@ use crate::{
 };
 use nom::character::complete::digit1;
 use nom::*;
+use std::str::from_utf8;
 
 macro_rules! recognize_map (
     ($i:expr, $submac:ident!( $($args:tt)* ), $g:expr) => (
@@ -28,7 +29,7 @@ named!(
 
 named!(
     integer<i64>,
-    map_res!(map_res!(integer_literal, std::str::from_utf8), |s: &str| {
+    map_res!(map_res!(integer_literal, from_utf8), |s: &str| {
         s.parse::<i64>()
     })
 );
@@ -40,9 +41,7 @@ named!(
 
 named!(
     bencode_string_s<String>,
-    do_parse!(
-        len: integer >> char!(':') >> s: map_res!(take!(len), std::str::from_utf8) >> (s.into())
-    )
+    do_parse!(len: integer >> char!(':') >> s: map_res!(take!(len), from_utf8) >> (s.into()))
 );
 
 named!(
@@ -85,7 +84,9 @@ named!(
 );
 
 pub fn parse_bencode(bytes: &[u8]) -> Result<BencodeBlob, RsbtBencodeError> {
-    parser_bencode(bytes).map(|x| x.1).map_err(RsbtBencodeError::from)
+    parser_bencode(bytes)
+        .map(|x| x.1)
+        .map_err(RsbtBencodeError::from)
 }
 
 #[cfg(test)]

@@ -1,5 +1,5 @@
 use crate::count_parts;
-use crate::types::{PieceChecksum, TorrentInfoFileRaw, TorrentInfoRaw, TorrentInfoFile};
+use crate::types::{PieceChecksum, TorrentInfoFile, TorrentInfoFileRaw, TorrentInfoRaw};
 use crate::{BLOCK_SIZE, SHA1_SIZE};
 use serde::Deserialize;
 use std::convert::TryInto;

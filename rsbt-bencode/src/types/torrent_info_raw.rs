@@ -1,6 +1,6 @@
 use crate::SHA1_SIZE;
 use crate::{
-    types::{TorrentInfoFileRaw, BencodeBlob},
+    types::{BencodeBlob, TorrentInfoFileRaw},
     RsbtBencodeError,
 };
 use std::convert::{TryFrom, TryInto};

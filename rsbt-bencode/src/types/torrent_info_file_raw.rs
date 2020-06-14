@@ -1,7 +1,6 @@
 use crate::{
-    TryFromBencode,
     types::{BencodeBlob, BencodeValue},
-    RsbtBencodeError,
+    RsbtBencodeError, TryFromBencode,
 };
 use std::convert::{TryFrom, TryInto};
 

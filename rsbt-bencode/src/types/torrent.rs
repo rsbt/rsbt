@@ -1,9 +1,6 @@
 use crate::SHA1_SIZE;
 use crate::{
-    types::{
-        TorrentInfo, TorrentInfoRaw,
-        BencodeBlob,
-    },
+    types::{BencodeBlob, TorrentInfo, TorrentInfoRaw},
     RsbtBencodeError,
 };
 use sha1::{Digest, Sha1};
