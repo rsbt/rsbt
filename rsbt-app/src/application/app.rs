@@ -11,9 +11,10 @@ use crate::{
 };
 use async_trait::async_trait;
 use futures::{
-    future::{join, BoxFuture},
+    future::{abortable, join, BoxFuture},
     StreamExt,
 };
+use log::error;
 use std::sync::Arc;
 
 #[async_trait]
@@ -59,6 +60,8 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
             let app_handler = self.app_handler().clone();
             let incoming_connections_loop =
                 Self::IncomingConnection::process(properties, app_handler);
+            let (incoming_connections_loop, incoming_connections_abort_handler) =
+                abortable(incoming_connections_loop);
             let command_loop = async move {
                 while let Some(cmd) = command_receiver.next().await {
                     cmd.exec(&mut self).await;
@@ -66,8 +69,9 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
                         break;
                     }
                 }
+                incoming_connections_abort_handler.abort();
             };
-            join(command_loop, incoming_connections_loop).await;
+            let (_, _) = join(command_loop, incoming_connections_loop).await;
         } else {
             panic!("you must set the app command receiver");
         }
