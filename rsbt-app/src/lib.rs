@@ -59,10 +59,6 @@ pub const DEFAULT_CHANNEL_BUFFER: usize = 256;
 
 //FIXME: pub(crate) const KEEP_ALIVE_INTERVAL: Duration = Duration::from_secs(110);
 
-pub(crate) fn count_parts(total: usize, part_size: usize) -> usize {
-    total / part_size + if total % part_size != 0 { 1 } else { 0 }
-}
-
 pub fn default_app_dir() -> PathBuf {
     dirs::home_dir().unwrap().join(".rsbt")
 }
