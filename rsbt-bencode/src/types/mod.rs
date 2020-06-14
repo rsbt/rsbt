@@ -1,6 +1,7 @@
 #[macro_use]
 mod bendcode;
 mod handshake;
+mod message;
 mod peer;
 mod piece_checksum;
 mod torrent;
@@ -8,11 +9,10 @@ mod torrent_info;
 mod torrent_info_file;
 mod torrent_info_file_raw;
 mod torrent_info_raw;
-mod message;
 
-pub use message::Message;
 pub use bendcode::{BencodeBlob, BencodeValue};
 pub use handshake::Handshake;
+pub use message::Message;
 pub use peer::Peer;
 pub use piece_checksum::PieceChecksum;
 pub use torrent::Torrent;
