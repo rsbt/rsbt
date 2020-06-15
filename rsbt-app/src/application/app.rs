@@ -5,7 +5,7 @@ use crate::{
     },
     bridge::{OneshotChannel, SocketListener, SocketStream},
     methods::{AnyResult, Method},
-    torrent::TorrentProcess,
+    torrent::{TorrentProcess, TorrentProcessStatus, TorrentToken},
     transport::IncomingConnection,
     RsbtResult, SHA1_SIZE,
 };
@@ -76,6 +76,15 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
         } else {
             panic!("you must set the app command receiver");
         }
+    }
+
+    async fn add_torrent(
+        &mut self,
+        data: Vec<u8>,
+        filename: String,
+        state: TorrentProcessStatus,
+    ) -> RsbtResult<TorrentToken> {
+        todo!()
     }
 
     fn is_running(&self) -> bool;

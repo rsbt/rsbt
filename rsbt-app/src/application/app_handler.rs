@@ -1,9 +1,9 @@
 use crate::{
     application::App,
     bridge::{OneshotChannel, Sender},
-    commands::{Command, CommandRequestAny, CommandRequestFindTorrentByHashId},
+    commands::{Command, CommandRequestAny},
     methods::AnyRequest,
-    torrent::TorrentToken,
+    torrent::{TorrentProcessStatus, TorrentToken},
     RsbtResult, SHA1_SIZE,
 };
 use futures::{
@@ -75,6 +75,18 @@ where
         }
         .boxed()))
             .await
+    }
+
+    pub async fn add_torrent(
+        &mut self,
+        data: Vec<u8>,
+        filename: String,
+        state: TorrentProcessStatus,
+    ) -> RsbtResult<TorrentToken> {
+        self.request(command_request_any!(move |x: &mut A| {
+            x.add_torrent(data, filename, state).boxed()
+        }))
+        .await
     }
 }
 
