@@ -9,7 +9,7 @@ use async_trait::async_trait;
 pub enum Command<A: App> {
     Request(
         <A::AnyResultOneshotChannel as OneshotChannel<A, AnyResult>>::OneshotSender,
-        Box<dyn AnyRequest<A> + 'static + Send>,
+        Box<dyn AnyRequest<A> + Send>,
     ),
 }
 

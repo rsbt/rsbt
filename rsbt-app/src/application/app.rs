@@ -44,7 +44,7 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
         )
     }
 
-    fn spawn(self) -> BoxFuture<'static, RsbtResult<()>> {
+    fn spawn<'a>(self) -> BoxFuture<'a, RsbtResult<()>> {
         Self::Runtime::spawn(self.run())
     }
 
@@ -62,6 +62,7 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
                 Self::IncomingConnection::process(properties, app_handler);
             let (incoming_connections_loop, incoming_connections_abort_handler) =
                 abortable(incoming_connections_loop);
+
             let command_loop = async move {
                 while let Some(cmd) = command_receiver.next().await {
                     cmd.exec(&mut self).await;

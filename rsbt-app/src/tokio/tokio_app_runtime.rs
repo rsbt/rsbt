@@ -8,7 +8,7 @@ use std::time::Duration;
 pub struct TokioAppRuntime;
 
 impl AppRuntime for TokioAppRuntime {
-    fn spawn<F>(f: F) -> BoxFuture<'static, RsbtResult<F::Output>>
+    fn spawn<'a, F>(f: F) -> BoxFuture<'a, RsbtResult<F::Output>>
     where
         F: Future + Send + 'static,
         F::Output: Send + 'static,

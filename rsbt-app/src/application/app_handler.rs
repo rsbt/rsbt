@@ -1,11 +1,16 @@
 use crate::{
     application::App,
     bridge::{OneshotChannel, Sender},
-    commands::{Command, CommandRequestFindTorrentByHashId, CommandRequestQuit},
+    commands::{Command, CommandRequestAny, CommandRequestFindTorrentByHashId, CommandRequestQuit},
     methods::AnyRequest,
     torrent::TorrentToken,
     RsbtResult, SHA1_SIZE,
 };
+use futures::{
+    future::{join, BoxFuture, FutureExt},
+    Future, StreamExt,
+};
+use log::debug;
 use std::any::Any;
 
 #[derive(Debug)]
@@ -29,7 +34,7 @@ where
         self.0.send(command).await
     }
 
-    pub async fn request<C: 'static, R>(&mut self, command_request: C) -> RsbtResult<R>
+    pub async fn request<'a, C: 'static, R>(&'a mut self, command_request: C) -> RsbtResult<R>
     where
         C: AnyRequest<A>,
         R: 'static,
@@ -52,6 +57,17 @@ where
 
     pub async fn quit(&mut self) -> RsbtResult<()> {
         self.request(CommandRequestQuit).await
+    }
+
+    pub async fn quit2(&mut self, params: Vec<String>) -> RsbtResult<()> {
+        self.request(CommandRequestAny(Some(Box::new(|x: &mut A| {
+            async move {
+                debug!("some really shitty shit: {}", params[0]);
+                x.quit().await
+            }
+            .boxed()
+        }))))
+        .await
     }
 
     pub async fn find_torrent_by_hash_id(
