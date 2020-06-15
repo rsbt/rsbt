@@ -6,11 +6,7 @@ use crate::{
     torrent::{TorrentProcessStatus, TorrentToken},
     RsbtResult, SHA1_SIZE,
 };
-use futures::{
-    future::{join, BoxFuture, FutureExt},
-    Future, StreamExt,
-};
-use log::debug;
+use futures::future::FutureExt;
 use std::any::Any;
 
 #[derive(Debug)]
@@ -23,8 +19,8 @@ impl<A: App> Clone for AppHandler<A> {
 }
 
 macro_rules! command_request_any {
-    ($expression:expr) => {
-        CommandRequestAny(Some(Box::new($expression)))
+    (|$x:ident| $expression:expr) => {
+        CommandRequestAny(Some(Box::new(move |$x: &mut A| $expression.boxed())))
     };
 }
 
@@ -62,19 +58,17 @@ where
     }
 
     pub async fn quit(&mut self) -> RsbtResult<()> {
-        self.request(command_request_any!(|x: &mut A| { x.quit().boxed() }))
-            .await
+        self.request(command_request_any!(|x| x.quit())).await
     }
 
     pub async fn find_torrent_by_hash_id(
         &mut self,
         hash_id: [u8; SHA1_SIZE],
     ) -> RsbtResult<Option<TorrentToken>> {
-        self.request(command_request_any!(move |o: &mut A| async move {
+        self.request(command_request_any!(|o| async move {
             o.find_torrent_by_hash_id(&hash_id).map(|x| x.token())
-        }
-        .boxed()))
-            .await
+        }))
+        .await
     }
 
     pub async fn add_torrent(
@@ -83,9 +77,9 @@ where
         filename: String,
         state: TorrentProcessStatus,
     ) -> RsbtResult<TorrentToken> {
-        self.request(command_request_any!(move |x: &mut A| {
-            x.add_torrent(data, filename, state).boxed()
-        }))
+        self.request(command_request_any!(
+            |x| x.add_torrent(data, filename, state)
+        ))
         .await
     }
 }
