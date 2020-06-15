@@ -87,7 +87,7 @@ mod private {
 
         debug!("finding a torrent process by hash id...");
         if let Some(mut torrent_token) = app_handler
-            .find_torrent_by_hash_id(&handshake.info_hash)
+            .find_torrent_by_hash_id(handshake.info_hash)
             .await?
         {
             socket.write_all(torrent_token.handshake()).await?;

@@ -16,7 +16,7 @@ async fn main() -> RsbtResult<()> {
     let f1 = app.spawn();
     let f2 = async move {
         debug!("sending quit...");
-        let res = app_handler.quit2(vec!["check me".into()]).await;
+        let res = app_handler.quit().await;
         debug!("done");
         res
     };

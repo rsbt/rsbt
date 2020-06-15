@@ -3,33 +3,25 @@ use async_trait::async_trait;
 use futures::future::BoxFuture;
 use std::fmt::Debug;
 
-#[derive(Debug)]
-pub struct CommandRequestQuit;
-
-#[async_trait]
-impl<T: App> Request<T> for CommandRequestQuit {
-    type RequestResult = ();
-
-    async fn request(&mut self, o: &mut T) -> Self::RequestResult {
-        o.quit().await
-    }
-}
-
 pub struct CommandRequestAny<T: App, R>(
     pub Option<Box<dyn FnOnce(&mut T) -> BoxFuture<'_, R> + Send + Sync>>,
 );
 
-impl<T: App, R: Debug> Debug for CommandRequestAny<T, R> {
+impl<T: App, R> Debug for CommandRequestAny<T, R> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!()
+        write!(f, "CommandRequestAny")
     }
 }
 
 #[async_trait]
-impl<T: App, R: Debug> Request<T> for CommandRequestAny<T, R> {
+impl<T: App, R> Request<T> for CommandRequestAny<T, R> {
     type RequestResult = R;
 
     async fn request(&mut self, o: &mut T) -> Self::RequestResult {
-        self.0.take().unwrap()(o).await
+        if let Some(command) = self.0.take() {
+            command(o).await
+        } else {
+            panic!("cannot call same command twice")
+        }
     }
 }

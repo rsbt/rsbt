@@ -1,7 +1,7 @@
 use crate::{
     application::App,
     bridge::{OneshotChannel, Sender},
-    commands::{Command, CommandRequestAny, CommandRequestFindTorrentByHashId, CommandRequestQuit},
+    commands::{Command, CommandRequestAny, CommandRequestFindTorrentByHashId},
     methods::AnyRequest,
     torrent::TorrentToken,
     RsbtResult, SHA1_SIZE,
@@ -20,6 +20,12 @@ impl<A: App> Clone for AppHandler<A> {
     fn clone(&self) -> Self {
         Self(self.0.clone())
     }
+}
+
+macro_rules! command_request_any {
+    ($expression:expr) => {
+        CommandRequestAny(Some(Box::new($expression)))
+    };
 }
 
 impl<A> AppHandler<A>
@@ -56,25 +62,18 @@ where
     }
 
     pub async fn quit(&mut self) -> RsbtResult<()> {
-        self.request(CommandRequestQuit).await
-    }
-
-    pub async fn quit2(&mut self, params: Vec<String>) -> RsbtResult<()> {
-        self.request(CommandRequestAny(Some(Box::new(|x: &mut A| {
-            async move {
-                debug!("some really shitty shit: {}", params[0]);
-                x.quit().await
-            }
-            .boxed()
-        }))))
-        .await
+        self.request(command_request_any!(|x: &mut A| { x.quit().boxed() }))
+            .await
     }
 
     pub async fn find_torrent_by_hash_id(
         &mut self,
-        hash_id: &[u8; SHA1_SIZE],
+        hash_id: [u8; SHA1_SIZE],
     ) -> RsbtResult<Option<TorrentToken>> {
-        self.request(CommandRequestFindTorrentByHashId::from(hash_id))
+        self.request(command_request_any!(move |o: &mut A| async move {
+            o.find_torrent_by_hash_id(&hash_id).map(|x| x.token())
+        }
+        .boxed()))
             .await
     }
 }
