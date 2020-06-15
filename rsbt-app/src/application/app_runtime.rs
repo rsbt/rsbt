@@ -8,8 +8,9 @@ pub trait AppRuntime {
         F: Future + Send + 'static,
         F::Output: Send + 'static;
 
-    fn delay_for(duration: Duration) -> BoxFuture<'static, ()>;
-    fn timeout<T>(duration: Duration, future: T) -> BoxFuture<'static, RsbtResult<T::Output>>
+    fn delay_for<'a>(duration: Duration) -> BoxFuture<'a, ()>;
+
+    fn timeout<'a, T>(duration: Duration, future: T) -> BoxFuture<'a, RsbtResult<T::Output>>
     where
-        T: Future + Send + 'static;
+        T: Future + Send + 'a;
 }

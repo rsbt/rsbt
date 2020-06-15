@@ -1,8 +1,5 @@
 use crate::{application::AppRuntime, RsbtResult};
-use futures::{
-    future::{BoxFuture, LocalBoxFuture},
-    Future, FutureExt,
-};
+use futures::{future::BoxFuture, Future, FutureExt};
 use std::time::Duration;
 
 pub struct TokioAppRuntime;
@@ -18,13 +15,13 @@ impl AppRuntime for TokioAppRuntime {
             .boxed()
     }
 
-    fn delay_for(duration: Duration) -> BoxFuture<'static, ()> {
+    fn delay_for<'a>(duration: Duration) -> BoxFuture<'a, ()> {
         tokio::time::delay_for(duration).boxed()
     }
 
-    fn timeout<T>(duration: Duration, future: T) -> BoxFuture<'static, RsbtResult<T::Output>>
+    fn timeout<'a, T>(duration: Duration, future: T) -> BoxFuture<'a, RsbtResult<T::Output>>
     where
-        T: Future + Send + 'static,
+        T: Future + Send + 'a,
     {
         tokio::time::timeout(duration, future)
             .map(|x| x.map_err(anyhow::Error::from))
