@@ -46,6 +46,7 @@ pub use commands::Command;
 pub use error::RsbtError;
 pub use properties::RsbtAppProperties;
 pub use result::RsbtResult;
+pub use torrent::TorrentProcessStatus;
 
 pub(crate) const SHA1_SIZE: usize = 20;
 

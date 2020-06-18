@@ -15,7 +15,8 @@ use futures::{
     StreamExt,
 };
 use log::error;
-use std::sync::Arc;
+use rsbt_bencode::Torrent;
+use std::{convert::TryInto, path::PathBuf, sync::Arc};
 
 #[async_trait]
 pub trait App: sealed::AppPriv + Send + Sized + 'static {
@@ -84,6 +85,13 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
         filename: String,
         state: TorrentProcessStatus,
     ) -> RsbtResult<TorrentToken> {
+        let filepath = PathBuf::from(&filename);
+        let name = filepath.file_stem().unwrap().to_string_lossy().into_owned();
+
+        let torrent: Torrent = data.try_into()?;
+        let hash_id = torrent.info_sha1_hash();
+        let info = torrent.info()?;
+
         todo!()
     }
 

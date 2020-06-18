@@ -5,5 +5,5 @@ mod torrent_token;
 
 pub(crate) use torrent_header::TorrentHeader;
 pub(crate) use torrent_process::TorrentProcess;
-pub(crate) use torrent_process_status::TorrentProcessStatus;
+pub use torrent_process_status::TorrentProcessStatus;
 pub(crate) use torrent_token::TorrentToken;
