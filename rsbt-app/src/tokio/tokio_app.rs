@@ -1,5 +1,6 @@
 use crate::{
     application::{App, AppHandler},
+    manager::DefaultTorrentManager,
     methods::AnyResult,
     tokio::{
         TokioAppCommandChannel, TokioAppCommandReceiver, TokioAppCommandSender, TokioAppRuntime,
@@ -30,6 +31,7 @@ impl App for TokioApp {
     type SocketStream = TokioSocketStream;
     type SocketListener = TokioSocketListener;
     type IncomingConnection = DefaultIncomingConnection;
+    type TorrentManager = DefaultTorrentManager;
 
     fn init(
         properties: Self::Properties,
