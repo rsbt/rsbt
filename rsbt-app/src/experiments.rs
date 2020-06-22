@@ -1,8 +1,87 @@
+use crate::{
+    bridge::{OneshotChannel, OneshotSender, Receiver, Sender},
+    methods::{AnyRequest, AnyResult, Method},
+    App, RsbtResult,
+};
+use async_trait::async_trait;
 use futures::{
     future::{join, BoxFuture, FutureExt},
     Future, StreamExt,
 };
+use std::any::Any;
 
+pub enum Action<A: App, B> {
+    Request(
+        <A::AnyResultOneshotChannel as OneshotChannel<A, AnyResult>>::OneshotSender,
+        Box<dyn AnyRequest<B> + Send>,
+    ),
+}
+
+#[async_trait]
+impl<A, B> Method<B> for Action<A, B>
+where
+    A: App,
+    B: Send,
+{
+    async fn exec(self, o: &mut B) {
+        match self {
+            Action::Request(sender, mut any_request) => {
+                let any_result = any_request.any_request(o).await;
+                sender.send(any_result).ok();
+            }
+        }
+    }
+}
+
+#[async_trait]
+trait ActionHandle<A: App, T: 'static + Send> {
+    type Sender: Sender<Action<A, T>, RsbtResult<()>>;
+    fn sender(&mut self) -> &mut Self::Sender;
+
+    async fn send(&mut self, action: Action<A, T>) -> RsbtResult<()> {
+        self.sender().send(action).await
+    }
+
+    async fn request<'a, C: 'static, R>(&'a mut self, action_request: C) -> RsbtResult<R>
+    where
+        C: AnyRequest<T>,
+        R: 'static,
+    {
+        let (sender, receiver) = A::AnyResultOneshotChannel::create();
+
+        self.send(Action::Request(sender, Box::new(action_request)))
+            .await?;
+
+        let result = receiver.await?;
+
+        if let Ok(any) = <Box<dyn Any + Send>>::downcast::<R>(result) {
+            Ok(*any)
+        } else {
+            Err(anyhow::anyhow!(
+                "cannot downcast from request, caller and cally types do not match"
+            ))
+        }
+    }
+}
+
+#[async_trait]
+trait ActionLoop<A: App>: Sized {
+    type Receiver: Receiver<Action<A, Self>>;
+
+    fn action_receiver(&mut self) -> Self::Receiver;
+    async fn action_loop(mut self) {
+        let mut action_receiver = self.action_receiver();
+        while let Some(action) = action_receiver.next().await {
+            action.exec(&mut self).await;
+            if !self.is_running() {
+                break;
+            }
+        }
+    }
+    fn is_running(&self) -> bool;
+}
+
+/*
 struct App {
     receiver: tokio::sync::mpsc::Receiver<Command>,
     state: usize,
@@ -40,3 +119,4 @@ async fn do_it() {
 
     join(f1, f2).await;
 }
+*/
