@@ -57,6 +57,8 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
 
     fn command_receiver(&mut self) -> &mut Option<Self::CommandReceiver>;
 
+    fn torrent_manager(&mut self) -> &mut Self::TorrentManager;
+
     async fn run(mut self) {
         if let Some(mut command_receiver) = self.command_receiver().take() {
             let properties = self.properties();
@@ -87,14 +89,9 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
         filename: String,
         state: TorrentProcessStatus,
     ) -> RsbtResult<TorrentToken> {
-        let filepath = PathBuf::from(&filename);
-        let name = filepath.file_stem().unwrap().to_string_lossy().into_owned();
-
-        let torrent: Torrent = data.try_into()?;
-        let hash_id = torrent.info_sha1_hash();
-        let info = torrent.info()?;
-
-        todo!()
+        self.torrent_manager()
+            .add_torrent(data, filename, state)
+            .await
     }
 
     fn is_running(&self) -> bool;

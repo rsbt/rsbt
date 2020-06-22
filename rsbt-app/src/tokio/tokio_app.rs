@@ -18,6 +18,7 @@ pub struct TokioApp {
     properties: Arc<RsbtAppProperties>,
     app_handler: AppHandler<TokioApp>,
     command_receiver: Option<TokioAppCommandReceiver>,
+    torrent_manager: DefaultTorrentManager,
 }
 
 #[async_trait]
@@ -43,6 +44,7 @@ impl App for TokioApp {
             properties: Arc::new(properties),
             app_handler,
             command_receiver: Some(command_receiver),
+            torrent_manager: DefaultTorrentManager,
         }
     }
 
@@ -64,5 +66,8 @@ impl App for TokioApp {
 
     async fn quit(&mut self) {
         self.running = false;
+    }
+    fn torrent_manager(&mut self) -> &mut Self::TorrentManager {
+        &mut self.torrent_manager
     }
 }

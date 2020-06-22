@@ -48,4 +48,7 @@ impl App for TestApp {
     async fn quit(&mut self) {
         todo!()
     }
+    fn torrent_manager(&mut self) -> &mut Self::TorrentManager {
+        todo!()
+    }
 }
