@@ -1,9 +1,10 @@
 use crate::{
-    manager::DefaultTorrentManager,
+    experiments::Action,
+    manager::DefaultTorrentsManager,
     methods::AnyResult,
     tests::{
         TestAppCommandChannel, TestAppCommandReceiver, TestAppCommandSender, TestAppRuntime,
-        TestOneshotChannel, TestSocketListener, TestSocketStream,
+        TestOneshotChannel, TestReceiver, TestSocketListener, TestSocketStream,
     },
     transport::DefaultIncomingConnection,
     App, AppHandler, RsbtAppProperties,
@@ -25,7 +26,7 @@ impl App for TestApp {
     type SocketStream = TestSocketStream;
     type SocketListener = TestSocketListener;
     type IncomingConnection = DefaultIncomingConnection;
-    type TorrentManager = DefaultTorrentManager;
+    type TorrentManager = DefaultTorrentsManager;
     fn init(
         properties: Self::Properties,
         app_handler: crate::AppHandler<Self>,

@@ -3,8 +3,9 @@ use crate::{
         AppCommandChannel, AppCommandReceiver, AppCommandSender, AppHandler, AppProperties,
         AppRuntime,
     },
-    bridge::{OneshotChannel, SocketListener, SocketStream},
-    manager::TorrentManager,
+    bridge::{OneshotChannel, Receiver, SocketListener, SocketStream},
+    experiments::Action,
+    manager::{DefaultTorrentsManager, TorrentsManager},
     methods::{AnyResult, Method},
     torrent::{TorrentProcess, TorrentProcessStatus, TorrentToken},
     transport::IncomingConnection,
@@ -30,7 +31,7 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
     type SocketStream: SocketStream;
     type SocketListener: SocketListener<Self::SocketStream>;
     type IncomingConnection: IncomingConnection<Self>;
-    type TorrentManager: TorrentManager<Self>;
+    type TorrentManager: TorrentsManager<Self>;
 
     fn init(
         properties: Self::Properties,

@@ -1,10 +1,11 @@
 use crate::{
     application::{App, AppHandler},
-    manager::DefaultTorrentManager,
+    experiments::Action,
+    manager::DefaultTorrentsManager,
     methods::AnyResult,
     tokio::{
         TokioAppCommandChannel, TokioAppCommandReceiver, TokioAppCommandSender, TokioAppRuntime,
-        TokioOneshotChannel, TokioSocketListener, TokioSocketStream,
+        TokioOneshotChannel, TokioReceiver, TokioSocketListener, TokioSocketStream,
     },
     transport::DefaultIncomingConnection,
     RsbtAppProperties,
@@ -18,7 +19,7 @@ pub struct TokioApp {
     properties: Arc<RsbtAppProperties>,
     app_handler: AppHandler<TokioApp>,
     command_receiver: Option<TokioAppCommandReceiver>,
-    torrent_manager: DefaultTorrentManager,
+    torrent_manager: DefaultTorrentsManager,
 }
 
 #[async_trait]
@@ -32,7 +33,7 @@ impl App for TokioApp {
     type SocketStream = TokioSocketStream;
     type SocketListener = TokioSocketListener;
     type IncomingConnection = DefaultIncomingConnection;
-    type TorrentManager = DefaultTorrentManager;
+    type TorrentManager = DefaultTorrentsManager;
 
     fn init(
         properties: Self::Properties,
@@ -44,7 +45,7 @@ impl App for TokioApp {
             properties: Arc::new(properties),
             app_handler,
             command_receiver: Some(command_receiver),
-            torrent_manager: DefaultTorrentManager,
+            torrent_manager: DefaultTorrentsManager,
         }
     }
 

@@ -34,7 +34,7 @@ where
 }
 
 #[async_trait]
-trait ActionHandle<A: App, T: 'static + Send> {
+pub trait ActionHandle<A: App, T: 'static + Send> {
     type Sender: Sender<Action<A, T>, RsbtResult<()>>;
     fn sender(&mut self) -> &mut Self::Sender;
 
@@ -65,16 +65,17 @@ trait ActionHandle<A: App, T: 'static + Send> {
 }
 
 #[async_trait]
-trait ActionLoop<A: App>: Sized {
+pub trait ActionLoop<A: App>: Sized {
     type Receiver: Receiver<Action<A, Self>>;
 
-    fn action_receiver(&mut self) -> Self::Receiver;
+    fn action_receiver(&mut self) -> Option<Self::Receiver>;
     async fn action_loop(mut self) {
-        let mut action_receiver = self.action_receiver();
-        while let Some(action) = action_receiver.next().await {
-            action.exec(&mut self).await;
-            if !self.is_running() {
-                break;
+        if let Some(mut action_receiver) = self.action_receiver() {
+            while let Some(action) = action_receiver.next().await {
+                action.exec(&mut self).await;
+                if !self.is_running() {
+                    break;
+                }
             }
         }
     }

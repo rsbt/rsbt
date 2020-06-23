@@ -1,3 +1,4 @@
+use crate::bridge::Receiver;
 use futures::Stream;
 use std::{
     marker::PhantomData,
@@ -7,6 +8,8 @@ use std::{
 
 #[derive(Debug)]
 pub struct TestReceiver<M>(PhantomData<M>);
+
+impl<M: Send + Unpin> Receiver<M> for TestReceiver<M> {}
 
 impl<M> Stream for TestReceiver<M> {
     type Item = M;
