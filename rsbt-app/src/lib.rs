@@ -21,7 +21,7 @@ mod application;
 mod bridge;
 mod commands;
 mod error;
-mod experiments;
+pub mod experiments;
 mod methods;
 mod peer;
 mod properties;

@@ -121,3 +121,134 @@ async fn do_it() {
     join(f1, f2).await;
 }
 */
+
+pub mod deep_experiments {
+
+    use crate::RsbtResult;
+    use futures::{Sink, SinkExt, Stream, StreamExt, future::join};
+    use std::{
+        fmt::Debug,
+        marker::PhantomData,
+        pin::Pin,
+        task::{Context, Poll}, time::Duration,
+    };
+
+    pub trait TypeFactory<M> {
+        type MpscSender: Sink<M, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync;
+        type MpscReceiver: Stream<Item = M> + Debug + Unpin + Send + Sync;
+
+        fn mpsc_channel(buffer: usize) -> (Self::MpscSender, Self::MpscReceiver);
+    }
+
+    pub trait AppTypeFactory: TypeFactory<String> + TypeFactory<usize> {}
+
+    pub struct App<T: AppTypeFactory> {
+        type_factory: PhantomData<T>,
+    }
+
+    impl<T: AppTypeFactory> App<T> {
+        pub fn new() -> Self {
+            Self {
+                type_factory: PhantomData,
+            }
+        }
+        fn string_mpsc_channel(&self,
+            buffer: usize,
+        ) -> (
+            <T as TypeFactory<String>>::MpscSender,
+            <T as TypeFactory<String>>::MpscReceiver,
+        ) {
+            <T as TypeFactory<String>>::mpsc_channel(buffer)
+        }
+
+        async fn run() {
+            let (sender, mut receiver) = <T as TypeFactory<usize>>::mpsc_channel(1);
+
+            while let Some(msg) = receiver.next().await {
+                Self::call_usize(msg);
+            }
+        }
+
+        fn call_usize(msg: usize) {
+
+        }
+    }
+
+    pub struct TokioTypeFactory;
+
+    impl AppTypeFactory for TokioTypeFactory {}
+
+    pub struct TokioMpscSender<M>(tokio::sync::mpsc::Sender<M>);
+
+    impl<M> Clone for TokioMpscSender<M> {
+        fn clone(&self) -> Self {
+            Self(self.0.clone())
+        }
+    }
+
+    impl<M> Debug for TokioMpscSender<M> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "TokioMpscSender({:?})", self.0)
+        }
+    }
+
+    impl<M: 'static + Debug + Send + Sync> Sink<M> for TokioMpscSender<M> {
+        type Error = anyhow::Error;
+
+        fn poll_ready(
+            mut self: Pin<&mut Self>,
+            cx: &mut Context<'_>,
+        ) -> Poll<Result<(), Self::Error>> {
+            self.0.poll_ready(cx).map_err(anyhow::Error::from)
+        }
+
+        fn start_send(mut self: Pin<&mut Self>, item: M) -> Result<(), Self::Error> {
+            self.0.try_send(item).map_err(anyhow::Error::from)
+        }
+
+        fn poll_flush(
+            mut self: Pin<&mut Self>,
+            cx: &mut Context<'_>,
+        ) -> Poll<Result<(), Self::Error>> {
+            match self.0.poll_ready(cx) {
+                Poll::Ready(Err(_)) => Poll::Ready(Ok(())),
+                x => x.map_err(anyhow::Error::from),
+            }
+        }
+
+        fn poll_close(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+            Poll::Ready(Ok(()))
+        }
+    }
+
+    impl<M: 'static + Debug + Send + Sync> TypeFactory<M> for TokioTypeFactory {
+        type MpscSender = TokioMpscSender<M>;
+        type MpscReceiver = tokio::sync::mpsc::Receiver<M>;
+        fn mpsc_channel(buffer: usize) -> (Self::MpscSender, Self::MpscReceiver) {
+            let (sender, receiver) = tokio::sync::mpsc::channel(buffer);
+            (TokioMpscSender(sender), receiver)
+        }
+    }
+
+    pub async fn main() -> RsbtResult<()> {
+        let app: App<TokioTypeFactory> = App::new();
+        let (mut sender, mut receiver) = app.string_mpsc_channel(10);
+        let sender_loop = async move {
+            eprintln!("sending message...");
+            if let Err(err) = sender.send("hello, world!".into()).await {
+                eprintln!("{}", err);
+            }
+            eprintln!("wait 10 seconds...");
+            tokio::time::delay_for(Duration::from_secs(10)).await;
+            eprintln!("done sender");
+        };
+        let receiver_loop = async move {
+            while let Some(message) = receiver.next().await {
+                eprintln!("{}", message);
+            }
+            eprintln!("done receiver");
+        };
+        join(sender_loop, receiver_loop).await;
+        Ok(())
+    }
+}
