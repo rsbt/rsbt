@@ -125,19 +125,24 @@ async fn do_it() {
 pub mod deep_experiments {
 
     use crate::RsbtResult;
-    use futures::{Sink, SinkExt, Stream, StreamExt, future::join};
+    use futures::{future::join, FutureExt, Sink, SinkExt, Stream, StreamExt};
     use std::{
         fmt::Debug,
+        future::Future,
         marker::PhantomData,
         pin::Pin,
-        task::{Context, Poll}, time::Duration,
+        task::{Context, Poll},
+        time::Duration,
     };
 
     pub trait TypeFactory<M> {
         type MpscSender: Sink<M, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync;
         type MpscReceiver: Stream<Item = M> + Debug + Unpin + Send + Sync;
+        type OneshotSender: OneshotSender<M> + Debug + Unpin + Send + Sync;
+        type OneshotReceiver: Future<Output = RsbtResult<M>> + Debug + Unpin + Send + Sync;
 
         fn mpsc_channel(buffer: usize) -> (Self::MpscSender, Self::MpscReceiver);
+        fn oneshot_channel() -> (Self::OneshotSender, Self::OneshotReceiver);
     }
 
     pub trait AppTypeFactory: TypeFactory<String> + TypeFactory<usize> {}
@@ -152,7 +157,9 @@ pub mod deep_experiments {
                 type_factory: PhantomData,
             }
         }
-        fn string_mpsc_channel(&self,
+
+        fn string_mpsc_channel(
+            &self,
             buffer: usize,
         ) -> (
             <T as TypeFactory<String>>::MpscSender,
@@ -160,18 +167,10 @@ pub mod deep_experiments {
         ) {
             <T as TypeFactory<String>>::mpsc_channel(buffer)
         }
+    }
 
-        async fn run() {
-            let (sender, mut receiver) = <T as TypeFactory<usize>>::mpsc_channel(1);
-
-            while let Some(msg) = receiver.next().await {
-                Self::call_usize(msg);
-            }
-        }
-
-        fn call_usize(msg: usize) {
-
-        }
+    pub trait OneshotSender<M> {
+        fn send(self, message: M) -> Result<(), M>;
     }
 
     pub struct TokioTypeFactory;
@@ -192,7 +191,10 @@ pub mod deep_experiments {
         }
     }
 
-    impl<M: 'static + Debug + Send + Sync> Sink<M> for TokioMpscSender<M> {
+    impl<M> Sink<M> for TokioMpscSender<M>
+    where
+        M: 'static + Debug + Send + Sync,
+    {
         type Error = anyhow::Error;
 
         fn poll_ready(
@@ -216,17 +218,66 @@ pub mod deep_experiments {
             }
         }
 
-        fn poll_close(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        fn poll_close(
+            self: Pin<&mut Self>,
+            _cx: &mut Context<'_>,
+        ) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
     }
 
-    impl<M: 'static + Debug + Send + Sync> TypeFactory<M> for TokioTypeFactory {
+    pub struct TokioOneshotSender<M>(tokio::sync::oneshot::Sender<M>);
+
+    impl<M> Debug for TokioOneshotSender<M>
+    where
+        M: Debug,
+    {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "TokioOneshotSender({:?})", self.0)
+        }
+    }
+
+    impl<M> OneshotSender<M> for TokioOneshotSender<M> {
+        fn send(self, message: M) -> Result<(), M> {
+            self.0.send(message)
+        }
+    }
+
+    pub struct TokioOneshotReceiver<M>(tokio::sync::oneshot::Receiver<M>);
+
+    impl<M: Debug> Debug for TokioOneshotReceiver<M> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "TokioOneshotReceiver({:?})", self.0)
+        }
+    }
+
+    impl<M> Future for TokioOneshotReceiver<M> {
+        type Output = RsbtResult<M>;
+
+        fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+            Pin::new(&mut self.0).poll(cx).map_err(anyhow::Error::from)
+        }
+    }
+
+    impl<M> TypeFactory<M> for TokioTypeFactory
+    where
+        M: 'static + Debug + Send + Sync,
+    {
         type MpscSender = TokioMpscSender<M>;
         type MpscReceiver = tokio::sync::mpsc::Receiver<M>;
+        type OneshotSender = TokioOneshotSender<M>;
+        type OneshotReceiver = TokioOneshotReceiver<M>;
+
         fn mpsc_channel(buffer: usize) -> (Self::MpscSender, Self::MpscReceiver) {
             let (sender, receiver) = tokio::sync::mpsc::channel(buffer);
+
             (TokioMpscSender(sender), receiver)
+        }
+
+        fn oneshot_channel() -> (Self::OneshotSender, Self::OneshotReceiver) {
+            let (sender, receiver) = tokio::sync::oneshot::channel();
+
+            (TokioOneshotSender(sender), TokioOneshotReceiver(receiver))
         }
     }
 
