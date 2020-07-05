@@ -130,6 +130,7 @@ pub mod deep_experiments {
         FutureExt, Sink, SinkExt, Stream, StreamExt,
     };
     use std::{
+        any::Any,
         fmt::{Debug, Formatter},
         future::Future,
         marker::PhantomData,
@@ -137,6 +138,48 @@ pub mod deep_experiments {
         task::{Context, Poll},
         time::Duration,
     };
+
+    pub struct App<T: AppTypeFactory> {
+        sender: <T as TypeFactory<Command<T, Self>>>::MpscSender,
+        receiver: <T as TypeFactory<Command<T, Self>>>::MpscReceiver,
+        type_factory: PhantomData<T>,
+    }
+
+    impl<T: AppTypeFactory> App<T> {
+        pub fn new() -> Self {
+            let (sender, receiver) = <T as TypeFactory<Command<T, Self>>>::mpsc_channel(10);
+            Self {
+                sender,
+                receiver,
+                type_factory: PhantomData,
+            }
+        }
+
+        async fn run(mut self) {
+            let mut sender = self.sender.clone();
+
+            let incoming_connections_loop = async move {
+                sender.request(|x| async move {}).await;
+            };
+
+            let command_loop = async move {
+                while let Some(cmd) = self.receiver.next().await {
+                    match cmd {
+                        Command::Request(sender, mut any_request) => {
+                            let any_result = any_request.any_request(&mut self).await;
+                            sender.send(any_result).ok();
+                        }
+                    }
+                }
+            };
+
+            join(incoming_connections_loop, command_loop).await;
+        }
+
+        async fn say_hello(&mut self) {
+            eprintln!("hello new beautiful world!");
+        }
+    }
 
     pub trait TypeFactory<M> {
         type MpscSender: Sink<M, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync;
@@ -157,21 +200,14 @@ pub mod deep_experiments {
     }
 
     pub trait AppTypeFactory:
-        Sized + TypeFactory<String> + TypeFactory<usize> + TypeFactory<Handler<Self>>
+        Sized
+        + TypeFactory<String>
+        + TypeFactory<AnyResult>
+        + TypeFactory<Command<Self, App<Self>>>
+        + Sync
+        + 'static
     {
         type AppRuntime: AppRuntime;
-    }
-
-    pub struct App<T: AppTypeFactory> {
-        type_factory: PhantomData<T>,
-    }
-
-    impl<T: AppTypeFactory> App<T> {
-        pub fn new() -> Self {
-            Self {
-                type_factory: PhantomData,
-            }
-        }
     }
 
     pub trait OneshotSender<M> {
@@ -349,4 +385,92 @@ pub mod deep_experiments {
         join(sender_loop, receiver_loop).await;*/
         Ok(())
     }
+
+    pub enum Command<A: AppTypeFactory, B> {
+        Request(
+            <A as TypeFactory<AnyResult>>::OneshotSender,
+            Box<dyn AnyRequest<B> + Send + Sync>,
+        ),
+    }
+
+    impl<A: AppTypeFactory, B> Debug for Command<A, B> {
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+            write!(f, "Command")
+        }
+    }
+
+    pub(crate) type AnyResult = Box<dyn Any + Send + Sync>;
+
+    pub trait AnyRequest<A> {
+        fn any_request(&mut self, o: &mut A) -> BoxFuture<'_, AnyResult>;
+    }
+
+    fn box_any<R>(any: R) -> AnyResult
+    where
+        R: Send + Sync + 'static,
+    {
+        Box::new(any)
+    }
+
+    struct AnyCommand<'a, A: 'a, R>(
+        Option<Box<dyn FnOnce(&mut A) -> BoxFuture<'a, R> + Send + Sync>>,
+    );
+
+    impl<A, R: Send + Sync + 'static> AnyRequest<A> for AnyCommand<'_, A, R> {
+        fn any_request(&mut self, o: &mut A) -> BoxFuture<'_, AnyResult> {
+            if let Some(command) = self.0.take() {
+                command(o).map(box_any).boxed()
+            } else {
+                panic!();
+            }
+        }
+    }
+
+    trait CommandSender<A, B>:
+        Sink<Command<A, B>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync
+    where
+        A: AppTypeFactory,
+        B: Sync + 'static,
+    {
+        fn request<F, R>(&mut self, f: F) -> BoxFuture<'_, RsbtResult<R::Output>>
+        where
+            F: FnOnce(&mut B) -> R + Send + Sync + 'static,
+            R: Future + Send + Sync + 'static,
+            R::Output: Send + Sync + 'static,
+        {
+            Box::pin(async move {
+                let (sender, receiver) = <A as TypeFactory<AnyResult>>::oneshot_channel();
+
+                self.send(Command::Request(
+                    sender,
+                    Box::new(AnyCommand(Some(Box::new(|x| f(x).boxed())))),
+                ))
+                .await?;
+
+                let result = receiver.await?;
+
+                if let Ok(any) = <Box<dyn Any + Send>>::downcast::<R::Output>(result) {
+                    Ok(*any)
+                } else {
+                    Err(anyhow::anyhow!(
+                        "cannot downcast from request, caller and cally types do not match"
+                    ))
+                }
+            })
+        }
+    }
+
+    impl<T, A: AppTypeFactory, B> CommandSender<A, B> for T
+    where
+        B: Sync + 'static,
+        T: Sink<Command<A, B>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync,
+    {
+    }
+    /*
+
+    impl<T, A: AppTypeFactory> CommandSender<A, App<A>> for T where
+        T: Sink<Command<A, App<A>>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync
+    {
+    }
+    */
 }
