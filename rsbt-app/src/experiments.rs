@@ -125,9 +125,12 @@ async fn do_it() {
 pub mod deep_experiments {
 
     use crate::RsbtResult;
-    use futures::{future::join, FutureExt, Sink, SinkExt, Stream, StreamExt};
+    use futures::{
+        future::{join, BoxFuture},
+        FutureExt, Sink, SinkExt, Stream, StreamExt,
+    };
     use std::{
-        fmt::Debug,
+        fmt::{Debug, Formatter},
         future::Future,
         marker::PhantomData,
         pin::Pin,
@@ -145,7 +148,19 @@ pub mod deep_experiments {
         fn oneshot_channel() -> (Self::OneshotSender, Self::OneshotReceiver);
     }
 
-    pub trait AppTypeFactory: TypeFactory<String> + TypeFactory<usize> {}
+    pub struct Handler<A: AppTypeFactory>(PhantomData<A>);
+
+    impl<A: AppTypeFactory> Debug for Handler<A> {
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+            write!(f, "Handler")
+        }
+    }
+
+    pub trait AppTypeFactory:
+        Sized + TypeFactory<String> + TypeFactory<usize> + TypeFactory<Handler<Self>>
+    {
+        type AppRuntime: AppRuntime;
+    }
 
     pub struct App<T: AppTypeFactory> {
         type_factory: PhantomData<T>,
@@ -157,16 +172,6 @@ pub mod deep_experiments {
                 type_factory: PhantomData,
             }
         }
-
-        fn string_mpsc_channel(
-            &self,
-            buffer: usize,
-        ) -> (
-            <T as TypeFactory<String>>::MpscSender,
-            <T as TypeFactory<String>>::MpscReceiver,
-        ) {
-            <T as TypeFactory<String>>::mpsc_channel(buffer)
-        }
     }
 
     pub trait OneshotSender<M> {
@@ -175,7 +180,9 @@ pub mod deep_experiments {
 
     pub struct TokioTypeFactory;
 
-    impl AppTypeFactory for TokioTypeFactory {}
+    impl AppTypeFactory for TokioTypeFactory {
+        type AppRuntime = TokioAppRuntime;
+    }
 
     pub struct TokioMpscSender<M>(tokio::sync::mpsc::Sender<M>);
 
@@ -186,7 +193,7 @@ pub mod deep_experiments {
     }
 
     impl<M> Debug for TokioMpscSender<M> {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
             write!(f, "TokioMpscSender({:?})", self.0)
         }
     }
@@ -232,7 +239,7 @@ pub mod deep_experiments {
     where
         M: Debug,
     {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
             write!(f, "TokioOneshotSender({:?})", self.0)
         }
     }
@@ -246,7 +253,7 @@ pub mod deep_experiments {
     pub struct TokioOneshotReceiver<M>(tokio::sync::oneshot::Receiver<M>);
 
     impl<M: Debug> Debug for TokioOneshotReceiver<M> {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
             write!(f, "TokioOneshotReceiver({:?})", self.0)
         }
     }
@@ -281,9 +288,49 @@ pub mod deep_experiments {
         }
     }
 
+    pub trait AppRuntime {
+        fn spawn<'a, F>(f: F) -> BoxFuture<'a, RsbtResult<F::Output>>
+        where
+            F: Future + Send + 'static,
+            F::Output: Send + 'static;
+
+        fn delay_for<'a>(duration: Duration) -> BoxFuture<'a, ()>;
+
+        fn timeout<'a, T>(duration: Duration, future: T) -> BoxFuture<'a, RsbtResult<T::Output>>
+        where
+            T: Future + Send + 'a;
+    }
+
+    pub struct TokioAppRuntime;
+
+    impl AppRuntime for TokioAppRuntime {
+        fn spawn<'a, F>(f: F) -> BoxFuture<'a, RsbtResult<F::Output>>
+        where
+            F: Future + Send + 'static,
+            F::Output: Send + 'static,
+        {
+            tokio::spawn(f)
+                .map(|x| x.map_err(anyhow::Error::from))
+                .boxed()
+        }
+
+        fn delay_for<'a>(duration: Duration) -> BoxFuture<'a, ()> {
+            tokio::time::delay_for(duration).boxed()
+        }
+
+        fn timeout<'a, T>(duration: Duration, future: T) -> BoxFuture<'a, RsbtResult<T::Output>>
+        where
+            T: Future + Send + 'a,
+        {
+            tokio::time::timeout(duration, future)
+                .map(|x| x.map_err(anyhow::Error::from))
+                .boxed()
+        }
+    }
+
     pub async fn main() -> RsbtResult<()> {
         let app: App<TokioTypeFactory> = App::new();
-        let (mut sender, mut receiver) = app.string_mpsc_channel(10);
+        /*        let (mut sender, mut receiver) = app.mpsc_channel(10);
         let sender_loop = async move {
             eprintln!("sending message...");
             if let Err(err) = sender.send("hello, world!".into()).await {
@@ -299,7 +346,7 @@ pub mod deep_experiments {
             }
             eprintln!("done receiver");
         };
-        join(sender_loop, receiver_loop).await;
+        join(sender_loop, receiver_loop).await;*/
         Ok(())
     }
 }
