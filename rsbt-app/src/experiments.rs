@@ -431,37 +431,36 @@ pub mod deep_experiments {
         }
     }
 
+    #[async_trait]
     trait CommandSender<A, B>:
         Sink<Command<A, B>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync
     where
         A: AppTypeFactory,
         B: Sync + Send + 'static,
     {
-        fn request<F, R>(&mut self, f: F) -> BoxFuture<'_, RsbtResult<R::Output>>
+        async fn request<F, R>(&mut self, f: F) -> RsbtResult<R::Output>
         where
             F: FnOnce(&mut B) -> R + Send + Sync + 'static,
             R: Future + Send + Sync + 'static,
             R::Output: Send + Sync + 'static,
         {
-            Box::pin(async move {
-                let (sender, receiver) = <A as TypeFactory<AnyResult>>::oneshot_channel();
+            let (sender, receiver) = <A as TypeFactory<AnyResult>>::oneshot_channel();
 
-                self.send(Command::Request(
-                    sender,
-                    Box::new(AnyCommand(Some(Box::new(|x| f(x).boxed())))),
+            self.send(Command::Request(
+                sender,
+                Box::new(AnyCommand(Some(Box::new(|x| f(x).boxed())))),
+            ))
+            .await?;
+
+            let result = receiver.await?;
+
+            if let Ok(any) = <Box<dyn Any + Send>>::downcast::<R::Output>(result) {
+                Ok(*any)
+            } else {
+                Err(anyhow::anyhow!(
+                    "cannot downcast from request, caller and cally types do not match"
                 ))
-                .await?;
-
-                let result = receiver.await?;
-
-                if let Ok(any) = <Box<dyn Any + Send>>::downcast::<R::Output>(result) {
-                    Ok(*any)
-                } else {
-                    Err(anyhow::anyhow!(
-                        "cannot downcast from request, caller and cally types do not match"
-                    ))
-                }
-            })
+            }
         }
     }
 
@@ -471,11 +470,5 @@ pub mod deep_experiments {
         T: Sink<Command<A, B>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync,
     {
     }
-    /*
 
-    impl<T, A: AppTypeFactory> CommandSender<A, App<A>> for T where
-        T: Sink<Command<A, App<A>>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync
-    {
-    }
-    */
 }
