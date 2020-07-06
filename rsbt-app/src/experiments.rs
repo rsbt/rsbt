@@ -125,6 +125,7 @@ async fn do_it() {
 pub mod deep_experiments {
 
     use crate::RsbtResult;
+    use async_trait::async_trait;
     use futures::{
         future::{join, BoxFuture},
         FutureExt, Sink, SinkExt, Stream, StreamExt,
@@ -205,6 +206,7 @@ pub mod deep_experiments {
         + TypeFactory<AnyResult>
         + TypeFactory<Command<Self, App<Self>>>
         + Sync
+        + Send
         + 'static
     {
         type AppRuntime: AppRuntime;
@@ -401,8 +403,9 @@ pub mod deep_experiments {
 
     pub(crate) type AnyResult = Box<dyn Any + Send + Sync>;
 
+    #[async_trait]
     pub trait AnyRequest<A> {
-        fn any_request(&mut self, o: &mut A) -> BoxFuture<'_, AnyResult>;
+        async fn any_request(&mut self, o: &mut A) -> AnyResult;
     }
 
     fn box_any<R>(any: R) -> AnyResult
@@ -416,10 +419,12 @@ pub mod deep_experiments {
         Option<Box<dyn FnOnce(&mut A) -> BoxFuture<'a, R> + Send + Sync>>,
     );
 
-    impl<A, R: Send + Sync + 'static> AnyRequest<A> for AnyCommand<'_, A, R> {
-        fn any_request(&mut self, o: &mut A) -> BoxFuture<'_, AnyResult> {
+    #[async_trait]
+    impl<A: Send, R: Send + Sync + 'static> AnyRequest<A> for AnyCommand<'_, A, R> {
+        async fn any_request(&mut self, o: &mut A) -> AnyResult {
             if let Some(command) = self.0.take() {
-                command(o).map(box_any).boxed()
+                let result: AnyResult = Box::new(command(o).await);
+                result
             } else {
                 panic!();
             }
@@ -430,7 +435,7 @@ pub mod deep_experiments {
         Sink<Command<A, B>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync
     where
         A: AppTypeFactory,
-        B: Sync + 'static,
+        B: Sync + Send + 'static,
     {
         fn request<F, R>(&mut self, f: F) -> BoxFuture<'_, RsbtResult<R::Output>>
         where
@@ -462,7 +467,7 @@ pub mod deep_experiments {
 
     impl<T, A: AppTypeFactory, B> CommandSender<A, B> for T
     where
-        B: Sync + 'static,
+        B: Sync + Send + 'static,
         T: Sink<Command<A, B>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync,
     {
     }
