@@ -160,7 +160,9 @@ pub mod deep_experiments {
             let mut sender = self.sender.clone();
 
             let incoming_connections_loop = async move {
-                sender.request(|x| async move {}).await;
+                sender.request(|x| {
+                    x.say_hello();
+                }).await;
             };
 
             let command_loop = async move {
@@ -409,14 +411,14 @@ pub mod deep_experiments {
     }
 
     struct AnyCommand<A, R: 'static>(
-        Option<Box<dyn for<'a> FnOnce(&'a mut A) -> BoxFuture<'a, R> + Send + Sync>>,
+        Option<Box<dyn for<'a> FnOnce(&'a mut A) -> R + Send + Sync>>,
     );
 
     #[async_trait]
     impl<A, R> AnyRequest<A> for AnyCommand<A, R> where A: Send, R: Send + Sync {
         async fn any_request(&mut self, o: &mut A) -> AnyResult {
             if let Some(command) = self.0.take() {
-                let result: AnyResult = Box::new(command(o).await);
+                let result: AnyResult = Box::new(command(o));
                 result
             } else {
                 panic!();
@@ -431,23 +433,24 @@ pub mod deep_experiments {
         A: AppTypeFactory,
         B: Sync + Send + 'static,
     {
-        async fn request<F, R>(&mut self, f: F) -> RsbtResult<R::Output>
+        async fn request<F, R>(&mut self, f: F) -> RsbtResult<R>//RsbtResult<R::Output>
         where
             F: for<'a> FnOnce(&'a mut B) -> R + Send + Sync + 'static,
-            R: Future + Send + Sync + 'static,
-            R::Output: Send + Sync,
+            R: Send + Sync + 'static,
+            // R: Future + Send + Sync + 'static,
+            // R::Output: Send + Sync,
         {
             let (sender, receiver) = <A as TypeFactory<AnyResult>>::oneshot_channel();
 
             self.send(Command::Request(
                 sender,
-                Box::new(AnyCommand(Some(Box::new(|x| f(x).boxed())))),
+                Box::new(AnyCommand(Some(Box::new(f)))),
             ))
             .await?;
 
             let result = receiver.await?;
 
-            if let Ok(any) = <Box<dyn Any + Send>>::downcast::<R::Output>(result) {
+            if let Ok(any) = <Box<dyn Any + Send>>::downcast::<R>(result) {
                 Ok(*any)
             } else {
                 Err(anyhow::anyhow!(
