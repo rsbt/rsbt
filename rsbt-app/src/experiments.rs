@@ -238,7 +238,7 @@ pub mod deep_experiments {
 
     impl<M> Sink<M> for TokioMpscSender<M>
     where
-        M: 'static + Debug + Send + Sync,
+        M: Debug + Send + Sync,
     {
         type Error = anyhow::Error;
 
@@ -250,7 +250,7 @@ pub mod deep_experiments {
         }
 
         fn start_send(mut self: Pin<&mut Self>, item: M) -> Result<(), Self::Error> {
-            self.0.try_send(item).map_err(anyhow::Error::from)
+            self.0.try_send(item).map_err(|e| anyhow::anyhow!("{}", e))
         }
 
         fn poll_flush(
@@ -306,7 +306,7 @@ pub mod deep_experiments {
 
     impl<M> TypeFactory<M> for TokioTypeFactory
     where
-        M: 'static + Debug + Send + Sync,
+        M: Debug + Send + Sync,
     {
         type MpscSender = TokioMpscSender<M>;
         type MpscReceiver = tokio::sync::mpsc::Receiver<M>;
@@ -408,19 +408,12 @@ pub mod deep_experiments {
         async fn any_request(&mut self, o: &mut A) -> AnyResult;
     }
 
-    fn box_any<R>(any: R) -> AnyResult
-    where
-        R: Send + Sync + 'static,
-    {
-        Box::new(any)
-    }
-
-    struct AnyCommand<'a, A: 'a, R>(
-        Option<Box<dyn FnOnce(&mut A) -> BoxFuture<'a, R> + Send + Sync>>,
+    struct AnyCommand<A, R: 'static>(
+        Option<Box<dyn for<'a> FnOnce(&'a mut A) -> BoxFuture<'a, R> + Send + Sync>>,
     );
 
     #[async_trait]
-    impl<A: Send, R: Send + Sync + 'static> AnyRequest<A> for AnyCommand<'_, A, R> {
+    impl<A, R> AnyRequest<A> for AnyCommand<A, R> where A: Send, R: Send + Sync {
         async fn any_request(&mut self, o: &mut A) -> AnyResult {
             if let Some(command) = self.0.take() {
                 let result: AnyResult = Box::new(command(o).await);
@@ -440,9 +433,9 @@ pub mod deep_experiments {
     {
         async fn request<F, R>(&mut self, f: F) -> RsbtResult<R::Output>
         where
-            F: FnOnce(&mut B) -> R + Send + Sync + 'static,
+            F: for<'a> FnOnce(&'a mut B) -> R + Send + Sync + 'static,
             R: Future + Send + Sync + 'static,
-            R::Output: Send + Sync + 'static,
+            R::Output: Send + Sync,
         {
             let (sender, receiver) = <A as TypeFactory<AnyResult>>::oneshot_channel();
 
