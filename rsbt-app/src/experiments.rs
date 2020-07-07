@@ -144,6 +144,7 @@ pub mod deep_experiments {
         sender: <T as TypeFactory<Command<T, Self>>>::MpscSender,
         receiver: <T as TypeFactory<Command<T, Self>>>::MpscReceiver,
         type_factory: PhantomData<T>,
+        data: Vec<u8>,
     }
 
     impl<T: AppTypeFactory> App<T> {
@@ -153,16 +154,17 @@ pub mod deep_experiments {
                 sender,
                 receiver,
                 type_factory: PhantomData,
+                data: vec![],
             }
         }
 
         async fn run(mut self) {
             let mut sender = self.sender.clone();
 
+            let data = vec![5];
             let incoming_connections_loop = async move {
-                sender.request(|x| {
-                    x.say_hello();
-                }).await;
+                let result = sender.request(move |x| x.say_hello(data).boxed()).await;
+                eprintln!("{:?}", result);
             };
 
             let command_loop = async move {
@@ -179,8 +181,10 @@ pub mod deep_experiments {
             join(incoming_connections_loop, command_loop).await;
         }
 
-        async fn say_hello(&mut self) {
+        async fn say_hello(&mut self, data: Vec<u8>) -> String {
             eprintln!("hello new beautiful world!");
+            self.data = data;
+            "check me".into()
         }
     }
 
@@ -370,6 +374,7 @@ pub mod deep_experiments {
 
     pub async fn main() -> RsbtResult<()> {
         let app: App<TokioTypeFactory> = App::new();
+        let _ = app.run().await;
         /*        let (mut sender, mut receiver) = app.mpsc_channel(10);
         let sender_loop = async move {
             eprintln!("sending message...");
@@ -411,14 +416,18 @@ pub mod deep_experiments {
     }
 
     struct AnyCommand<A, R: 'static>(
-        Option<Box<dyn for<'a> FnOnce(&'a mut A) -> R + Send + Sync>>,
+        Option<Box<dyn FnOnce(&mut A) -> BoxFuture<'_, R> + Send + Sync>>,
     );
 
     #[async_trait]
-    impl<A, R> AnyRequest<A> for AnyCommand<A, R> where A: Send, R: Send + Sync {
+    impl<A, R> AnyRequest<A> for AnyCommand<A, R>
+    where
+        A: Send,
+        R: Send + Sync + 'static,
+    {
         async fn any_request(&mut self, o: &mut A) -> AnyResult {
             if let Some(command) = self.0.take() {
-                let result: AnyResult = Box::new(command(o));
+                let result: AnyResult = Box::new(command(o).await);
                 result
             } else {
                 panic!();
@@ -433,9 +442,10 @@ pub mod deep_experiments {
         A: AppTypeFactory,
         B: Sync + Send + 'static,
     {
-        async fn request<F, R>(&mut self, f: F) -> RsbtResult<R>//RsbtResult<R::Output>
+        async fn request<F, R>(&mut self, f: F) -> RsbtResult<R>
+        //RsbtResult<R::Output>
         where
-            F: for<'a> FnOnce(&'a mut B) -> R + Send + Sync + 'static,
+            F: FnOnce(&mut B) -> BoxFuture<'_, R> + Send + Sync + 'static,
             R: Send + Sync + 'static,
             // R: Future + Send + Sync + 'static,
             // R::Output: Send + Sync,
@@ -466,5 +476,4 @@ pub mod deep_experiments {
         T: Sink<Command<A, B>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync,
     {
     }
-
 }
