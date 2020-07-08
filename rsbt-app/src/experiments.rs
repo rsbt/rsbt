@@ -1,12 +1,3 @@
-use crate::{
-    bridge::{OneshotChannel, OneshotSender, Receiver, Sender},
-    methods::{AnyRequest, AnyResult, Method},
-    App, RsbtResult,
-};
-use async_trait::async_trait;
-use futures::StreamExt;
-use std::any::Any;
-
 pub mod deep_experiments {
 
     use crate::RsbtResult;
@@ -19,7 +10,6 @@ pub mod deep_experiments {
         any::Any,
         fmt::{Debug, Formatter},
         future::Future,
-        marker::PhantomData,
         pin::Pin,
         task::{Context, Poll},
         time::Duration,
@@ -57,12 +47,7 @@ pub mod deep_experiments {
 
             let command_loop = async move {
                 while let Some(cmd) = self.receiver.next().await {
-                    match cmd {
-                        Command::Request(sender, mut any_request) => {
-                            let any_result = any_request.any_request(&mut self).await;
-                            sender.send(any_result).ok();
-                        }
-                    }
+                    cmd.execute(&mut self).await;
                 }
             };
 
@@ -117,19 +102,15 @@ pub mod deep_experiments {
             let data = vec![5];
             let incoming_connections_loop = async move {
                 let result = sender.request(move |x| x.say_hello(data).boxed()).await;
-                eprintln!("{:?}", result);
+                eprintln!("handler: {:?}", result);
                 let data = result.unwrap().clone().as_bytes().to_vec();
                 let result = app_sender.request(move |x| x.say_hello(data).boxed()).await;
+                eprintln!("app: {:?}", result);
             };
 
             let command_loop = async move {
                 while let Some(cmd) = self.receiver.next().await {
-                    match cmd {
-                        Command::Request(sender, mut any_request) => {
-                            let any_result = any_request.any_request(&mut self).await;
-                            sender.send(any_result).ok();
-                        }
-                    }
+                    cmd.execute(&mut self).await;
                 }
             };
 
@@ -343,6 +324,17 @@ pub mod deep_experiments {
     impl<A: AppTypeFactory, B> Debug for Command<A, B> {
         fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
             write!(f, "Command")
+        }
+    }
+
+    impl<A: AppTypeFactory, B> Command<A, B> {
+        async fn execute(self, target: &mut B) {
+            match self {
+                Command::Request(sender, mut any_request) => {
+                    let any_result = any_request.any_request(target).await;
+                    sender.send(any_result).ok();
+                }
+            }
         }
     }
 
