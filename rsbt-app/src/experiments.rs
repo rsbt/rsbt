@@ -50,6 +50,11 @@ pub mod deep_experiments {
                 eprintln!("{:?}", result);
             };
 
+            let handler: Handler<T> = Handler::new(self.sender.clone());
+            T::AppRuntime::spawn(async move {
+                handler.run().await;
+            });
+
             let command_loop = async move {
                 while let Some(cmd) = self.receiver.next().await {
                     match cmd {
@@ -65,7 +70,7 @@ pub mod deep_experiments {
         }
 
         async fn say_hello(&mut self, data: Vec<u8>) -> String {
-            eprintln!("hello new beautiful world!");
+            eprintln!("hello new beautiful world! {}", data.len());
             self.data = data;
             "check me".into()
         }
@@ -81,11 +86,60 @@ pub mod deep_experiments {
         fn oneshot_channel() -> (Self::OneshotSender, Self::OneshotReceiver);
     }
 
-    pub struct Handler<A: AppTypeFactory>(PhantomData<A>);
+    pub struct Handler<T: AppTypeFactory> {
+        app_sender: <T as TypeFactory<Command<T, App<T>>>>::MpscSender,
+        sender: <T as TypeFactory<Command<T, Self>>>::MpscSender,
+        receiver: <T as TypeFactory<Command<T, Self>>>::MpscReceiver,
+        data: Vec<u8>,
+    }
 
     impl<A: AppTypeFactory> Debug for Handler<A> {
         fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
             write!(f, "Handler")
+        }
+    }
+
+    impl<T: AppTypeFactory> Handler<T> {
+        pub fn new(app_sender: <T as TypeFactory<Command<T, App<T>>>>::MpscSender) -> Self {
+            let (sender, receiver) = <T as TypeFactory<Command<T, Self>>>::mpsc_channel(10);
+            Self {
+                app_sender,
+                sender,
+                receiver,
+                data: vec![],
+            }
+        }
+
+        async fn run(mut self) {
+            let mut sender = self.sender.clone();
+            let mut app_sender = self.app_sender.clone();
+
+            let data = vec![5];
+            let incoming_connections_loop = async move {
+                let result = sender.request(move |x| x.say_hello(data).boxed()).await;
+                eprintln!("{:?}", result);
+                let data = result.unwrap().clone().as_bytes().to_vec();
+                let result = app_sender.request(move |x| x.say_hello(data).boxed()).await;
+            };
+
+            let command_loop = async move {
+                while let Some(cmd) = self.receiver.next().await {
+                    match cmd {
+                        Command::Request(sender, mut any_request) => {
+                            let any_result = any_request.any_request(&mut self).await;
+                            sender.send(any_result).ok();
+                        }
+                    }
+                }
+            };
+
+            join(incoming_connections_loop, command_loop).await;
+        }
+
+        async fn say_hello(&mut self, data: Vec<u8>) -> String {
+            eprintln!("hello new beautiful world from handle!");
+            self.data = data;
+            "check me too from handle".into()
         }
     }
 
@@ -94,6 +148,7 @@ pub mod deep_experiments {
         + TypeFactory<String>
         + TypeFactory<AnyResult>
         + TypeFactory<Command<Self, App<Self>>>
+        + TypeFactory<Command<Self, Handler<Self>>>
         + Sync
         + Send
         + 'static
