@@ -1,5 +1,5 @@
-use crate::{experiments::ActionLoop, App};
+use crate::App;
 
 pub trait ManagerFactory<A: App> {
-    type AnnounceManager: ActionLoop<A>;
+    type AnnounceManager;
 }

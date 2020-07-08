@@ -1,4 +1,4 @@
-use crate::{application::App, experiments::ActionLoop, manager::TorrentsManager};
+use crate::{application::App, manager::TorrentsManager};
 use std::fmt::Debug;
 
 #[derive(Debug)]

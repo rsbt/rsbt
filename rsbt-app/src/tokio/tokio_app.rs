@@ -1,6 +1,5 @@
 use crate::{
     application::{App, AppHandler},
-    experiments::Action,
     manager::DefaultTorrentsManager,
     methods::AnyResult,
     tokio::{

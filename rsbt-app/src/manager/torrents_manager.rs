@@ -1,6 +1,4 @@
-use crate::{
-    experiments::ActionLoop, torrent::TorrentToken, App, RsbtResult, TorrentProcessStatus,
-};
+use crate::{torrent::TorrentToken, App, RsbtResult, TorrentProcessStatus};
 use async_trait::async_trait;
 use rsbt_bencode::Torrent;
 use std::{convert::TryInto, path::PathBuf};

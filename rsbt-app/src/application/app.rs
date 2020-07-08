@@ -4,7 +4,6 @@ use crate::{
         AppRuntime,
     },
     bridge::{OneshotChannel, Receiver, SocketListener, SocketStream},
-    experiments::Action,
     manager::{DefaultTorrentsManager, TorrentsManager},
     methods::{AnyResult, Method},
     torrent::{TorrentProcess, TorrentProcessStatus, TorrentToken},

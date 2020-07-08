@@ -1,5 +1,4 @@
 use crate::{
-    experiments::Action,
     manager::DefaultTorrentsManager,
     methods::AnyResult,
     tests::{
