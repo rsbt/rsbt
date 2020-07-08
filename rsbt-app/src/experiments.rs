@@ -15,6 +15,14 @@ pub mod deep_experiments {
         time::Duration,
     };
 
+    macro_rules! request {
+        ($sender:ident, |$x:ident: &mut $xt:ty| $expression:expr) => {
+            $sender
+                .request(move |$x: &mut $xt| $expression.boxed())
+                .await
+        };
+    }
+
     pub struct App<T: AppTypeFactory> {
         sender: <T as TypeFactory<Command<T, Self>>>::MpscSender,
         receiver: <T as TypeFactory<Command<T, Self>>>::MpscReceiver,
@@ -36,7 +44,7 @@ pub mod deep_experiments {
 
             let data = vec![5];
             let incoming_connections_loop = async move {
-                let result = sender.request(move |x| x.say_hello(data).boxed()).await;
+                let result = request!(sender, |x: &mut Self| x.say_hello(data));
                 eprintln!("{:?}", result);
             };
 
@@ -101,10 +109,10 @@ pub mod deep_experiments {
 
             let data = vec![5];
             let incoming_connections_loop = async move {
-                let result = sender.request(move |x| x.say_hello(data).boxed()).await;
+                let result = request!(sender, |x: &mut Self| x.say_hello(data));
                 eprintln!("handler: {:?}", result);
                 let data = result.unwrap().clone().as_bytes().to_vec();
-                let result = app_sender.request(move |x| x.say_hello(data).boxed()).await;
+                let result = request!(app_sender, |x: &mut App<T>| x.say_hello(data));
                 eprintln!("app: {:?}", result);
             };
 
