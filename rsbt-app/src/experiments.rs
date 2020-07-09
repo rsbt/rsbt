@@ -4,16 +4,20 @@ pub mod deep_experiments {
     use async_trait::async_trait;
     use futures::{
         future::{join, BoxFuture},
-        FutureExt, Sink, SinkExt, Stream, StreamExt,
+        stream::{BoxStream, Map},
+        AsyncRead, AsyncWrite, FutureExt, Sink, SinkExt, Stream, StreamExt,
     };
     use std::{
         any::Any,
         fmt::{Debug, Formatter},
         future::Future,
+        net::SocketAddr,
         pin::Pin,
         task::{Context, Poll},
         time::Duration,
     };
+    use tokio::net::{TcpListener, TcpStream};
+    use tokio_util::compat::{Compat, Tokio02AsyncReadCompatExt};
 
     macro_rules! request {
         ($sender:ident, |$x:ident: &mut $xt:ty| $expression:expr) => {
@@ -143,6 +147,8 @@ pub mod deep_experiments {
         + 'static
     {
         type AppRuntime: AppRuntime;
+        type SocketStream: Unpin + Send + AsyncRead + AsyncWrite;
+        type SocketListener: SocketListener + Stream<Item = RsbtResult<Self::SocketStream>> + Unpin;
     }
 
     pub trait OneshotSender<M> {
@@ -153,6 +159,8 @@ pub mod deep_experiments {
 
     impl AppTypeFactory for TokioTypeFactory {
         type AppRuntime = TokioAppRuntime;
+        type SocketStream = Compat<TcpStream>;
+        type SocketListener = BoxStream<'static, RsbtResult<Self::SocketStream>>;
     }
 
     pub struct TokioMpscSender<M>(tokio::sync::mpsc::Sender<M>);
@@ -410,5 +418,20 @@ pub mod deep_experiments {
         B: Sync + Send + 'static,
         T: Sink<Command<A, B>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync,
     {
+    }
+
+    #[async_trait]
+    pub trait SocketListener: Sized {
+        async fn bind(addr: SocketAddr) -> RsbtResult<Self>;
+    }
+
+    #[async_trait]
+    impl SocketListener for BoxStream<'static, RsbtResult<Compat<TcpStream>>> {
+        async fn bind(addr: SocketAddr) -> RsbtResult<Self> {
+            Ok(TcpListener::bind(addr)
+                .await?
+                .map(|x| x.map(|x| x.compat()).map_err(anyhow::Error::from))
+                .boxed())
+        }
     }
 }
