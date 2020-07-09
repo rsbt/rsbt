@@ -104,13 +104,9 @@ pub trait App: sealed::AppPriv + Send + Sized + 'static {
 }
 
 mod sealed {
-    #[cfg(test)]
-    use crate::tests::TestApp;
     use crate::TokioApp;
 
     pub trait AppPriv {}
 
     impl AppPriv for TokioApp {}
-    #[cfg(test)]
-    impl AppPriv for TestApp {}
 }

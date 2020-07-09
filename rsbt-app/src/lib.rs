@@ -32,8 +32,6 @@ mod sync;
 mod types;
 
 mod manager;
-#[cfg(test)]
-mod tests;
 mod tokio;
 mod torrent;
 mod transport;
