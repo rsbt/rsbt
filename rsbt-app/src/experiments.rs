@@ -149,6 +149,7 @@ pub mod deep_experiments {
         type AppRuntime: AppRuntime;
         type SocketStream: Unpin + Send + AsyncRead + AsyncWrite;
         type SocketListener: SocketListener + Stream<Item = RsbtResult<Self::SocketStream>> + Unpin;
+        type SocketConnect: SocketConnect<Self::SocketStream> + Unpin;
     }
 
     pub trait OneshotSender<M> {
@@ -161,6 +162,7 @@ pub mod deep_experiments {
         type AppRuntime = TokioAppRuntime;
         type SocketStream = Compat<TcpStream>;
         type SocketListener = BoxStream<'static, RsbtResult<Self::SocketStream>>;
+        type SocketConnect = TokioSocketConnect;
     }
 
     pub struct TokioMpscSender<M>(tokio::sync::mpsc::Sender<M>);
@@ -432,6 +434,23 @@ pub mod deep_experiments {
                 .await?
                 .map(|x| x.map(|x| x.compat()).map_err(anyhow::Error::from))
                 .boxed())
+        }
+    }
+
+    #[async_trait]
+    pub trait SocketConnect<SS> {
+        async fn connect(addr: SocketAddr) -> RsbtResult<SS>;
+    }
+
+    pub struct TokioSocketConnect;
+
+    #[async_trait]
+    impl SocketConnect<Compat<TcpStream>> for TokioSocketConnect {
+        async fn connect(addr: SocketAddr) -> RsbtResult<Compat<TcpStream>> {
+            TcpStream::connect(addr)
+                .await
+                .map(|x| x.compat())
+                .map_err(anyhow::Error::from)
         }
     }
 }
