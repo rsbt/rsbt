@@ -22,9 +22,9 @@ thiserror = "1.0"
 structopt = "0.3"
 log = "0.4"
 
-dirs = "2"
+dirs = "3"
 
-sha-1 = "0.8"
+sha-1 = "0.9"
 percent-encoding = "2"
 
 uuid = { version = "0.8", features = ["v4"] }
@@ -35,6 +35,7 @@ http-body = "0.3"
 bytes = "0.5"
 hyper = "0.13"
 futures = "0.3"
+futures_codec = "0.4"
 async-trait = "0.1"
 pin-utils = "0.1"
 

@@ -11,7 +11,7 @@ pub mod deep_experiments {
         any::Any,
         fmt::{Debug, Formatter},
         future::Future,
-        net::SocketAddr,
+        net::{IpAddr, Ipv4Addr, SocketAddr},
         pin::Pin,
         task::{Context, Poll},
         time::Duration,
@@ -30,15 +30,17 @@ pub mod deep_experiments {
     pub struct App<T: AppTypeFactory> {
         sender: <T as TypeFactory<Command<T, Self>>>::MpscSender,
         receiver: <T as TypeFactory<Command<T, Self>>>::MpscReceiver,
+        properties: T::AppProperties,
         data: Vec<u8>,
     }
 
     impl<T: AppTypeFactory> App<T> {
-        pub fn new() -> Self {
+        pub fn new(properties: T::AppProperties) -> Self {
             let (sender, receiver) = <T as TypeFactory<Command<T, Self>>>::mpsc_channel(10);
             Self {
                 sender,
                 receiver,
+                properties,
                 data: vec![],
             }
         }
@@ -48,6 +50,16 @@ pub mod deep_experiments {
 
             let data = vec![5];
             let incoming_connections_loop = async move {
+                let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
+                match T::SocketListener::bind(socket).await {
+                    Ok(mut listener) => {
+                        eprintln!("listen on {}", socket);
+                        while let Some(socket) = listener.next().await {}
+                    }
+                    Err(e) => {
+                        eprintln!("{}", e);
+                    }
+                }
                 let result = request!(sender, |x: &mut Self| x.say_hello(data));
                 eprintln!("{:?}", result);
             };
@@ -150,6 +162,30 @@ pub mod deep_experiments {
         type SocketStream: Unpin + Send + AsyncRead + AsyncWrite;
         type SocketListener: SocketListener + Stream<Item = RsbtResult<Self::SocketStream>> + Unpin;
         type SocketConnect: SocketConnect<Self::SocketStream> + Unpin;
+        type AppProperties: AppProperties;
+    }
+
+    pub trait AppProperties: Send + Sync + Debug {
+        fn listen_addr(&self) -> &SocketAddr;
+    }
+
+    #[derive(Debug)]
+    pub struct RsbtAppProperties {
+        listen_addr: SocketAddr,
+    }
+
+    impl Default for RsbtAppProperties {
+        fn default() -> Self {
+            Self {
+                listen_addr: SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 6881),
+            }
+        }
+    }
+
+    impl AppProperties for RsbtAppProperties {
+        fn listen_addr(&self) -> &SocketAddr {
+            &self.listen_addr
+        }
     }
 
     pub trait OneshotSender<M> {
@@ -163,6 +199,7 @@ pub mod deep_experiments {
         type SocketStream = Compat<TcpStream>;
         type SocketListener = BoxStream<'static, RsbtResult<Self::SocketStream>>;
         type SocketConnect = TokioSocketConnect;
+        type AppProperties = RsbtAppProperties;
     }
 
     pub struct TokioMpscSender<M>(tokio::sync::mpsc::Sender<M>);
@@ -310,7 +347,7 @@ pub mod deep_experiments {
     }
 
     pub async fn main() -> RsbtResult<()> {
-        let app: App<TokioTypeFactory> = App::new();
+        let app: App<TokioTypeFactory> = App::new(Default::default());
         let _ = app.run().await;
         /*        let (mut sender, mut receiver) = app.mpsc_channel(10);
         let sender_loop = async move {
