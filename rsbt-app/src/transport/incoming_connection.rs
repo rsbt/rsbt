@@ -1,7 +1,4 @@
 use crate::{
-    application::{AppProperties, AppRuntime},
-    bridge::{OneshotChannel, SocketListener, SocketStream},
-    App, AppHandler,
 };
 use async_trait::async_trait;
 use futures::{
@@ -11,6 +8,8 @@ use futures::{
 use log::{debug, error, info};
 use std::{sync::Arc, time::Duration};
 
+pub struct IncomingConnection;
+/*
 #[async_trait]
 pub trait IncomingConnection<A: App>: private::IncomingConnectionPriv {
     async fn process(properties: Arc<A::Properties>, app_handler: AppHandler<A>) {
@@ -104,3 +103,4 @@ mod private {
 
     impl IncomingConnectionPriv for DefaultIncomingConnection {}
 }
+*/

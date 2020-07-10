@@ -1,1 +1,1 @@
-pub struct Announces;
+pub(crate) struct Announces;

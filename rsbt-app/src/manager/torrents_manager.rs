@@ -1,10 +1,8 @@
-use crate::{torrent::TorrentToken, App, RsbtResult, TorrentProcessStatus};
+use crate::{RsbtResult, TorrentProcessStatus};
 use async_trait::async_trait;
 use rsbt_bencode::Torrent;
 use std::{convert::TryInto, path::PathBuf};
-
-#[async_trait]
-pub trait TorrentsManager<A: App>: Send + private::TorrentsManagerPriv<A> {
+/*
     async fn add_torrent(
         &mut self,
         data: Vec<u8>,
@@ -20,12 +18,4 @@ pub trait TorrentsManager<A: App>: Send + private::TorrentsManagerPriv<A> {
 
         todo!()
     }
-}
-
-mod private {
-    use crate::{manager::DefaultTorrentsManager, App};
-
-    pub trait TorrentsManagerPriv<A: App> {}
-
-    impl<A: App> TorrentsManagerPriv<A> for DefaultTorrentsManager {}
-}
+*/

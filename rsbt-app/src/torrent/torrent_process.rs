@@ -3,7 +3,7 @@ use crate::{
     peer::Peers,
     statistic::Statistics,
     storage::Storage,
-    torrent::{TorrentHeader, TorrentToken},
+    torrent::{TorrentHeader},
 };
 use std::sync::Arc;
 
@@ -16,9 +16,11 @@ pub struct TorrentProcess {
 }
 
 impl TorrentProcess {
+    /*
     pub(crate) fn token(&self) -> TorrentToken {
         self.header.clone().into()
     }
+    */
 }
 
 #[cfg(test)]

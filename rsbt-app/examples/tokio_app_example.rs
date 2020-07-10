@@ -1,3 +1,4 @@
+/*
 use env_logger;
 use futures::future::try_join;
 use log::{debug, error};
@@ -47,3 +48,5 @@ async fn main() -> RsbtResult<()> {
 
     Ok(())
 }
+*/
+fn main(){}

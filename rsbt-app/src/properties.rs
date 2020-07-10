@@ -1,10 +1,11 @@
-use crate::application::AppProperties;
+// use crate::application::AppProperties;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 #[derive(Debug)]
 pub struct RsbtAppProperties {
     listen_addr: SocketAddr,
 }
+/*
 
 impl Default for RsbtAppProperties {
     fn default() -> Self {
@@ -19,3 +20,4 @@ impl AppProperties for RsbtAppProperties {
         &self.listen_addr
     }
 }
+*/

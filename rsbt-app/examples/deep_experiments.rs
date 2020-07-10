@@ -1,8 +1,5 @@
 use env_logger;
-use futures::future::try_join;
-use log::{debug, error};
-use rsbt::{App, RsbtAppProperties, RsbtResult, TokioApp, TorrentProcessStatus};
-use std::time::Duration;
+use rsbt::RsbtResult;
 
 #[tokio::main]
 async fn main() -> RsbtResult<()> {
