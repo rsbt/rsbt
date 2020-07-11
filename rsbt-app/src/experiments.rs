@@ -1,10 +1,13 @@
 pub mod deep_experiments {
 
-    use crate::RsbtResult;
+    use crate::{
+        types::{OneshotSender, TypeFactory},
+        RsbtResult,
+    };
     use async_trait::async_trait;
     use futures::{
         future::{join, BoxFuture},
-        stream::{BoxStream, Map},
+        stream::BoxStream,
         AsyncRead, AsyncWrite, FutureExt, Sink, SinkExt, Stream, StreamExt,
     };
     use std::{
@@ -83,16 +86,6 @@ pub mod deep_experiments {
             self.data = data;
             "check me".into()
         }
-    }
-
-    pub trait TypeFactory<M> {
-        type MpscSender: Sink<M, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync;
-        type MpscReceiver: Stream<Item = M> + Debug + Unpin + Send + Sync;
-        type OneshotSender: OneshotSender<M> + Debug + Unpin + Send + Sync;
-        type OneshotReceiver: Future<Output = RsbtResult<M>> + Debug + Unpin + Send + Sync;
-
-        fn mpsc_channel(buffer: usize) -> (Self::MpscSender, Self::MpscReceiver);
-        fn oneshot_channel() -> (Self::OneshotSender, Self::OneshotReceiver);
     }
 
     pub struct Handler<T: AppTypeFactory> {
@@ -186,10 +179,6 @@ pub mod deep_experiments {
         fn listen_addr(&self) -> &SocketAddr {
             &self.listen_addr
         }
-    }
-
-    pub trait OneshotSender<M> {
-        fn send(self, message: M) -> Result<(), M>;
     }
 
     pub struct TokioTypeFactory;

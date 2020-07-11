@@ -49,4 +49,4 @@ async fn main() -> RsbtResult<()> {
     Ok(())
 }
 */
-fn main(){}
+fn main() {}

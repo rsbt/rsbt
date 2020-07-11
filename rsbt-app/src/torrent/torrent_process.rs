@@ -1,9 +1,6 @@
 use crate::{
-    announce::Announces,
-    peer::Peers,
-    statistic::Statistics,
-    storage::Storage,
-    torrent::{TorrentHeader},
+    announce::Announces, peer::Peers, statistic::Statistics, storage::Storage,
+    torrent::TorrentHeader,
 };
 use std::sync::Arc;
 
