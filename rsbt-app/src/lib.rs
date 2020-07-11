@@ -21,7 +21,6 @@ mod commands;
 pub mod announce;
 pub mod application;
 pub mod error;
-pub mod experiments;
 pub mod peer;
 pub mod properties;
 pub mod result;
@@ -56,6 +55,9 @@ pub const DEFAULT_CHANNEL_BUFFER: usize = 256;
 pub fn default_app_dir() -> PathBuf {
     dirs::home_dir().unwrap().join(".rsbt")
 }
+
+pub use crate::tokio::TokioTypeFactory;
+pub use application::App;
 
 #[cfg(test)]
 pub(crate) mod tests_common {

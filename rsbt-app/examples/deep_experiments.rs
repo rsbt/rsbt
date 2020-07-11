@@ -1,8 +1,11 @@
 use env_logger;
-use rsbt::RsbtResult;
+use rsbt::{App, RsbtResult, TokioTypeFactory};
 
 #[tokio::main]
 async fn main() -> RsbtResult<()> {
     env_logger::init();
-    rsbt::experiments::deep_experiments::main().await
+    let app: App<TokioTypeFactory> = App::new(Default::default());
+    app.run().await;
+
+    Ok(())
 }

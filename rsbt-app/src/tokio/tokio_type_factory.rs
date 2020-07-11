@@ -3,7 +3,6 @@ use super::{
 };
 use crate::{application::AppTypeFactory, types::TypeFactory, RsbtAppProperties, RsbtResult};
 use futures::stream::BoxStream;
-use std::fmt::Debug;
 use tokio::net::TcpStream;
 use tokio_util::compat::Compat;
 

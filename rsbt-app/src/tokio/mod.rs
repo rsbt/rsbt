@@ -10,4 +10,4 @@ pub(crate) use tokio_mpsc_sender::TokioMpscSender;
 pub(crate) use tokio_oneshot_receiver::TokioOneshotReceiver;
 pub(crate) use tokio_oneshot_sender::TokioOneshotSender;
 pub(crate) use tokio_socket_connect::TokioSocketConnect;
-pub(crate) use tokio_type_factory::TokioTypeFactory;
+pub use tokio_type_factory::TokioTypeFactory;
