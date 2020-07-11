@@ -13,6 +13,7 @@ rsbt = "0.1"
 ```
 
 */
+#![recursion_limit = "1024"]
 
 use std::path::PathBuf;
 
@@ -31,7 +32,7 @@ mod storage;
 mod sync;
 mod types;
 
-mod manager;
+mod managers;
 mod tokio;
 mod torrent;
 mod transport;

@@ -1,18 +1,26 @@
 use super::{App, AppProperties, AppRuntime};
 use crate::{
     commands::{AnyResult, Command},
+    managers::IncomingConnectionsManager,
+    tokio::{
+        TokioAppRuntime, TokioMpscSender, TokioOneshotReceiver, TokioOneshotSender,
+        TokioSocketConnect,
+    },
     transport::{SocketConnect, SocketListener},
     types::TypeFactory,
-    RsbtResult,
+    RsbtAppProperties, RsbtResult,
 };
-use futures::{AsyncRead, AsyncWrite, Stream};
+use futures::{stream::BoxStream, AsyncRead, AsyncWrite, Stream};
+use std::fmt::Debug;
+use tokio::net::TcpStream;
+use tokio_util::compat::Compat;
 
 pub trait AppTypeFactory:
     Sized
     + TypeFactory<String>
     + TypeFactory<AnyResult>
     + TypeFactory<Command<Self, App<Self>>>
-    // + TypeFactory<Command<Self, Handler<Self>>>
+    + TypeFactory<Command<Self, IncomingConnectionsManager<Self>>>
     + Sync
     + Send
     + 'static
