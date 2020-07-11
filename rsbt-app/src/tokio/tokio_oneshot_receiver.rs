@@ -8,9 +8,9 @@ use std::{
 
 pub struct TokioOneshotReceiver<M>(pub(crate) tokio::sync::oneshot::Receiver<M>);
 
-impl<M: Debug> Debug for TokioOneshotReceiver<M> {
+impl<M> Debug for TokioOneshotReceiver<M> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "TokioOneshotReceiver({:?})", self.0)
+        write!(f, "TokioOneshotReceiver")
     }
 }
 

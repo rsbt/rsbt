@@ -3,12 +3,9 @@ use std::fmt::{Debug, Formatter};
 
 pub struct TokioOneshotSender<M>(pub(crate) tokio::sync::oneshot::Sender<M>);
 
-impl<M> Debug for TokioOneshotSender<M>
-where
-    M: Debug,
-{
+impl<M> Debug for TokioOneshotSender<M> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "TokioOneshotSender({:?})", self.0)
+        write!(f, "TokioOneshotSender")
     }
 }
 

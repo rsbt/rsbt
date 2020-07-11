@@ -13,29 +13,27 @@ rsbt = "0.1"
 ```
 
 */
-#![recursion_limit = "1024"]
-
 use std::path::PathBuf;
 
 #[macro_use]
 mod commands;
 
-mod announce;
-mod application;
-mod error;
+pub mod announce;
+pub mod application;
+pub mod error;
 pub mod experiments;
-mod peer;
-mod properties;
-mod result;
-mod statistic;
-mod storage;
-mod sync;
-mod types;
+pub mod peer;
+pub mod properties;
+pub mod result;
+pub mod statistic;
+pub mod storage;
+pub mod sync;
+pub mod types;
 
-mod managers;
-mod tokio;
-mod torrent;
-mod transport;
+pub mod managers;
+pub mod tokio;
+pub mod torrent;
+pub mod transport;
 
 pub use error::RsbtError;
 pub use properties::RsbtAppProperties;

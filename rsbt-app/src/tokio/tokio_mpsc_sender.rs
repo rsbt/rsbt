@@ -21,7 +21,7 @@ impl<M> Debug for TokioMpscSender<M> {
 
 impl<M> Sink<M> for TokioMpscSender<M>
 where
-    M: Debug + Send + Sync,
+    M: Send + Sync,
 {
     type Error = anyhow::Error;
 

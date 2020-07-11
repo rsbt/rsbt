@@ -19,7 +19,7 @@ impl AppTypeFactory for TokioTypeFactory {
 
 impl<M> TypeFactory<M> for TokioTypeFactory
 where
-    M: Debug + Send + Sync,
+    M: Send + Sync,
 {
     type MpscSender = TokioMpscSender<M>;
     type MpscReceiver = tokio::sync::mpsc::Receiver<M>;
