@@ -11,7 +11,7 @@ use futures::{
     future::{abortable, join, BoxFuture},
     FutureExt, StreamExt,
 };
-use log::error;
+use log::{debug, error, info};
 use rsbt_bencode::Torrent;
 use std::{
     convert::TryInto,
@@ -69,6 +69,10 @@ impl<T: AppTypeFactory> App<T> {
         };
 
         join(incoming_connections_loop, command_loop).await;
+    }
+
+    async fn start(&mut self) {
+        info!("starting torrent app...");
     }
 
     async fn say_hello(&mut self, data: Vec<u8>) -> String {

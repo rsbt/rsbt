@@ -1,7 +1,6 @@
 use super::{App, AppProperties, AppRuntime};
 use crate::{
     commands::{AnyResult, Command},
-    managers::IncomingConnectionsManager,
     transport::{SocketConnect, SocketListener},
     types::TypeFactory,
     RsbtResult,
@@ -13,7 +12,6 @@ pub trait AppTypeFactory:
     + TypeFactory<String>
     + TypeFactory<AnyResult>
     + TypeFactory<Command<Self, App<Self>>>
-    + TypeFactory<Command<Self, IncomingConnectionsManager<Self>>>
     + Sync
     + Send
     + 'static
