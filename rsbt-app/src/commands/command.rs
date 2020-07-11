@@ -3,19 +3,12 @@ use crate::{
     application::AppTypeFactory,
     types::{OneshotSender, TypeFactory},
 };
-use std::fmt::{Debug, Formatter};
 
 pub enum Command<A: AppTypeFactory, B> {
     Request(
         <A as TypeFactory<AnyResult>>::OneshotSender,
         Box<dyn AnyRequest<B> + Send + Sync>,
     ),
-}
-
-impl<A: AppTypeFactory, B> Debug for Command<A, B> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Command")
-    }
 }
 
 impl<A: AppTypeFactory, B> Command<A, B> {

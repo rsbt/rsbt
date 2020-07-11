@@ -1,18 +1,11 @@
 use crate::RsbtResult;
 use futures::Future;
 use std::{
-    fmt::{Debug, Formatter},
     pin::Pin,
     task::{Context, Poll},
 };
 
 pub struct TokioOneshotReceiver<M>(pub(crate) tokio::sync::oneshot::Receiver<M>);
-
-impl<M> Debug for TokioOneshotReceiver<M> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "TokioOneshotReceiver")
-    }
-}
 
 impl<M> Future for TokioOneshotReceiver<M> {
     type Output = RsbtResult<M>;

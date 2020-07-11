@@ -2,11 +2,11 @@ use super::{AnyCommand, AnyResult, Command};
 use crate::{application::AppTypeFactory, types::TypeFactory, RsbtResult};
 use async_trait::async_trait;
 use futures::{future::BoxFuture, Sink, SinkExt};
-use std::{any::Any, fmt::Debug};
+use std::any::Any;
 
 #[async_trait]
 pub trait CommandSender<A, B>:
-    Sink<Command<A, B>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync
+    Sink<Command<A, B>, Error = anyhow::Error> + Clone + Unpin + Send + Sync
 where
     A: AppTypeFactory,
     B: Sync + Send + 'static,
@@ -39,6 +39,6 @@ where
 impl<T, A: AppTypeFactory, B> CommandSender<A, B> for T
 where
     B: Sync + Send + 'static,
-    T: Sink<Command<A, B>, Error = anyhow::Error> + Clone + Debug + Unpin + Send + Sync,
+    T: Sink<Command<A, B>, Error = anyhow::Error> + Clone + Unpin + Send + Sync,
 {
 }

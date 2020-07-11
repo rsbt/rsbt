@@ -1,6 +1,5 @@
 use futures::Sink;
 use std::{
-    fmt::{Debug, Formatter},
     pin::Pin,
     task::{Context, Poll},
 };
@@ -10,12 +9,6 @@ pub struct TokioMpscSender<M>(pub(crate) tokio::sync::mpsc::Sender<M>);
 impl<M> Clone for TokioMpscSender<M> {
     fn clone(&self) -> Self {
         Self(self.0.clone())
-    }
-}
-
-impl<M> Debug for TokioMpscSender<M> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "TokioMpscSender({:?})", self.0)
     }
 }
 
