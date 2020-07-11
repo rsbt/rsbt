@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+    "rsbt",
     "rsbt-app",
     "rsbt-bencode",
     "rsbt-types"
