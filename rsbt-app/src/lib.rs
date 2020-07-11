@@ -16,9 +16,11 @@ rsbt = "0.1"
 
 use std::path::PathBuf;
 
+#[macro_use]
+mod commands;
+
 mod announce;
 mod application;
-mod commands;
 mod error;
 pub mod experiments;
 mod peer;
