@@ -58,6 +58,11 @@ pub fn default_app_dir() -> PathBuf {
 
 pub use crate::tokio::TokioTypeFactory;
 pub use application::App;
+pub use application::AppService;
+
+pub fn default_app_service() -> impl AppService {
+    application::DefaultAppService
+}
 
 #[cfg(test)]
 pub(crate) mod tests_common {
