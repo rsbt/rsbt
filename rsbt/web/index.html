@@ -1,66 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
 
     <title>RSBT</title>
-<!-- CSS only -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <!-- CSS only -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+      crossorigin="anonymous"
+    />
 
-<style>
-:root {
-  --icon-size: 1rem;
-}
-.bi::before {
-  display: inline-block;
-  content: "";
-  background-repeat: no-repeat;
-  background-size: var(--icon-size) var(--icon-size);
-  width: var(--icon-size);
-  height: var(--icon-size);
-  vertical-align: middle;
-}
-.bi.bi-chevron-right::before {
-  background-image: url("data:image/svg+xml,<svg viewBox='0 0 20 20' fill='%2328a745' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' d='M6.646 3.646a.5.5 0 01.708 0l6 6a.5.5 0 010 .708l-6 6a.5.5 0 01-.708-.708L12.293 10 6.646 4.354a.5.5 0 010-.708z' /></svg>");
-}
-button > svg {
-    vertical-align: middle;
-
-}
-.loading {
-    animation: loading 2s infinite alternate-reverse;
-}
-@keyframes loading {
-    from {transform: rotate(0deg);}
-    to {transform: rotate(360deg);}
-}
-</style>
-</head>
-<body>
-    <button type="button" class="btn btn-info">
-        <svg width="32" height="32" viewBox="0 0 16 16" class="bi bi-power" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
-        </svg>
-    </button>
-    <button type="button" class="btn btn-warning">
-    <svg class="loading" width="32" height="32" viewBox="0 0 16 16" class="bi bi-hourglass-bottom" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5zm2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702s.18.149.5.149.5-.15.5-.15v-.7c0-.701.478-1.236 1.011-1.492A3.5 3.5 0 0 0 11.5 3V2h-7z"/>
-    </svg>
-    </button>
-    <button type="button" class="btn btn-success">
-        <svg width="32" height="32" viewBox="0 0 16 16" class="bi bi-power" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" d="M5.578 4.437a5 5 0 1 0 4.922.044l.5-.866a6 6 0 1 1-5.908-.053l.486.875z"/>
-            <path fill-rule="evenodd" d="M7.5 8V1h1v7h-1z"/>
-        </svg>
+    <style>
+      :root {
+        --icon-size: 1rem;
+      }
+      .bi::before {
+        display: inline-block;
+        content: "";
+        background-repeat: no-repeat;
+        background-size: var(--icon-size) var(--icon-size);
+        width: var(--icon-size);
+        height: var(--icon-size);
+        vertical-align: middle;
+      }
+      .bi.bi-chevron-right::before {
+        background-image: url("data:image/svg+xml,<svg viewBox='0 0 20 20' fill='%2328a745' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' d='M6.646 3.646a.5.5 0 01.708 0l6 6a.5.5 0 010 .708l-6 6a.5.5 0 01-.708-.708L12.293 10 6.646 4.354a.5.5 0 010-.708z' /></svg>");
+      }
+      button > svg {
+        vertical-align: middle;
+      }
+      .loading {
+        animation: loading 2s infinite alternate-reverse;
+      }
+      @keyframes loading {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .hidden {
+        display: none;
+      }
+      .runner {
+        position: relative;
+        width: 3.125em;
+        height: 3.125em;
+      }
+      .runner > .runner-start {
+        position: absolute;
+        left: 0.5em;
+        top: 0.5em;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s, opacity 0.5s linear;
+      }
+      .runner > .runner-progress {
+        position: absolute;
+        left: 0.5em;
+        top: 0.5em;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s, opacity 0.5s linear;
+      }
+      .runner > .runner-end {
+        position: absolute;
+        left: 0.5em;
+        top: 0.5em;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s, opacity 0.5s linear;
+      }
+      [data-runner-state="start"] > .runner-start {
+        visibility: visible;
+        opacity: 1;
+      }
+      [data-runner-state="progress"] > .runner-progress {
+        visibility: visible;
+        opacity: 1;
+      }
+      [data-runner-state="end"] > .runner-end {
+        visibility: visible;
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <button
+      id="toggleOn"
+      type="button"
+      class="btn btn-info runner"
+      data-runner-state="start"
+    >
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 16 16"
+        class="bi bi-power blur runner-start"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"
+        />
+      </svg>
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 16 16"
+        class="bi bi-hourglass-bottom loading runner-progress"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5zm2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702s.18.149.5.149.5-.15.5-.15v-.7c0-.701.478-1.236 1.011-1.492A3.5 3.5 0 0 0 11.5 3V2h-7z"
+        />
+      </svg>
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 16 16"
+        class="bi bi-power runner-end"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M5.578 4.437a5 5 0 1 0 4.922.044l.5-.866a6 6 0 1 1-5.908-.053l.486.875z"
+        />
+        <path fill-rule="evenodd" d="M7.5 8V1h1v7h-1z" />
+      </svg>
     </button>
     <!-- JS, Popper.js, and jQuery -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+      integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+      crossorigin="anonymous"
+    ></script>
 
-<script>
-
-</script>
-</body>
+    <script>
+      function delay(ms) {
+        return new Promise((resolve, reject) => {
+          setTimeout(resolve, ms);
+        });
+      }
+      function buttonRunner(id, handler) {
+        let btn = document.getElementById(id);
+        btn.onclick = async () => {
+          let isStart;
+          if (btn.dataset.runnerState === "start") {
+            isStart = true;
+            btn.classList.remove("btn-info");
+          } else if (btn.dataset.runnerState === "end") {
+            isStart = false;
+            btn.classList.remove("btn-success");
+          } else {
+            return;
+          }
+          btn.classList.add("btn-warning");
+          btn.dataset.runnerState = "progress";
+          await handler();
+          btn.classList.remove("btn-warning");
+          if (isStart) {
+            btn.classList.add("btn-success");
+            btn.dataset.runnerState = "end";
+          } else {
+            btn.classList.add("btn-info");
+            btn.dataset.runnerState = "start";
+          }
+        };
+      }
+      buttonRunner("toggleOn", () => delay(5000));
+    </script>
+  </body>
 </html>
