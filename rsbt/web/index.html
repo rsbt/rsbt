@@ -93,6 +93,8 @@
     </style>
   </head>
   <body>
+    <div id="errors" class="container errors"></div>
+
     <button
       id="toggleOn"
       type="button"
@@ -165,6 +167,9 @@
         let btn = document.getElementById(id);
         btn.onclick = async () => {
           let isStart;
+
+          btn.classList.remove("btn-danger");
+
           if (btn.dataset.runnerState === "start") {
             isStart = true;
             btn.classList.remove("btn-info");
@@ -174,10 +179,32 @@
           } else {
             return;
           }
+
           btn.classList.add("btn-warning");
           btn.dataset.runnerState = "progress";
-          await handler();
+
+          try {
+            await handler();
+          } catch (e) {
+            console.log(`catch error: ${e} ${isStart}`);
+
+            btn.classList.remove("btn-warning");
+            btn.classList.add("btn-danger");
+
+            if (isStart) {
+              btn.dataset.runnerState = "start";
+            } else {
+              btn.dataset.runnerState = "end";
+            }
+
+            if (e instanceof HttpClientFailure) {
+            }
+
+            throw e;
+          }
+
           btn.classList.remove("btn-warning");
+
           if (isStart) {
             btn.classList.add("btn-success");
             btn.dataset.runnerState = "end";
@@ -188,7 +215,43 @@
         };
       }
 
-      buttonRunner("toggleOn", () => delay(5000));
+      class HttpFailure extends Error {
+        constructor(...args) {
+          super(...args);
+        }
+      }
+
+      class HttpClientFailure extends HttpFailure {
+        constructor(response) {
+          super(undefined);
+
+          this.response = response;
+        }
+      }
+
+      async function load() {
+        buttonRunner("toggleOn", async () => {
+          try {
+            let response = await fetch("/action", {
+              method: "POST",
+              mode: "cors",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            });
+
+            if (!response.ok) {
+              throw new HttpClientFailure(response);
+            }
+          } catch (e) {
+            if (e instanceof HttpClientFailure) {
+              throw e;
+            }
+            throw new HttpFailure(e);
+          }
+        });
+      }
+
+      load().then(() => console.log("loaded..."));
     </script>
   </body>
 </html>
