@@ -105,7 +105,7 @@
           top: 0;
           right: 0;
           width: 30%;
-          min-width: 15em;
+          min-width: 20em;
         "
       ></div>
     </div>
@@ -181,8 +181,7 @@
           });
         }
 
-        function buttonRunner(id, handler) {
-          let btn = document.getElementById(id);
+        function buttonRunner(btn, handler) {
           btn.onclick = async () => {
             let isStart;
 
@@ -272,8 +271,10 @@
           }
         }
 
-        buttonRunner("toggleOn", async () => {
-          let response = await request("/action", {
+        let btnToggleOn = document.getElementById("toggleOn");
+
+        buttonRunner(btnToggleOn, async () => {
+          let response = await request("/api/v1/action", {
             method: "POST",
             mode: "cors",
             headers: { "Content-Type": "application/json" },
@@ -282,6 +283,7 @@
         });
 
         let errors = document.getElementById("errors");
+
 
         function addError(e) {
           let errorDiv = document.createElement("div");
@@ -299,6 +301,10 @@
           $(errorDiv).toast("show");
           $(errorDiv).on("hidden.bs.toast", function () {
             errorDiv.remove();
+            if (btnToggleOn.dataset.runnerState !== "progress") {
+              btnToggleOn.classList.remove("btn-danger");
+              btnToggleOn.classList.add("btn-info");
+            }
           });
         }
       }
