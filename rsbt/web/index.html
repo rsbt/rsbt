@@ -90,10 +90,23 @@
         visibility: visible;
         opacity: 1;
       }
+      div > #errors {
+        position: absolute;
+        min-height: 200px;
+        width: 50%;
+        right: 0;
+      }
+      #errors {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
     </style>
   </head>
   <body>
-    <div id="errors" class="container errors"></div>
+    <div aria-live="polite" aria-atomic="true">
+      <div id="errors" class="container errors"></div>
+    </div>
 
     <button
       id="toggleOn"
@@ -157,79 +170,81 @@
     ></script>
 
     <script>
-      function delay(ms) {
-        return new Promise((resolve, reject) => {
-          setTimeout(resolve, ms);
-        });
-      }
+      async function load() {
+        function delay(ms) {
+          return new Promise((resolve, reject) => {
+            setTimeout(resolve, ms);
+          });
+        }
 
-      function buttonRunner(id, handler) {
-        let btn = document.getElementById(id);
-        btn.onclick = async () => {
-          let isStart;
+        function buttonRunner(id, handler) {
+          let btn = document.getElementById(id);
+          btn.onclick = async () => {
+            let isStart;
 
-          btn.classList.remove("btn-danger");
+            btn.classList.remove("btn-danger");
 
-          if (btn.dataset.runnerState === "start") {
-            isStart = true;
-            btn.classList.remove("btn-info");
-          } else if (btn.dataset.runnerState === "end") {
-            isStart = false;
-            btn.classList.remove("btn-success");
-          } else {
-            return;
-          }
+            if (btn.dataset.runnerState === "start") {
+              isStart = true;
+              btn.classList.remove("btn-info");
+            } else if (btn.dataset.runnerState === "end") {
+              isStart = false;
+              btn.classList.remove("btn-success");
+            } else {
+              return;
+            }
 
-          btn.classList.add("btn-warning");
-          btn.dataset.runnerState = "progress";
+            btn.classList.add("btn-warning");
+            btn.dataset.runnerState = "progress";
 
-          try {
-            await handler();
-          } catch (e) {
-            console.log(`catch error: ${e} ${isStart}`);
+            try {
+              await handler();
+            } catch (e) {
+              console.log(`catch error: ${e} ${isStart}`);
+
+              btn.classList.remove("btn-warning");
+              btn.classList.add("btn-danger");
+
+              if (isStart) {
+                btn.dataset.runnerState = "start";
+              } else {
+                btn.dataset.runnerState = "end";
+              }
+
+              if (e instanceof HttpClientFailure) {
+              }
+
+              addError(e);
+
+              throw e;
+            }
 
             btn.classList.remove("btn-warning");
-            btn.classList.add("btn-danger");
 
             if (isStart) {
-              btn.dataset.runnerState = "start";
-            } else {
+              btn.classList.add("btn-success");
               btn.dataset.runnerState = "end";
+            } else {
+              btn.classList.add("btn-info");
+              btn.dataset.runnerState = "start";
             }
-
-            if (e instanceof HttpClientFailure) {
-            }
-
-            throw e;
-          }
-
-          btn.classList.remove("btn-warning");
-
-          if (isStart) {
-            btn.classList.add("btn-success");
-            btn.dataset.runnerState = "end";
-          } else {
-            btn.classList.add("btn-info");
-            btn.dataset.runnerState = "start";
-          }
-        };
-      }
-
-      class HttpFailure extends Error {
-        constructor(...args) {
-          super(...args);
+          };
         }
-      }
 
-      class HttpClientFailure extends HttpFailure {
-        constructor(response) {
-          super(undefined);
-
-          this.response = response;
+        class HttpFailure extends Error {
+          constructor(...args) {
+            super(...args);
+          }
         }
-      }
 
-      async function load() {
+        class HttpClientFailure extends HttpFailure {
+          constructor(response) {
+            super(undefined);
+
+            this.response = response;
+          }
+        }
+
         buttonRunner("toggleOn", async () => {
           try {
             let response = await fetch("/action", {
@@ -249,6 +264,35 @@
             throw new HttpFailure(e);
           }
         });
+
+        let errors = document.getElementById("errors");
+
+        function addError(e) {
+          let errorDiv = document.createElement("div");
+          errorDiv.classList.add(
+            "alert",
+            "alert-danger",
+            "alert-dismissible",
+            "fade",
+            "show"
+          );
+
+          errorDiv.setAttribute("role", "alert");
+
+          if (e instanceof HttpClientFailure) {
+            errorAlertClosable(errorDiv, e.response.statusText);
+          } else if (e instanceof HttpFailure) {
+          } else if (e.toString) {
+          } else if (e.message) {
+          } else if (e instanceof String) {
+          } else {
+          }
+          errors.appendChild(errorDiv);
+        }
+      }
+
+      function errorAlertClosable(div, text) {
+        div.innerHTML = `${text}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>`;
       }
 
       load().then(() => console.log("loaded..."));
