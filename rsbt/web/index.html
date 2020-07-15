@@ -90,68 +90,72 @@
         visibility: visible;
         opacity: 1;
       }
-      div > #errors {
-        position: absolute;
-        min-height: 200px;
-        width: 50%;
-        right: 0;
-      }
-      #errors {
-        position: absolute;
-        top: 0;
-        right: 0;
-      }
     </style>
   </head>
   <body>
-    <div aria-live="polite" aria-atomic="true">
-      <div id="errors" class="container errors"></div>
+    <div
+      aria-live="polite"
+      aria-atomic="true"
+      style="position: absolute; top: 0; right: 0; min-height: 200px;"
+    >
+      <div
+        id="errors"
+        style="
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 30%;
+          min-width: 15em;
+        "
+      ></div>
     </div>
 
-    <button
-      id="toggleOn"
-      type="button"
-      class="btn btn-info runner"
-      data-runner-state="start"
-    >
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 16 16"
-        class="bi bi-power blur runner-start"
-        fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
+    <div class="container bg-light p-2">
+      <button
+        id="toggleOn"
+        type="button"
+        class="btn btn-info runner"
+        data-runner-state="start"
       >
-        <path
-          d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"
-        />
-      </svg>
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 16 16"
-        class="bi bi-hourglass-bottom loading runner-progress"
-        fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5zm2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702s.18.149.5.149.5-.15.5-.15v-.7c0-.701.478-1.236 1.011-1.492A3.5 3.5 0 0 0 11.5 3V2h-7z"
-        />
-      </svg>
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 16 16"
-        class="bi bi-power runner-end"
-        fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"
-        />
-      </svg>
-    </button>
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 16 16"
+          class="bi bi-power blur runner-start"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"
+          />
+        </svg>
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 16 16"
+          class="bi bi-hourglass-bottom loading runner-progress"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M2 1.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1-.5-.5zm2.5.5v1a3.5 3.5 0 0 0 1.989 3.158c.533.256 1.011.791 1.011 1.491v.702s.18.149.5.149.5-.15.5-.15v-.7c0-.701.478-1.236 1.011-1.492A3.5 3.5 0 0 0 11.5 3V2h-7z"
+          />
+        </svg>
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 16 16"
+          class="bi bi-power runner-end"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"
+          />
+        </svg>
+      </button>
+    </div>
     <!-- JS, Popper.js, and jQuery -->
     <script
       src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
@@ -238,49 +242,52 @@
         }
 
         class HttpClientFailure extends HttpFailure {
-          constructor(response) {
+          constructor(response, url, params) {
             super(undefined);
 
             this.response = response;
+            this.url = url;
+            this.params = params;
+          }
+
+          toString() {
+            return `${this.params.method} ${this.url}: ${this.response.status} ${this.response.statusText}`;
           }
         }
 
-        buttonRunner("toggleOn", async () => {
+        async function request(url, params) {
           try {
-            let response = await fetch("/action", {
-              method: "POST",
-              mode: "cors",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({}),
-            });
+            let response = await fetch(url, params);
 
             if (!response.ok) {
-              throw new HttpClientFailure(response);
+              throw new HttpClientFailure(response, url, params);
             }
+
+            return response;
           } catch (e) {
             if (e instanceof HttpClientFailure) {
               throw e;
             }
             throw new HttpFailure(e);
           }
+        }
+
+        buttonRunner("toggleOn", async () => {
+          let response = await request("/action", {
+            method: "POST",
+            mode: "cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+          });
         });
 
         let errors = document.getElementById("errors");
 
         function addError(e) {
           let errorDiv = document.createElement("div");
-          errorDiv.classList.add(
-            "alert",
-            "alert-danger",
-            "alert-dismissible",
-            "fade",
-            "show"
-          );
-
-          errorDiv.setAttribute("role", "alert");
 
           if (e instanceof HttpClientFailure) {
-            errorAlertClosable(errorDiv, e.response.statusText);
+            errorAlertClosable(errorDiv, e.toString());
           } else if (e instanceof HttpFailure) {
           } else if (e.toString) {
           } else if (e.message) {
@@ -288,11 +295,39 @@
           } else {
           }
           errors.appendChild(errorDiv);
+
+          $(errorDiv).toast("show");
+          $(errorDiv).on("hidden.bs.toast", function () {
+            errorDiv.remove();
+          });
         }
       }
 
       function errorAlertClosable(div, text) {
-        div.innerHTML = `${text}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>`;
+        div.classList.add("toast", "mr-2", "mt-2", "bg-danger");
+
+        div.setAttribute("role", "alert");
+        div.setAttribute("aria-live", "assertive");
+        div.setAttribute("aria-atomic", "true");
+        div.dataset.delay = 5000;
+        let now = new Date();
+        let nowStr = now.toLocaleTimeString();
+        div.innerHTML = `
+<div class="toast-header">
+  <!--img src="..." class="rounded mr-2" alt="..."-->
+  <svg class="rounded mr-2" width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-bug" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path fill-rule="evenodd" d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A4.979 4.979 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A4.985 4.985 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623zM4 7v4a4 4 0 0 0 3.5 3.97V7H4zm4.5 0v7.97A4 4 0 0 0 12 11V7H8.5zM12 6H4a3.99 3.99 0 0 1 1.333-2.982A3.983 3.983 0 0 1 8 2c1.025 0 1.959.385 2.666 1.018A3.989 3.989 0 0 1 12 6z"/>
+  </svg>
+  <strong class="mr-auto">Error</strong>
+  <small class="text-muted">${nowStr}</small>
+  <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="toast-body text-white">
+  ${text}
+</div>
+`;
       }
 
       load().then(() => console.log("loaded..."));
