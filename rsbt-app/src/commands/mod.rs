@@ -7,9 +7,10 @@ mod command_sender;
 pub(crate) use any_command::AnyCommand;
 pub(crate) use any_request::AnyRequest;
 pub(crate) use any_result::AnyResult;
-pub(crate) use command::Command;
-pub(crate) use command_sender::CommandSender;
+pub use command::Command;
+pub use command_sender::CommandSender;
 
+#[macro_export]
 macro_rules! request {
     ($sender:ident, |$x:ident: &mut $xt:ty| $expression:expr) => {
         $sender

@@ -56,9 +56,10 @@ pub fn default_app_dir() -> PathBuf {
     dirs::home_dir().unwrap().join(".rsbt")
 }
 
-pub use crate::tokio::TokioTypeFactory;
+pub use crate::tokio::{TokioMpscSender, TokioTypeFactory};
 pub use application::App;
 pub use application::AppService;
+pub use commands::{Command, CommandSender};
 
 pub fn default_app_service() -> impl AppService {
     application::DefaultAppService

@@ -1,4 +1,4 @@
-use super::AppTypeFactory;
+use super::{AppProperties, AppRuntime, AppTypeFactory};
 use crate::{
     commands::{Command, CommandSender},
     torrent::{TorrentProcess, TorrentProcessStatus},
@@ -18,12 +18,14 @@ use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::PathBuf,
     sync::Arc,
+    time::Duration,
 };
 
 pub struct App<T: AppTypeFactory> {
     sender: <T as TypeFactory<Command<T, Self>>>::MpscSender,
     receiver: <T as TypeFactory<Command<T, Self>>>::MpscReceiver,
     properties: T::AppProperties,
+    running: bool,
     data: Vec<u8>,
 }
 
@@ -34,19 +36,30 @@ impl<T: AppTypeFactory> App<T> {
             sender,
             receiver,
             properties,
+            running: false,
             data: vec![],
         }
+    }
+
+    pub async fn spawn(self) -> <T as TypeFactory<Command<T, Self>>>::MpscSender {
+        let sender = self.sender.clone();
+
+        <T::AppRuntime as AppRuntime>::spawn(self.run());
+
+        sender
     }
 
     pub async fn run(mut self) {
         let mut sender = self.sender.clone();
 
         let data = vec![5];
+
+        let listen_addr = self.properties.listen_addr().clone();
+
         let incoming_connections_loop = async move {
-            let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
-            match T::SocketListener::bind(socket).await {
+            match T::SocketListener::bind(listen_addr).await {
                 Ok(mut listener) => {
-                    eprintln!("listen on {}", socket);
+                    eprintln!("listen on {}", listen_addr);
                     while let Some(socket) = listener.next().await {}
                 }
                 Err(e) => {
@@ -71,8 +84,24 @@ impl<T: AppTypeFactory> App<T> {
         join(incoming_connections_loop, command_loop).await;
     }
 
-    async fn start(&mut self) {
+    pub async fn start(&mut self) {
         info!("starting torrent app...");
+        self.running = true;
+        info!("started torrent app");
+    }
+
+    pub async fn stop(&mut self) {
+        info!("stopping torrent app...");
+        self.running = false;
+        info!("stopped torrent app");
+    }
+
+    pub async fn toggle(&mut self) {
+        if self.running {
+            self.stop().await
+        } else {
+            self.start().await
+        }
     }
 
     async fn say_hello(&mut self, data: Vec<u8>) -> String {

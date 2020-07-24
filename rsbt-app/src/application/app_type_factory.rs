@@ -18,7 +18,10 @@ pub trait AppTypeFactory:
 {
     type AppRuntime: AppRuntime;
     type SocketStream: Unpin + Send + AsyncRead + AsyncWrite;
-    type SocketListener: SocketListener + Stream<Item = RsbtResult<Self::SocketStream>> + Unpin;
+    type SocketListener: SocketListener
+        + Stream<Item = RsbtResult<Self::SocketStream>>
+        + Unpin
+        + Send;
     type SocketConnect: SocketConnect<Self::SocketStream> + Unpin;
     type AppProperties: AppProperties;
 }

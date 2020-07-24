@@ -15,6 +15,12 @@ repository = "https://github.com/rsbt/rsbt"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+
+default = ["dev"]
+
+dev = []
+
 [dependencies]
 rsbt-app = { path = "../rsbt-app" }
 
