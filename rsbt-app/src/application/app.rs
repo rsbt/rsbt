@@ -26,18 +26,17 @@ pub struct App<T: AppTypeFactory> {
     receiver: <T as TypeFactory<Command<T, Self>>>::MpscReceiver,
     properties: T::AppProperties,
     running: bool,
-    data: Vec<u8>,
 }
 
 impl<T: AppTypeFactory> App<T> {
     pub fn new(properties: T::AppProperties) -> Self {
-        let (sender, receiver) = <T as TypeFactory<Command<T, Self>>>::mpsc_channel(10);
+        let (sender, receiver) =
+            <T as TypeFactory<Command<T, Self>>>::mpsc_channel(properties.mpsc_buffer_size());
         Self {
             sender,
             receiver,
             properties,
             running: false,
-            data: vec![],
         }
     }
 
@@ -52,8 +51,6 @@ impl<T: AppTypeFactory> App<T> {
     pub async fn run(mut self) {
         let mut sender = self.sender.clone();
 
-        let data = vec![5];
-
         let listen_addr = self.properties.listen_addr().clone();
 
         let incoming_connections_loop = async move {
@@ -66,15 +63,8 @@ impl<T: AppTypeFactory> App<T> {
                     eprintln!("{}", e);
                 }
             }
-            let result = request!(sender, |x: &mut Self| x.say_hello(data));
-            eprintln!("{:?}", result);
         };
-        /*
-                let handler: Handler<T> = Handler::new(self.sender.clone());
-                T::AppRuntime::spawn(async move {
-                    handler.run().await;
-                });
-        */
+
         let command_loop = async move {
             while let Some(cmd) = self.receiver.next().await {
                 cmd.execute(&mut self).await;
@@ -102,12 +92,6 @@ impl<T: AppTypeFactory> App<T> {
         } else {
             self.start().await
         }
-    }
-
-    async fn say_hello(&mut self, data: Vec<u8>) -> String {
-        eprintln!("hello new beautiful world! {}", data.len());
-        self.data = data;
-        "check me".into()
     }
 }
 

@@ -15,7 +15,12 @@ impl Default for RsbtAppProperties {
 }
 
 impl AppProperties for RsbtAppProperties {
+
     fn listen_addr(&self) -> &SocketAddr {
         &self.listen_addr
+    }
+
+    fn mpsc_buffer_size(&self) -> usize {
+        10
     }
 }
