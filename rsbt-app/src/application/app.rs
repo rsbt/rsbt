@@ -56,11 +56,11 @@ impl<T: AppTypeFactory> App<T> {
         let incoming_connections_loop = async move {
             match T::SocketListener::bind(listen_addr).await {
                 Ok(mut listener) => {
-                    eprintln!("listen on {}", listen_addr);
+                    info!("listen on {}", listen_addr);
                     while let Some(socket) = listener.next().await {}
                 }
                 Err(e) => {
-                    eprintln!("{}", e);
+                    error!("{}", e);
                 }
             }
         };
