@@ -12,6 +12,8 @@ use futures::FutureExt;
 use rsbt_app::{
     request, App as RsbtApp, Command, CommandSender, RsbtResult, TokioMpscSender, TokioTypeFactory,
 };
+use rsbt_web_wizard::generated_web_wizard;
+use log::debug;
 
 #[post("/api/v1/action")]
 async fn api_v1_action(
@@ -48,6 +50,22 @@ async fn index() -> impl Responder {
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
+
+    let need_initial_configuration = true;
+
+    if need_initial_configuration {
+        HttpServer::new(move || {
+            let generated_web_wizard = generated_web_wizard();
+            debug!("Generated static assets for HTTP worker.");
+            App::new().service(actix_web_static_files::ResourceFiles::new(
+                "/",
+                generated_web_wizard,
+            ))
+        })
+        .bind("127.0.0.1:8080")?
+        .run()
+        .await?;
+    }
 
     let app = RsbtApp::<TokioTypeFactory>::new(Default::default());
 

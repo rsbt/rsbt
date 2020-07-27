@@ -4,7 +4,8 @@ members = [
     "rsbt",
     "rsbt-app",
     "rsbt-bencode",
-    "rsbt-types"
+    "rsbt-types",
+    "rsbt-web-wizard"
 ]
 
 [profile.release]

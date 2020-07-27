@@ -23,11 +23,13 @@ dev = []
 
 [dependencies]
 rsbt-app = { path = "../rsbt-app" }
+rsbt-web-wizard = { path = "../rsbt-web-wizard" }
 
 actix = "0.9"
 actix-rt = "1.1"
 actix-service = "1.0"
 actix-web = { version = "2.0", features = ["rustls"] }
+actix-web-static-files = "2"
 dotenv = "0.15"
 tokio = { version = "0.2", features = ["full"] }
 futures = "0.3"
