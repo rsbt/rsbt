@@ -9,11 +9,12 @@
 
 use actix_web::{get, http::StatusCode, post, web, App, HttpResponse, HttpServer, Responder};
 use futures::FutureExt;
+use log::debug;
 use rsbt_app::{
     request, App as RsbtApp, Command, CommandSender, RsbtResult, TokioMpscSender, TokioTypeFactory,
 };
+use rsbt_web_common::generated_web_common;
 use rsbt_web_wizard::generated_web_wizard;
-use log::debug;
 
 #[post("/api/v1/action")]
 async fn api_v1_action(
@@ -55,12 +56,20 @@ async fn main() -> std::io::Result<()> {
 
     if need_initial_configuration {
         HttpServer::new(move || {
+            let generated_web_common = generated_web_common();
             let generated_web_wizard = generated_web_wizard();
+
             debug!("Generated static assets for HTTP worker.");
-            App::new().service(actix_web_static_files::ResourceFiles::new(
-                "/",
-                generated_web_wizard,
-            ))
+
+            App::new()
+                .service(actix_web_static_files::ResourceFiles::new(
+                    "/res",
+                    generated_web_common,
+                ))
+                .service(actix_web_static_files::ResourceFiles::new(
+                    "/",
+                    generated_web_wizard,
+                ))
         })
         .bind("127.0.0.1:8080")?
         .run()

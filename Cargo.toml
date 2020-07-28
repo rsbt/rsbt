@@ -5,6 +5,7 @@ members = [
     "rsbt-app",
     "rsbt-bencode",
     "rsbt-types",
+    "rsbt-web-common",
     "rsbt-web-wizard"
 ]
 

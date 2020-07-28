@@ -24,6 +24,7 @@ dev = []
 [dependencies]
 rsbt-app = { path = "../rsbt-app" }
 rsbt-web-wizard = { path = "../rsbt-web-wizard" }
+rsbt-web-common = { path = "../rsbt-web-common" }
 
 actix = "0.9"
 actix-rt = "1.1"
