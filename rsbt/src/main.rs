@@ -81,7 +81,7 @@ async fn main() -> std::io::Result<()> {
     let rsbt_app_sender = app.spawn().await;
 
     let sender = web::Data::new(rsbt_app_sender);
-
+    /*
     HttpServer::new(move || {
         App::new()
             .app_data(sender.clone())
@@ -90,5 +90,6 @@ async fn main() -> std::io::Result<()> {
     })
     .bind("127.0.0.1:8080")?
     .run()
-    .await
+    .await*/
+    Ok(())
 }

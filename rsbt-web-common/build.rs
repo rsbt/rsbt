@@ -1,5 +1,5 @@
-use std::{env, path::Path};
 use actix_web_static_files::generate_resources;
+use std::{env, path::Path};
 
 fn main() {
     let out_dir = env::var("OUT_DIR").unwrap();
