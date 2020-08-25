@@ -92,19 +92,17 @@
 	.st86{fill:none;}
 	.st87{fill:url(#SVGID_77_);}
 	.st88{fill:url(#SVGID_78_);}
-    #kleshnyaR1 {animation: kleshnyaR1_anim 10s infinite step-end;}
-	#kleshnyaL1 {animation: kleshnyaL1_anim 10s infinite step-end;}
+    #kleshnyaR1 {animation: kleshnyaR1_anim 1s infinite linear alternate;}
+	#kleshnyaL1 {animation: kleshnyaL1_anim 1s infinite linear alternate;}
 	#glaz {animation: glaz_anim 10s infinite step-end;}
 	#glaz2 {animation: glaz2_anim 10s infinite step-end;}
 	@keyframes kleshnyaR1_anim {
-		0% { opacity: 1; }
-		2% { opacity: 1; }
-		20% { opacity: 1; }
+		0% { transform: rotate(-20deg); transform-origin: 14% 50%; }
+		100% { transform: rotate(20deg); transform-origin: 14% 50%;}
 	}
     @keyframes kleshnyaL1_anim {
-		0% { opacity: 1; }
-		2% { opacity: 1; }
-		20% { opacity: 1; }
+		0% { transform: rotate(20deg); transform-origin: 85% 50%; }
+		100% { transform: rotate(-20deg); transform-origin: 85% 50%;}
 	}
 	@keyframes  glaz_anim {
 		0% { opacity: 0; }
