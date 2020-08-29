@@ -45,6 +45,12 @@ module.exports = {
       { test: /\.gif$/, use: "url-loader?mimetype=image/gif" },
     ],
   },
+  devServer: {
+    contentBase: "./dist",
+    proxy: {
+      "/res": "http://localhost:8080"
+    }
+  },
   plugins: [
     new HtmlWebpackPlugin({
       title: "Output Management",

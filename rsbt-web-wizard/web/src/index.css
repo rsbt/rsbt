@@ -1,3 +1,7 @@
+html, body {
+    height: 100%;
+}
+
 .rsbt.logo {
     background-image: url("/res/img/01.svg");
 }

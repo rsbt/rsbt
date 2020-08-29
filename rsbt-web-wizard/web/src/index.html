@@ -10,28 +10,26 @@
     <title>RSBT: Welcome!</title>
   </head>
   <body>
-    <h1>Welcome to RSBT initial configuration wizard.</h1>
-    <div class="container mt-5 mb-5"></div>
-    <!-- mx-auto -->
-    <div class="card mb-3" style="max-width: 540px;">
-      <div class="row no-gutters">
-        <div class="col-md-4">
-          <img src="/res/img/01.svg" class="card-img" alt="RSBT Logo" />
-        </div>
-        <div class="col-md-8">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">
-              This is a wider card with supporting text below as a natural
-              lead-in to additional content. This content is a little bit
-              longer.
-            </p>
-            <p class="card-text">
-              <small class="text-muted">Last updated 3 mins ago</small>
-            </p>
+    <header class="container h-100">
+      <div class="row h-100">
+        <div class="col-sm-12 text-center my-auto">
+          <div class="container">
+            <h1 class="mb-1 user-select-none">Welcome to RSBT!</h1>
+            <h5 class="mb-5 user-select-none">
+              <em>BitTorrent Application for peformance and security</em>
+            </h5>
+            <img src="/res/img/01.svg" class="w-25 mb-5" alt="RSBT Logo" />
           </div>
+          <a
+            name="start-default"
+            id="start-default"
+            class="btn btn-lg btn-success"
+            href="/api/wizard/all-default"
+            role="button"
+            >Start</a
+          >
         </div>
       </div>
-    </div>
+    </header>
   </body>
 </html>

@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "webpack --mode development",
+    "start": "webpack-dev-server --open",
     "build": "webpack --mode production"
   },
   "browserslist": "> 0.2%",
@@ -16,7 +16,8 @@
     "typescript": "^4.0.2",
     "url-loader": "^4.1.0",
     "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
     "bootstrap": "^4.5.0",
