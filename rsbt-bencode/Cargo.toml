@@ -18,5 +18,5 @@ repository = "https://github.com/rsbt/rsbt"
 [dependencies]
 nom = "5"
 thiserror = "1.0"
-sha-1 = "0.8"
+sha-1 = "0.9"
 serde = { version = "1.0", features = ["derive"] }

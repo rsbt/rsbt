@@ -27,11 +27,18 @@ async fn wizard_all_default(
         if let Err(_) = quit_trigger.send(()) {
             return HttpResponse::InternalServerError().finish();
         }
-    };
+    }
 
-    HttpResponse::Ok()
-        .header("Content-Type", "text/html")
-        .body("<meta http-equiv=\"refresh\" content=\"5; url=/\" />")
+    #[cfg(feature = "dev")]
+    {
+        response_from_file("web/index.html", "text/html").await
+    }
+    #[cfg(not(feature = "dev"))]
+    {
+        HttpResponse::Ok()
+            .header("Content-Type", "text/html")
+            .body(&include_bytes!("../web/all-default-redirect.html")[..])
+    }
 }
 
 #[post("/api/v1/action")]
@@ -45,24 +52,29 @@ async fn api_v1_action(
     HttpResponse::Created()
 }
 
+#[cfg(feature = "dev")]
+async fn response_from_file(path: &str, content_type: &str) -> impl Responder {
+    let file_path = std::env::current_dir().unwrap_or_default().join(path);
+    if let Ok(file_content) = tokio::fs::read_to_string(&file_path).await {
+        HttpResponse::build(StatusCode::OK)
+            .header("Content-Type", content_type)
+            .body(file_content)
+    } else {
+        HttpResponse::NotFound().body(format!("not found {:?}", file_path))
+    }
+}
+
 #[get("/")]
 async fn index() -> impl Responder {
     #[cfg(feature = "dev")]
     {
-        let index_html = std::env::current_dir()
-            .unwrap_or_default()
-            .join("web/index.html");
-        if let Ok(index_html) = std::fs::read_to_string(&index_html) {
-            HttpResponse::build(StatusCode::OK)
-                .header("Content-Type", "text/html")
-                .body(index_html)
-        } else {
-            HttpResponse::NotFound().body(format!("not found {:?}", index_html))
-        }
+        response_from_file("web/index.html", "text/html").await
     }
     #[cfg(not(feature = "dev"))]
     {
-        HttpResponse::Ok().body(&include_bytes!("../web/index.html")[..])
+        HttpResponse::Ok()
+            .header("Content-Type", "text/html")
+            .body(&include_bytes!("../web/index.html")[..])
     }
 }
 

@@ -17,7 +17,8 @@ repository = "https://github.com/rsbt/rsbt"
 
 [features]
 
-default = ["dev"]
+default = []
+#default = ["dev"]
 
 dev = []
 
@@ -26,11 +27,11 @@ rsbt-app = { path = "../rsbt-app" }
 rsbt-web-wizard = { path = "../rsbt-web-wizard" }
 rsbt-web-common = { path = "../rsbt-web-common" }
 
-actix = "0.9"
+actix = "0.10"
 actix-rt = "1.1"
 actix-service = "1.0"
-actix-web = { version = "2.0", features = ["rustls"] }
-actix-web-static-files = "2"
+actix-web = { version = "3.0", features = ["rustls"] }
+actix-web-static-files = "3"
 dotenv = "0.15"
 tokio = { version = "0.2", features = ["full"] }
 futures = "0.3"

@@ -14,7 +14,7 @@ readme = "README.md"
 repository = "https://github.com/rsbt/rsbt"
 
 [dependencies]
-actix-web-static-files = "2"
+actix-web-static-files = "3"
 
 [build-dependencies]
-actix-web-static-files = "2"
+actix-web-static-files = "3"
