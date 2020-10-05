@@ -20,3 +20,22 @@ Add dependency to Cargo.toml:
 [dependencies]
 rsbt = "0.1"
 ```
+
+## Development information
+
+### Configuration directory
+
+Default config location: `$HOME/.rsbt/`
+
+Default tree structure:
+
+```text
+├── download
+│   ├── Big\ Buck\ Bunny.en.srt
+│   ├── Big\ Buck\ Bunny.mp4
+│   └── poster.jpg
+├── torrents
+│   ├── big-buck-bunny.torrent
+│   └── big-buck-bunny.torrent.state
+└── torrents.toml
+```

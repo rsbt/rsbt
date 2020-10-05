@@ -17,8 +17,8 @@ repository = "https://github.com/rsbt/rsbt"
 
 [features]
 
-default = []
-#default = ["dev"]
+# default = []
+default = ["dev"]
 
 dev = []
 

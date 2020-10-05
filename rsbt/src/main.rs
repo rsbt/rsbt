@@ -31,7 +31,7 @@ async fn wizard_all_default(
 
     #[cfg(feature = "dev")]
     {
-        response_from_file("web/index.html", "text/html").await
+        response_from_file("web/all-default-redirect.html", "text/html").await
     }
     #[cfg(not(feature = "dev"))]
     {
@@ -53,7 +53,7 @@ async fn api_v1_action(
 }
 
 #[cfg(feature = "dev")]
-async fn response_from_file(path: &str, content_type: &str) -> impl Responder {
+async fn response_from_file(path: &str, content_type: &str) -> HttpResponse {
     let file_path = std::env::current_dir().unwrap_or_default().join(path);
     if let Ok(file_content) = tokio::fs::read_to_string(&file_path).await {
         HttpResponse::build(StatusCode::OK)
