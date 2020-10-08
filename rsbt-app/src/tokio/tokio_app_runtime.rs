@@ -15,6 +15,16 @@ impl AppRuntime for TokioAppRuntime {
             .boxed()
     }
 
+    fn spawn_blocking<'a, F, R>(f: F) -> BoxFuture<'a, RsbtResult<R>>
+    where
+        F: FnOnce() -> R + Send + 'static,
+        R: Send + 'static,
+    {
+        tokio::task::spawn_blocking(f)
+            .map(|x| x.map_err(anyhow::Error::from))
+            .boxed()
+    }
+
     fn delay_for<'a>(duration: Duration) -> BoxFuture<'a, ()> {
         tokio::time::delay_for(duration).boxed()
     }

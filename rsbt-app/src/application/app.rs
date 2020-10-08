@@ -93,6 +93,15 @@ impl<T: AppTypeFactory> App<T> {
             self.start().await
         }
     }
+
+    pub async fn check_need_initial_configuration() -> RsbtResult<bool> {
+        Ok(<T::AppRuntime as AppRuntime>::spawn_blocking(|| {
+            let home_dir = dirs::home_dir().unwrap_or_else(|| ".".into());
+
+            !home_dir.join(".rsbt").is_dir()
+        })
+        .await?)
+    }
 }
 
 /*

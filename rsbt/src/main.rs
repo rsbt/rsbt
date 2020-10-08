@@ -79,10 +79,11 @@ async fn index() -> impl Responder {
 }
 
 #[actix_rt::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> Result<(), anyhow::Error> {
     env_logger::init();
 
-    let need_initial_configuration = true;
+    let need_initial_configuration =
+        RsbtApp::<TokioTypeFactory>::check_need_initial_configuration().await?;
 
     if need_initial_configuration {
         let (quit_trigger_tx, quit_trigger_rx) = oneshot::channel();
