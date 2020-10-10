@@ -19,7 +19,6 @@ repository = "https://github.com/rsbt/rsbt"
 anyhow = "1.0"
 thiserror = "1.0"
 
-structopt = "0.3"
 log = "0.4"
 
 dirs = "3"

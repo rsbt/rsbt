@@ -20,6 +20,7 @@ mod commands;
 
 pub mod announce;
 pub mod application;
+pub mod config;
 pub mod error;
 pub mod peer;
 pub mod properties;

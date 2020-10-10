@@ -1,6 +1,7 @@
 use super::{AppProperties, AppRuntime, AppTypeFactory};
 use crate::{
     commands::{Command, CommandSender},
+    config,
     torrent::{TorrentProcess, TorrentProcessStatus},
     transport::SocketListener,
     types::TypeFactory,
@@ -94,11 +95,11 @@ impl<T: AppTypeFactory> App<T> {
         }
     }
 
-    pub async fn check_need_initial_configuration() -> RsbtResult<bool> {
-        Ok(<T::AppRuntime as AppRuntime>::spawn_blocking(|| {
-            let home_dir = dirs::home_dir().unwrap_or_else(|| ".".into());
-
-            !home_dir.join(".rsbt").is_dir()
+    pub async fn check_need_initial_configuration(
+        custom_config_dir: Option<PathBuf>,
+    ) -> RsbtResult<bool> {
+        Ok(<T::AppRuntime as AppRuntime>::spawn_blocking(move || {
+            config::need_initial_configuration(custom_config_dir)
         })
         .await?)
     }

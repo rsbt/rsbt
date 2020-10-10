@@ -17,7 +17,10 @@ use rsbt_app::{
 };
 use rsbt_web_common::generated_web_common;
 use rsbt_web_wizard::generated_web_wizard;
+use structopt::StructOpt;
 use tokio::sync::{oneshot, Mutex};
+
+mod cli;
 
 #[get("/api/wizard/all-default")]
 async fn wizard_all_default(
@@ -82,8 +85,11 @@ async fn index() -> impl Responder {
 async fn main() -> Result<(), anyhow::Error> {
     env_logger::init();
 
+    let cli = cli::Cli::from_args();
+
     let need_initial_configuration =
-        RsbtApp::<TokioTypeFactory>::check_need_initial_configuration().await?;
+        RsbtApp::<TokioTypeFactory>::check_need_initial_configuration(cli.config_dir.clone())
+            .await?;
 
     if need_initial_configuration {
         let (quit_trigger_tx, quit_trigger_rx) = oneshot::channel();
