@@ -10,8 +10,9 @@
 use actix_web::{
     dev::Server, get, http::StatusCode, post, web, App, HttpResponse, HttpServer, Responder,
 };
+use env_logger::Builder as LoggerBuilder;
 use futures::FutureExt;
-use log::{debug, error};
+use log::{debug, error, info};
 use rsbt_app::{
     request, App as RsbtApp, Command, CommandSender, RsbtResult, TokioMpscSender, TokioTypeFactory,
 };
@@ -83,13 +84,24 @@ async fn index() -> impl Responder {
 
 #[actix_rt::main]
 async fn main() -> Result<(), anyhow::Error> {
-    env_logger::init();
-
     let cli = cli::Cli::from_args();
+
+    cli.verbose
+        .log_level()
+        .map(|x| {
+            LoggerBuilder::new()
+                .filter(None, x.to_level_filter())
+                .format_timestamp_nanos()
+                .try_init()
+        })
+        .transpose()?;
+
+    info!("RSBT initialization...");
 
     let need_initial_configuration =
         RsbtApp::<TokioTypeFactory>::check_need_initial_configuration(cli.config_dir.clone())
             .await?;
+    info!("Need initial configuration: {}", need_initial_configuration);
 
     if need_initial_configuration {
         let (quit_trigger_tx, quit_trigger_rx) = oneshot::channel();

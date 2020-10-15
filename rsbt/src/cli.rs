@@ -1,5 +1,4 @@
 use std::path::PathBuf;
-
 use structopt::StructOpt;
 
 /// RSBT
@@ -10,4 +9,6 @@ pub struct Cli {
     /// Default: $HOME/.rsbt
     #[structopt(long)]
     pub config_dir: Option<PathBuf>,
+    #[structopt(flatten)]
+    pub verbose: clap_verbosity_flag::Verbosity,
 }

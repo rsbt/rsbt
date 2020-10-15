@@ -51,10 +51,14 @@ pub const TORRENTS_TOML: &str = "torrents.toml";
 
 pub const DEFAULT_CHANNEL_BUFFER: usize = 256;
 
+pub(crate) const RSBT_DIR: &str = ".rsbt";
+
 //FIXME: pub(crate) const KEEP_ALIVE_INTERVAL: Duration = Duration::from_secs(110);
 
-pub fn default_app_dir() -> PathBuf {
-    dirs::home_dir().unwrap().join(".rsbt")
+pub fn app_dir(custom_config_dir: Option<PathBuf>) -> PathBuf {
+    custom_config_dir
+        .or_else(dirs::home_dir)
+        .unwrap_or_else(|| ".".into())
 }
 
 pub use crate::tokio::{TokioMpscSender, TokioTypeFactory};
