@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use super::{AnyRequest, AnyResult};
 use crate::{
     application::AppTypeFactory,
@@ -9,6 +11,14 @@ pub enum Command<A: AppTypeFactory, B> {
         <A as TypeFactory<AnyResult>>::OneshotSender,
         Box<dyn AnyRequest<B> + Send + Sync>,
     ),
+}
+
+impl<A: AppTypeFactory, B> Debug for Command<A, B> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Command::Request(sender, any_request) => write!(f, "Command::Request(?, ?)"),
+        }
+    }
 }
 
 impl<A: AppTypeFactory, B> Command<A, B> {

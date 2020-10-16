@@ -25,7 +25,7 @@ impl AppRuntime for TokioAppRuntime {
             .boxed()
     }
 
-    fn delay_for<'a>(duration: Duration) -> BoxFuture<'a, ()> {
+    fn sleep<'a>(duration: Duration) -> BoxFuture<'a, ()> {
         tokio::time::delay_for(duration).boxed()
     }
 

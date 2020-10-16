@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use super::{
     TokioAppRuntime, TokioMpscSender, TokioOneshotReceiver, TokioOneshotSender, TokioSocketConnect,
 };
@@ -18,7 +20,7 @@ impl AppTypeFactory for TokioTypeFactory {
 
 impl<M> TypeFactory<M> for TokioTypeFactory
 where
-    M: Send + Sync,
+    M: Send + Sync + Debug + 'static,
 {
     type MpscSender = TokioMpscSender<M>;
     type MpscReceiver = tokio::sync::mpsc::Receiver<M>;

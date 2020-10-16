@@ -13,7 +13,7 @@ pub trait AppRuntime {
         F: FnOnce() -> R + Send + 'static,
         R: Send + 'static;
 
-    fn delay_for<'a>(duration: Duration) -> BoxFuture<'a, ()>;
+    fn sleep<'a>(duration: Duration) -> BoxFuture<'a, ()>;
 
     fn timeout<'a, T>(duration: Duration, future: T) -> BoxFuture<'a, RsbtResult<T::Output>>
     where
