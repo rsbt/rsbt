@@ -35,7 +35,11 @@ async fn wizard_all_default(
 
     #[cfg(feature = "dev")]
     {
-        response_from_file("web/all-default-redirect.html", "text/html").await
+        response_from_file(
+            concat!(module_path!(), "/web/all-default-redirect.html"),
+            "text/html",
+        )
+        .await
     }
     #[cfg(not(feature = "dev"))]
     {
@@ -72,7 +76,7 @@ async fn response_from_file(path: &str, content_type: &str) -> HttpResponse {
 async fn index() -> impl Responder {
     #[cfg(feature = "dev")]
     {
-        response_from_file("web/index.html", "text/html").await
+        response_from_file(concat!(module_path!(), "/web/index.html"), "text/html").await
     }
     #[cfg(not(feature = "dev"))]
     {
