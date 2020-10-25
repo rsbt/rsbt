@@ -108,6 +108,12 @@ async fn main() -> Result<(), anyhow::Error> {
 
         let server_handler: web::Data<Mutex<Option<oneshot::Sender<()>>>> =
             web::Data::new(Mutex::new(Some(quit_trigger_tx)));
+
+        let wizard_listen_addr = cli
+            .wizard_listen_addr
+            .as_ref()
+            .unwrap_or_else(|| &cli.listen_addr);
+
         let server = HttpServer::new(move || {
             let generated_web_common = generated_web_common();
             let generated_web_wizard = generated_web_wizard();
@@ -126,7 +132,7 @@ async fn main() -> Result<(), anyhow::Error> {
                     generated_web_wizard,
                 ))
         })
-        .bind("127.0.0.1:8080")?
+        .bind(wizard_listen_addr)?
         .run();
 
         let server_clone = server.clone();
@@ -148,15 +154,16 @@ async fn main() -> Result<(), anyhow::Error> {
     let rsbt_app_sender = app.spawn().await;
 
     let sender = web::Data::new(rsbt_app_sender);
-    /*
+
     HttpServer::new(move || {
         App::new()
             .app_data(sender.clone())
             .service(index)
             .service(api_v1_action)
     })
-    .bind("127.0.0.1:8080")?
+    .bind(cli.listen_addr)?
     .run()
-    .await*/
+    .await?;
+
     Ok(())
 }

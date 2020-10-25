@@ -1,5 +1,9 @@
 use super::{AnyCommand, AnyResult, Command};
-use crate::{application::AppTypeFactory, types::{TypeFactory, Sender}, RsbtResult};
+use crate::{
+    application::AppTypeFactory,
+    types::{Sender, TypeFactory},
+    RsbtResult,
+};
 use async_trait::async_trait;
 use futures::future::BoxFuture;
 use std::any::Any;
