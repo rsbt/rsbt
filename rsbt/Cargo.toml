@@ -31,7 +31,7 @@ actix = "0.10"
 actix-rt = "1.1"
 actix-service = "1.0"
 actix-web = { version = "3", features = ["rustls"] }
-actix-web-static-files = "3"
+actix-web-static-files = { version = "3.0.5", features = ["change-detection"] }
 anyhow = "1.0"
 dirs = "3"
 dotenv = "0.15"

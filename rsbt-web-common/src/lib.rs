@@ -14,6 +14,4 @@ rsbt-web-common = "0.1"
 
 */
 
-use std::collections::HashMap;
-
 include!(concat!(env!("OUT_DIR"), "/generated.rs"));

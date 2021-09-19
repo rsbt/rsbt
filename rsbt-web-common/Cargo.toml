@@ -16,7 +16,7 @@ repository = "https://github.com/rsbt/rsbt"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web-static-files = "3"
+actix-web-static-files = { version = "3.0.5", features = ["change-detection"] }
 
 [build-dependencies]
-actix-web-static-files = "3"
+actix-web-static-files = { version = "3.0.5", features = ["change-detection"] }
