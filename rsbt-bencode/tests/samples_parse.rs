@@ -85,7 +85,7 @@ fn parse_ferris_torrent() -> Result<(), RsbtBencodeError> {
     assert_eq!(349_133, info.len());
     assert_eq!(
         Some(&PathBuf::from("ferris.gif")),
-        info.files.iter().next().map(|x| &x.path)
+        info.files.get(0).map(|x| &x.path)
     );
 
     Ok(())

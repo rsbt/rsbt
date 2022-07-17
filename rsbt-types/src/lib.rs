@@ -1,3 +1,4 @@
+#![cfg_attr(not(feature = "std"), no_std)]
 /*!
 # rsbt-types description
 
@@ -13,11 +14,12 @@ rsbt-types = "0.1"
 ```
 
 */
+#[cfg(feature = "alloc")]
+extern crate alloc;
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+mod torrent;
+
+#[cfg(feature = "alloc")]
+pub(crate) use alloc::vec::Vec;
+#[cfg(not(feature = "alloc"))]
+pub(crate) use std::vec::Vec;

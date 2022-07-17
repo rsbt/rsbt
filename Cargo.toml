@@ -1,14 +1,15 @@
 [workspace]
 
 members = [
-    "rsbt",
-    "rsbt-app",
-    "rsbt-bencode",
+#    "rsbt",
+#    "rsbt-app",
+#    "rsbt-bencode",
+    "rsbt-bencode-nom7",
+    "rsbt-bencode-derive",
     "rsbt-types",
-    "rsbt-web-common",
-    "rsbt-web-wizard"
+    # "rsbt-web-common",
+    # "rsbt-web-wizard",
 ]
 
 [profile.release]
 lto = true
-
