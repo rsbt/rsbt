@@ -45,11 +45,14 @@ pub trait Bencoded<'a>: Sized {
         A: FnOnce(Option<Self>) + 'b,
     {
         let mut res: Vec<(&'static str, BoxedParser<'b, I>)> = Vec::new();
-        res.push((name, Box::new(|mut entries| {
-            let field: Option<Self> = Bencoded::field(&mut entries, name)?;
-            apply_fn(field);
-            Ok(entries)
-        })));
+        res.push((
+            name,
+            Box::new(|mut entries| {
+                let field: Option<Self> = Bencoded::field(&mut entries, name)?;
+                apply_fn(field);
+                Ok(entries)
+            }),
+        ));
         res
     }
 }
@@ -142,10 +145,12 @@ pub enum BencodeError {
     Parse(String),
     #[error("expected another type")]
     NoMatch,
+    #[error("field {0} not found")]
+    NoField(String),
     #[error(transparent)]
     Utf8Error(#[from] core::str::Utf8Error),
     #[error(transparent)]
     TryFromInt(#[from] core::num::TryFromIntError),
-    #[error("field {0} not found")]
-    NoField(String),
+    #[error(transparent)]
+    TryFromSlice(#[from] core::array::TryFromSliceError),
 }

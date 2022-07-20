@@ -1,4 +1,6 @@
-use rsbt_bencode_nom7::{Bencode, BencodeError, BencodeParse};
+use core::convert::TryInto;
+
+use rsbt_bencode_nom7::{Bencode, BencodeError, BencodeParse, Bencoded};
 
 use crate::Vec;
 
@@ -13,18 +15,37 @@ pub struct Info<'a> {
     name: &'a str,
     #[bencode(rename = "piece length")]
     piece_length: usize,
-    #[bencode(parse_with = "parse_vec_sha1")]
-    pieces: Vec<Sha1<'a>>,
+    pieces: Pieces<'a>,
     // files: Files<'a>,
 }
 
 #[derive(Debug)]
 pub struct Sha1<'a>(&'a [u8; 20]);
 
-fn parse_vec_sha1<'a>(bencode: Bencode<'a>) -> Result<Vec<Sha1<'a>>, BencodeError> {
-    todo!()
-}
+#[derive(Debug)]
+pub struct Pieces<'a>(Vec<Sha1<'a>>);
 
+impl<'a> Bencoded<'a> for Pieces<'a> {
+    fn try_from_bencoded(bencode: Bencode<'a>) -> Result<Self, BencodeError> {
+        if let Bencode::String(list) = bencode {
+            let mut chunks = list.chunks_exact(20);
+            chunks
+                .by_ref()
+                .map(|x| x.try_into().map(Sha1))
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(BencodeError::from)
+                .and_then(|result| {
+                    if chunks.remainder().is_empty() {
+                        Ok(Self(result))
+                    } else {
+                        Err(BencodeError::NoMatch)
+                    }
+                })
+        } else {
+            Err(BencodeError::NoMatch)
+        }
+    }
+}
 // #[derive(BencodeParse)]
 // pub enum Files<'a> {
 //     #[bencode(rename = "length")]
