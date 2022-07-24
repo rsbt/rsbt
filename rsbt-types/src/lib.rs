@@ -14,12 +14,8 @@ rsbt-types = "0.1"
 ```
 
 */
-#[cfg(feature = "alloc")]
-extern crate alloc;
-
 mod torrent;
 
-#[cfg(feature = "alloc")]
-pub(crate) use alloc::vec::Vec;
-#[cfg(not(feature = "alloc"))]
-pub(crate) use std::vec::Vec;
+pub(crate) use rsbt_bencode_nom7::lib::{Arc, Box, Vec};
+
+pub use torrent::Torrent;

@@ -21,10 +21,12 @@ extern crate alloc;
 mod parser;
 mod types;
 
-#[cfg(feature = "alloc")]
-pub(crate) use alloc::{boxed::Box, vec::Vec};
-#[cfg(not(feature = "alloc"))]
-pub(crate) use std::{boxed::Box, vec::Vec};
+pub mod lib {
+    #[cfg(feature = "alloc")]
+    pub use alloc::{boxed::Box, sync::Arc, vec::Vec};
+    #[cfg(not(feature = "alloc"))]
+    pub use std::{boxed::Box, sync::Arc, vec::Vec};
+}
 
 #[cfg(feature = "derive")]
 #[allow(unused_imports)]
@@ -36,4 +38,6 @@ extern crate rsbt_bencode_derive;
 pub use rsbt_bencode_derive::*;
 
 pub use parser::parse_bencoded;
-pub use types::{Bencode, BencodeError, Bencoded};
+pub use types::{
+    parse_bencoded_entries, Bencode, BencodeError, BencodeResult, Bencoded, BoxedParser,
+};

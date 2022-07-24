@@ -1,4 +1,4 @@
-use crate::{Box, Vec};
+use crate::lib::{Box, Vec};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Bencode<'a> {
@@ -18,42 +18,60 @@ impl<'a> TryFrom<&'a [u8]> for Bencode<'a> {
     }
 }
 
-type BencodeResult<T> = Result<T, BencodeError>;
-type BoxedParser<'a, I> = Box<dyn FnOnce(I) -> BencodeResult<I> + 'a>;
+pub type BencodeResult<T> = Result<T, BencodeError>;
+pub type BoxedParser<'a, 'b> = Box<dyn FnOnce(Bencode<'a>) -> BencodeResult<()> + 'b>;
 
-pub trait Bencoded<'a>: Sized {
+pub fn parse_bencoded_entries<'a, 'b, P, E>(parsers: P, entries: E) -> BencodeResult<()>
+where
+    P: IntoIterator<Item = (&'b str, BoxedParser<'a, 'b>)>,
+    E: IntoIterator<Item = (&'a str, Bencode<'a>)>,
+{
+    let mut parsers = parsers.into_iter().peekable();
+    'for_loop: for (key, value) in entries {
+        loop {
+            if let Some((parser_key, _)) = parsers.peek() {
+                match key.cmp(parser_key) {
+                    core::cmp::Ordering::Equal => {
+                        if let Some((_, parser_fn)) = parsers.next() {
+                            parser_fn(value)?;
+                            break;
+                        }
+                    }
+                    core::cmp::Ordering::Less => break,
+                    core::cmp::Ordering::Greater => {
+                        parsers.next();
+                    }
+                }
+            } else {
+                break 'for_loop;
+            }
+        }
+    }
+    Ok(())
+}
+
+pub trait Bencoded<'a>: Sized + core::fmt::Debug {
     fn try_from_bencoded(bencode: Bencode<'a>) -> Result<Self, BencodeError>;
 
     fn parse_bencoded_slice(slice: &'a [u8]) -> Result<Self, BencodeError> {
         Self::try_from_bencoded(slice.try_into()?)
     }
 
-    fn field<I>(entries: &mut I, name: &str) -> Result<Self, BencodeError>
-    where
-        I: Iterator<Item = (&'a str, Bencode<'a>)>,
-    {
-        let field: Option<Self> = Bencoded::field(entries, name)?;
-        field.ok_or_else(|| BencodeError::NoField(name.into()))
-    }
-
-    fn field_parsers<'b, A, I>(
-        name: &'static str,
-        apply_fn: A,
-    ) -> Vec<(&'static str, BoxedParser<'b, I>)>
-    where
-        I: Iterator<Item = (&'a str, Bencode<'a>)>,
-        A: FnOnce(Option<Self>) + 'b,
-    {
-        let mut res: Vec<(&'static str, BoxedParser<'b, I>)> = Vec::new();
-        res.push((
+    fn init_fields<'c>(
+        parsers: &mut Vec<(&'c str, BoxedParser<'a, 'c>)>,
+        name: &'c str,
+        value: &'c mut Option<Self>,
+    ) -> Result<(), BencodeError> {
+        parsers.push((
             name,
-            Box::new(|mut entries| {
-                let field: Option<Self> = Bencoded::field(&mut entries, name)?;
-                apply_fn(field);
-                Ok(entries)
+            Box::new(move |bencode| {
+                let field: Option<Self> = Bencoded::try_from_bencoded(bencode)?;
+                *value = field;
+                Ok(())
             }),
         ));
-        res
+
+        Ok(())
     }
 }
 
@@ -63,22 +81,6 @@ where
 {
     fn try_from_bencoded(bencode: Bencode<'a>) -> Result<Self, BencodeError> {
         T::try_from_bencoded(bencode).map(Some)
-    }
-
-    fn field<I>(entries: &mut I, name: &str) -> Result<Self, BencodeError>
-    where
-        I: Iterator<Item = (&'a str, Bencode<'a>)>,
-    {
-        let mut field = None;
-        for (key, value) in entries.by_ref() {
-            field = match key.cmp(name) {
-                core::cmp::Ordering::Less => continue,
-                core::cmp::Ordering::Equal => Self::try_from_bencoded(value)?,
-                _ => break,
-            };
-            break;
-        }
-        Ok(field)
     }
 }
 

@@ -48,8 +48,8 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
 
                 let field_parsers = field_ids.iter().map(|field| {
                     let ident = field.ident.as_ref().unwrap();
-                    let name = attribute(field, "rename").unwrap_or_else(|| ident.to_string());
-                    quote_spanned! { ident.span() => Bencoded::field_parsers(#name, |value| { #ident = value; }) }
+                    let name = attribute(&field.attrs, "rename").unwrap_or_else(|| ident.to_string());
+                    quote_spanned! { ident.span() => Bencoded::init_fields(&mut parsers, #name, &mut #ident)? }
                 });
 
                 let fields = field_ids
@@ -70,22 +70,19 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
                             use #bencode_parse_path::Bencode::*;
                             match bencode {
                                 Dictionary(entries) => {
-                                    use rsbt_bencode_nom7::Bencoded;
+                                    use #bencode_parse_path::Bencoded;
 
                                     #(#field_defs)*
 
-                                    let mut parsers = Vec::new();
-                                    #(parsers.push(#field_parsers);)*
+                                    {
+                                        let mut parsers = Vec::new();
 
-                                    let mut parsers: Vec<_> = parsers.into_iter().flatten().collect();
-                                    parsers.sort_by_key(|&(key, _)| key);
+                                        #(#field_parsers;)*
 
-                                    let mut entries = entries.into_iter();
+                                        parsers.sort_by_key(|&(key, _)| key);
 
-                                    for (_, parser_fn) in parsers {
-                                        entries = parser_fn(entries)?;
+                                        #bencode_parse_path::parse_bencoded_entries(parsers, entries)?;
                                     }
-
                                     Ok(Self {
                                         #(#fields: #fields.unwrap() ,)*
                                     })
@@ -101,15 +98,54 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
             }
             syn::Fields::Unit => abort!(name, "unit fields are not supported"),
         },
-        syn::Data::Enum(_) => abort!(name, "enums are not supported"),
+        syn::Data::Enum(data_enum) => {
+            dbg!(data_enum);
+            quote! {
+                #[automatically_derived]
+                impl #impl_generics #bencode_parse_path::Bencoded<'a> for #name #ty_generics #where_clause {
+                    fn field_parsers<'b, A, I>(
+                        name: &'static str,
+                        apply_fn: A,
+                    ) -> #bencode_parse_path::lib::Vec<(&'static str, #bencode_parse_path::BoxedParser<'b, I>)>
+                    where
+                        I: Iterator<Item = (&'a str, #bencode_parse_path::Bencode<'a>)>,
+                        A: FnOnce(Option<Self>) + 'b,
+                    {
+                        use #bencode_parse_path::lib::{Box, Vec};
+
+                        let mut res: Vec<(_, #bencode_parse_path::BoxedParser<'b, I>)> = Vec::new();
+                        res.push((
+                            name,
+                            Box::new(|mut entries| {
+                                let field: Option<Self> = #bencode_parse_path::Bencoded::field(&mut entries, name)?;
+                                apply_fn(field);
+                                Ok(entries)
+                            }),
+                        ));
+                        res
+                    }
+
+                    fn try_from_bencoded(bencode: #bencode_parse_path::Bencode<'a>) -> Result<Self, #bencode_parse_path::BencodeError> {
+                        use #bencode_parse_path::Bencode::*;
+                        match bencode {
+                            Dictionary(entries) => {
+                                use #bencode_parse_path::Bencoded;
+                                todo!()
+                            }
+                            String(_) | Integer(_) | List(_) => Err(#bencode_parse_path::BencodeError::NoMatch),
+                        }
+                    }
+                }
+            }
+        }
         syn::Data::Union(_) => abort!(name, "unions are not supported"),
     };
 
     gen.into()
 }
 
-fn attribute(f: &syn::Field, name: &str) -> Option<String> {
-    f.attrs
+fn attribute(attrs: &[syn::Attribute], name: &str) -> Option<String> {
+    attrs
         .iter()
         .filter_map(|attr| attr.parse_meta().ok())
         .filter_map(|meta| match meta {
