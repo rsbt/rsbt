@@ -61,7 +61,7 @@ pub trait Bencoded<'a>: Sized + core::fmt::Debug {
         parsers: &mut Vec<(&'c str, BoxedParser<'a, 'c>)>,
         name: &'c str,
         value: &'c mut Option<Self>,
-    ) -> Result<(), BencodeError> {
+    ) {
         parsers.push((
             name,
             Box::new(move |bencode| {
@@ -70,8 +70,6 @@ pub trait Bencoded<'a>: Sized + core::fmt::Debug {
                 Ok(())
             }),
         ));
-
-        Ok(())
     }
 }
 

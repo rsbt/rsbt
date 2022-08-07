@@ -33,8 +33,8 @@ pub struct Torrent<'a> {
 /// the file is split into. For the purposes of transfer, files are
 /// split into fixed-size pieces which are all the same length except for
 /// possibly the last one which may be truncated. <tt class="docutils literal">piece
-/// length</tt> is almost always a power of two, most commonly 2 18 =
-/// 256 K (BitTorrent prior to version 3.2 uses 2 20 = 1 M as
+/// length</tt> is almost always a power of two, most commonly 2^18 =
+/// 256 K (BitTorrent prior to version 3.2 uses 2^20 = 1 M as
 /// default).</p>
 /// <p><tt class="docutils literal">pieces</tt> maps to a string whose length is a multiple of
 /// 20. It is to be subdivided into strings of length 20, each of which is
@@ -57,6 +57,7 @@ pub struct Torrent<'a> {
 /// <p>In the single file case, the name key is the name of a file, in the
 /// muliple file case, it's the name of a directory.</p>
 /// </div>
+/// See [BEP 3, metainfo files](https://www.bittorrent.org/beps/bep_0003.html)
 #[derive(BencodeParse, Debug)]
 pub struct Info<'a> {
     name: &'a str,
@@ -94,67 +95,23 @@ impl<'a> Bencoded<'a> for Pieces<'a> {
     }
 }
 
-// #[derive(BencodeParse)]
-#[derive(Debug)]
+#[derive(BencodeParse, Debug)]
 pub enum Files<'a> {
-    // #[bencode(rename = "length")]
+    #[bencode(rename = "length")]
     SingleFile(usize),
-    // #[bencode(rename = "files")]
+    #[bencode(rename = "files")]
     Files(Vec<File<'a>>),
 }
 
-impl<'a> ::rsbt_bencode_nom7::Bencoded<'a> for Files<'a> {
-    fn init_fields<'c>(
-        parsers: &mut Vec<(
-            &'c str,
-            Box<dyn FnOnce(Bencode<'a>) -> Result<(), BencodeError> + 'c>,
-        )>,
-        _: &'c str,
-        value: &'c mut Option<Self>,
-    ) -> Result<(), BencodeError> {
-        let f = Arc::new(RefCell::new(move |field| *value = field));
-        let f_clone = f.clone();
-        parsers.push((
-            "length",
-            Box::new(move |bencode| {
-                let field: Option<_> = Bencoded::try_from_bencoded(bencode)?;
-                f_clone.borrow_mut()(field.map(Self::SingleFile));
-                Ok(())
-            }),
-        ));
-        parsers.push((
-            "files",
-            Box::new(move |bencode| {
-                let field: Option<_> = Bencoded::try_from_bencoded(bencode)?;
-                f.borrow_mut()(field.map(Self::Files));
-                Ok(())
-            }),
-        ));
-
-        Ok(())
-    }
-
-    fn try_from_bencoded(
-        bencode: ::rsbt_bencode_nom7::Bencode<'a>,
-    ) -> Result<Self, ::rsbt_bencode_nom7::BencodeError> {
-        use ::rsbt_bencode_nom7::Bencode::*;
-        match bencode {
-            Dictionary(entries) => {
-                todo!()
-            }
-            String(_) | Integer(_) | List(_) => Err(::rsbt_bencode_nom7::BencodeError::NoMatch),
-        }
-    }
-}
-
-#[derive(Debug, BencodeParse)]
+#[derive(BencodeParse, Debug)]
 pub struct File<'a> {
     length: usize,
     path: Vec<&'a str>,
 }
 
+#[cfg(test)]
 mod tests {
-    use super::*;
+    use super::Torrent;
     use rsbt_bencode_nom7::Bencoded;
 
     #[test]
@@ -163,6 +120,5 @@ mod tests {
             &include_bytes!("../../rsbt-bencode/tests/big-buck-bunny.torrent")[..],
         )
         .expect("bencoded torrent");
-        dbg!(torrent);
     }
 }

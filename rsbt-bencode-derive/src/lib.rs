@@ -17,7 +17,7 @@ rsbt-bencode-derive = "0.1"
 use proc_macro::TokenStream;
 use proc_macro_error::{abort, proc_macro_error};
 use quote::{quote, quote_spanned};
-use syn::{Lit, Meta, MetaList, MetaNameValue, Path};
+use syn::{DataEnum, Lit, Meta, MetaList, MetaNameValue, Path};
 
 #[proc_macro_derive(BencodeParse, attributes(bencode))]
 #[proc_macro_error]
@@ -48,8 +48,8 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
 
                 let field_parsers = field_ids.iter().map(|field| {
                     let ident = field.ident.as_ref().unwrap();
-                    let name = attribute(&field.attrs, "rename").unwrap_or_else(|| ident.to_string());
-                    quote_spanned! { ident.span() => Bencoded::init_fields(&mut parsers, #name, &mut #ident)? }
+                    let name = field_attribute(&field.attrs, "rename").unwrap_or_else(|| ident.to_string());
+                    quote_spanned! { ident.span() => Bencoded::init_fields(&mut parsers, #name, &mut #ident) }
                 });
 
                 let fields = field_ids
@@ -98,31 +98,37 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
             }
             syn::Fields::Unit => abort!(name, "unit fields are not supported"),
         },
-        syn::Data::Enum(data_enum) => {
-            dbg!(data_enum);
+        syn::Data::Enum(DataEnum { variants, .. }) => {
+            let init_fields_parsers = variants.iter().map(|variant| {
+                let ident = &variant.ident;
+                let name =
+                    field_attribute(&variant.attrs, "rename").unwrap_or_else(|| ident.to_string());
+                quote_spanned! {
+                    ident.span() =>
+                        let f_clone = f.clone();
+                        parsers.push((
+                            #name,
+                            Box::new(move |bencode| {
+                                let field: Option<_> = Bencoded::try_from_bencoded(bencode)?;
+                                f_clone.borrow_mut()(field.map(Self::#ident));
+                                Ok(())
+                            }),
+                        ));
+                }
+            });
             quote! {
                 #[automatically_derived]
                 impl #impl_generics #bencode_parse_path::Bencoded<'a> for #name #ty_generics #where_clause {
-                    fn field_parsers<'b, A, I>(
-                        name: &'static str,
-                        apply_fn: A,
-                    ) -> #bencode_parse_path::lib::Vec<(&'static str, #bencode_parse_path::BoxedParser<'b, I>)>
-                    where
-                        I: Iterator<Item = (&'a str, #bencode_parse_path::Bencode<'a>)>,
-                        A: FnOnce(Option<Self>) + 'b,
-                    {
-                        use #bencode_parse_path::lib::{Box, Vec};
-
-                        let mut res: Vec<(_, #bencode_parse_path::BoxedParser<'b, I>)> = Vec::new();
-                        res.push((
-                            name,
-                            Box::new(|mut entries| {
-                                let field: Option<Self> = #bencode_parse_path::Bencoded::field(&mut entries, name)?;
-                                apply_fn(field);
-                                Ok(entries)
-                            }),
-                        ));
-                        res
+                    fn init_fields<'c>(
+                        parsers: &mut Vec<(
+                            &'c str,
+                            Box<dyn FnOnce(Bencode<'a>) -> Result<(), BencodeError> + 'c>,
+                        )>,
+                        _: &'c str,
+                        value: &'c mut Option<Self>,
+                    ) {
+                        let f = Arc::new(RefCell::new(move |field| *value = field));
+                        #(#init_fields_parsers)*
                     }
 
                     fn try_from_bencoded(bencode: #bencode_parse_path::Bencode<'a>) -> Result<Self, #bencode_parse_path::BencodeError> {
@@ -130,7 +136,7 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
                         match bencode {
                             Dictionary(entries) => {
                                 use #bencode_parse_path::Bencoded;
-                                todo!()
+                                unimplemented!()
                             }
                             String(_) | Integer(_) | List(_) => Err(#bencode_parse_path::BencodeError::NoMatch),
                         }
@@ -144,7 +150,7 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
     gen.into()
 }
 
-fn attribute(attrs: &[syn::Attribute], name: &str) -> Option<String> {
+fn field_attribute(attrs: &[syn::Attribute], name: &str) -> Option<String> {
     attrs
         .iter()
         .filter_map(|attr| attr.parse_meta().ok())
