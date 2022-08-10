@@ -2,7 +2,7 @@ use nom::{
     branch::alt,
     bytes::complete::take,
     character::complete as character,
-    combinator::{map, map_res},
+    combinator::{consumed, map, map_res},
     error::Error,
     multi::many0,
     sequence::{delimited, tuple},
@@ -47,7 +47,9 @@ pub fn parse_bencoded(input: &[u8]) -> IResult<&[u8], Bencode, Error<&[u8]>> {
         map(parse_string, Bencode::String),
         map(parse_integer, Bencode::Integer),
         map(parse_list, Bencode::List),
-        map(parse_dictionary, Bencode::Dictionary),
+        map(consumed(parse_dictionary), |(input, entries)| {
+            Bencode::Dictionary { input, entries }
+        }),
     ))(input)
 }
 

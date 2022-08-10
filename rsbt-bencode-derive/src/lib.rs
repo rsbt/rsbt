@@ -14,7 +14,7 @@ rsbt-bencode-derive = "0.1"
 
 */
 
-use proc_macro::TokenStream;
+use proc_macro::{Span, TokenStream};
 use proc_macro_error::{abort, proc_macro_error};
 use quote::{quote, quote_spanned};
 use syn::{DataEnum, Lit, Meta, MetaList, MetaNameValue, Path};
@@ -48,8 +48,13 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
 
                 let field_parsers = field_ids.iter().map(|field| {
                     let ident = field.ident.as_ref().unwrap();
-                    let name = field_attribute(&field.attrs, "rename").unwrap_or_else(|| ident.to_string());
-                    quote_spanned! { ident.span() => Bencoded::init_fields(&mut parsers, #name, &mut #ident) }
+                    if let Some(input_fn) = field_attribute(&field.attrs, "input")
+                        .map(|input_fn|syn::Ident::new(&input_fn, proc_macro2::Span::call_site())) {
+                        quote_spanned! { ident.span() => #ident = Some(#input_fn(input)) }
+                    } else {
+                        let name = field_attribute(&field.attrs, "rename").unwrap_or_else(|| ident.to_string());
+                        quote_spanned! { ident.span() => Bencoded::init_fields(&mut parsers, #name, &mut #ident) }
+                    }
                 });
 
                 let fields = field_ids
@@ -69,7 +74,7 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
                         fn try_from_bencoded(bencode: #bencode_parse_path::Bencode<'a>) -> Result<Self, #bencode_parse_path::BencodeError> {
                             use #bencode_parse_path::Bencode::*;
                             match bencode {
-                                Dictionary(entries) => {
+                                Dictionary { entries, input } => {
                                     use #bencode_parse_path::Bencoded;
 
                                     #(#field_defs)*
@@ -134,7 +139,7 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
                     fn try_from_bencoded(bencode: #bencode_parse_path::Bencode<'a>) -> Result<Self, #bencode_parse_path::BencodeError> {
                         use #bencode_parse_path::Bencode::*;
                         match bencode {
-                            Dictionary(entries) => {
+                            Dictionary { entries, .. } => {
                                 use #bencode_parse_path::Bencoded;
                                 unimplemented!()
                             }

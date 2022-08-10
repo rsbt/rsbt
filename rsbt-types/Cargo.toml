@@ -16,7 +16,7 @@ repository = "https://github.com/rsbt/rsbt"
 [features]
 
 default = ["std"]
-std = ["rsbt-bencode-nom7/std"]
+std = ["rsbt-bencode-nom7/std", "sha1/std"]
 alloc = ["rsbt-bencode-nom7/alloc"]
 
 [dependencies]
@@ -24,3 +24,5 @@ alloc = ["rsbt-bencode-nom7/alloc"]
 rsbt-bencode-nom7 = { path = "../rsbt-bencode-nom7", default-features = false, features = [
     "derive",
 ] }
+
+sha1 = { version = "0.10", default-features = false }

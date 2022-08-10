@@ -57,6 +57,7 @@ pub struct Torrent<'a> {
 /// <p>In the single file case, the name key is the name of a file, in the
 /// muliple file case, it's the name of a directory.</p>
 /// </div>
+///
 /// See [BEP 3, metainfo files](https://www.bittorrent.org/beps/bep_0003.html)
 #[derive(BencodeParse, Debug)]
 pub struct Info<'a> {
@@ -65,6 +66,15 @@ pub struct Info<'a> {
     piece_length: usize,
     pieces: Pieces<'a>,
     files: Files<'a>,
+    #[bencode(input = "calculate_sha1")]
+    sha1: [u8; 20],
+}
+
+fn calculate_sha1(input: &[u8]) -> [u8; 20] {
+    use sha1::{Digest, Sha1};
+    Sha1::digest(input)
+        .try_into()
+        .expect("20 bytes array expected from Sha1 calculation")
 }
 
 #[derive(Debug)]

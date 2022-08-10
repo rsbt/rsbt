@@ -5,7 +5,10 @@ pub enum Bencode<'a> {
     String(&'a [u8]),
     Integer(i64),
     List(Vec<Bencode<'a>>),
-    Dictionary(Vec<(&'a str, Bencode<'a>)>),
+    Dictionary {
+        input: &'a [u8],
+        entries: Vec<(&'a str, Bencode<'a>)>,
+    },
 }
 
 impl<'a> TryFrom<&'a [u8]> for Bencode<'a> {
@@ -128,8 +131,8 @@ where
     T: Bencoded<'a>,
 {
     fn try_from_bencoded(bencode: Bencode<'a>) -> Result<Self, BencodeError> {
-        if let Bencode::Dictionary(result) = bencode {
-            result
+        if let Bencode::Dictionary { entries, .. } = bencode {
+            entries
                 .into_iter()
                 .map(|(key, value)| T::try_from_bencoded(value).map(|value| (key, value)))
                 .collect()
