@@ -16,6 +16,6 @@ rsbt-types = "0.1"
 */
 mod torrent;
 
-pub(crate) use rsbt_bencode_nom7::lib::{Arc, Vec};
+pub(crate) use rsbt_bencode_nom::lib::{Arc, Vec};
 
 pub use torrent::Torrent;

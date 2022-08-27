@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 /*!
-# rsbt-bencode-nom7 description
+# rsbt-bencode-nom description
 
 ## Features
 
@@ -10,7 +10,7 @@ Add dependency to Cargo.toml:
 
 ```toml
 [dependencies]
-rsbt-bencode-nom7 = "0.1"
+rsbt-bencode-nom = "0.1"
 ```
 
 */

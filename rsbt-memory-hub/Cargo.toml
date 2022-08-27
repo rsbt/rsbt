@@ -1,11 +1,11 @@
 [package]
-name = "rsbt-bencode-nom7"
+name = "rsbt-memory-hub"
 version = "0.1.0"
 authors = ["Alexander Korolev <alexander.korolev.germany@gmail.com>"]
 edition = "2021"
 categories = []
 description = """
-rsbt-bencode-nom7 description.
+rsbt-memory-hub description.
 """
 homepage = "https://github.com/rsbt/rsbt"
 keywords = []
@@ -13,15 +13,4 @@ license = "Unlicense OR MIT"
 readme = "README.md"
 repository = "https://github.com/rsbt/rsbt"
 
-[features]
-default = ["std", "derive"]
-std = ["nom/std"]
-alloc = ["nom/alloc"]
-derive = ["rsbt-bencode-derive"]
-
 [dependencies]
-thiserror = "1"
-
-nom = { version = "7.1", default-features = false }
-
-rsbt-bencode-derive = { path = "../rsbt-bencode-derive", optional = true }

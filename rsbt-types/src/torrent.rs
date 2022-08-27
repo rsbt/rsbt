@@ -1,6 +1,6 @@
 use core::{cell::RefCell, convert::TryInto};
 
-use rsbt_bencode_nom7::{Bencode, BencodeError, BencodeParse, Bencoded};
+use rsbt_bencode_nom::{Bencode, BencodeError, BencodeParse, Bencoded};
 
 use crate::{Arc, Vec};
 
@@ -108,9 +108,9 @@ impl<'a> Bencoded<'a> for Pieces<'a> {
 #[derive(BencodeParse, Debug)]
 pub enum Files<'a> {
     #[bencode(rename = "length")]
-    SingleFile(usize),
+    Single(usize),
     #[bencode(rename = "files")]
-    Files(Vec<File<'a>>),
+    Multiple(Vec<File<'a>>),
 }
 
 #[derive(BencodeParse, Debug)]
@@ -122,12 +122,12 @@ pub struct File<'a> {
 #[cfg(test)]
 mod tests {
     use super::Torrent;
-    use rsbt_bencode_nom7::Bencoded;
+    use rsbt_bencode_nom::Bencoded;
 
     #[test]
     fn parse_torrent() {
         let torrent = Torrent::parse_bencoded_slice(
-            &include_bytes!("../../rsbt-bencode/tests/big-buck-bunny.torrent")[..],
+            &include_bytes!("../../fixtures/big-buck-bunny.torrent")[..],
         )
         .expect("bencoded torrent");
     }

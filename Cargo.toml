@@ -4,7 +4,7 @@ members = [
 #    "rsbt",
 #    "rsbt-app",
 #    "rsbt-bencode",
-    "rsbt-bencode-nom7",
+    "rsbt-bencode-nom",
     "rsbt-bencode-derive",
     "rsbt-types",
     # "rsbt-web-common",

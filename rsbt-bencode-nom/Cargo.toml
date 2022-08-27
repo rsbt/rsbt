@@ -1,29 +1,27 @@
 [package]
-name = "rsbt-types"
+name = "rsbt-bencode-nom"
 version = "0.1.0"
 authors = ["Alexander Korolev <alexander.korolev.germany@gmail.com>"]
 edition = "2021"
 categories = []
 description = """
-rsbt-types description.
+rsbt-bencode-nom description.
 """
 homepage = "https://github.com/rsbt/rsbt"
 keywords = []
 license = "Unlicense OR MIT"
 readme = "README.md"
 repository = "https://github.com/rsbt/rsbt"
-rust-version = "1.63"
 
 [features]
-
-default = ["std"]
-std = ["rsbt-bencode-nom/std", "sha1/std"]
-alloc = ["rsbt-bencode-nom/alloc"]
+default = ["std", "derive"]
+std = ["nom/std"]
+alloc = ["nom/alloc"]
+derive = ["rsbt-bencode-derive"]
 
 [dependencies]
+thiserror = "1"
 
-rsbt-bencode-nom = { path = "../rsbt-bencode-nom", default-features = false, features = [
-    "derive",
-] }
+nom = { version = "7.1", default-features = false }
 
-sha1 = { version = "0.10", default-features = false }
+rsbt-bencode-derive = { path = "../rsbt-bencode-derive", optional = true }

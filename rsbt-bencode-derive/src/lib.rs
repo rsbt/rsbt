@@ -14,7 +14,7 @@ rsbt-bencode-derive = "0.1"
 
 */
 
-use proc_macro::{Span, TokenStream};
+use proc_macro::TokenStream;
 use proc_macro_error::{abort, proc_macro_error};
 use quote::{quote, quote_spanned};
 use syn::{DataEnum, Lit, Meta, MetaList, MetaNameValue, Path};
@@ -31,7 +31,7 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
     let name = &ast.ident;
     let (impl_generics, ty_generics, where_clause) = &ast.generics.split_for_impl();
 
-    let bencode_parse_path = quote! { ::rsbt_bencode_nom7 };
+    let bencode_parse_path = quote! { ::rsbt_bencode_nom };
 
     let data = &ast.data;
 
