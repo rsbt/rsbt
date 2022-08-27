@@ -1,6 +1,6 @@
 # rsbt description
 
-<img alt="RSBT" src="rsbt-web-common/web/img/01.svg" width="256px" height="256px">
+<img alt="RSBT" src="_rsbt-web-common/web/img/01.svg" width="256px" height="256px">
 
 This is placeholder for future migration of <https://github.com/kilork/rustorrent>.
 
