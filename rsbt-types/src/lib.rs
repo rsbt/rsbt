@@ -14,8 +14,10 @@ rsbt-types = "0.1"
 ```
 
 */
+mod consts;
 mod torrent;
 
 pub(crate) use rsbt_bencode_nom::lib::{Arc, Vec};
 
-pub use torrent::Torrent;
+pub use consts::*;
+pub use torrent::*;
