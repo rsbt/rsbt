@@ -15,6 +15,7 @@ rsbt-types = "0.1"
 
 */
 mod consts;
+mod error;
 mod torrent;
 
 pub(crate) use rsbt_bencode_nom::lib::{Arc, Vec};

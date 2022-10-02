@@ -1,8 +1,8 @@
 [package]
-name = "rsbt-bencode-nom"
+name = "rsbt-app"
 categories = []
 description = """
-rsbt-bencode-nom description.
+rsbt description.
 """
 keywords = []
 
@@ -16,14 +16,17 @@ repository.workspace = true
 homepage.workspace = true
 
 [features]
-default = ["std", "derive"]
-std = ["nom/std"]
-alloc = ["nom/alloc"]
-derive = ["rsbt-bencode-derive"]
+default = ["rt_tokio_1"]
+rt_tokio_1 = ["tokio"]
 
 [dependencies]
+log = { workspace = true }
+
 thiserror = "1"
 
-nom = { version = "7.1", default-features = false }
+clap = { workspace = true }
 
-rsbt-bencode-derive = { path = "../rsbt-bencode-derive", optional = true }
+tokio = { version = "1", default-features = false, features = [
+    "rt-multi-thread",
+    "net",
+], optional = true }

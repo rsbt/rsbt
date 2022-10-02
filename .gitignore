@@ -1,6 +1,2 @@
 /target
-**/*.rs.bk
-.parcel-cache
-.cache
-Cargo.lock
 TODO.md

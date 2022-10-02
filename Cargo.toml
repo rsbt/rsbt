@@ -1,15 +1,51 @@
 [workspace]
 
 members = [
-#    "rsbt",
-#    "rsbt-app",
-#    "rsbt-bencode",
+    "rsbt/*",
+    "rsbt-app",
+    #    "rsbt-bencode",
     "rsbt-bencode-nom",
     "rsbt-bencode-derive",
     "rsbt-types",
     # "rsbt-web-common",
     # "rsbt-web-wizard",
 ]
+resolver = "2"
+
+[workspace.package]
+
+rust-version = "1.64"
+edition = "2021"
+authors = ["Alexander Korolev <alexander.korolev.germany@gmail.com>"]
+version = "0.1.0"
+license = "Unlicense OR MIT"
+readme = "README.md"
+repository = "https://github.com/rsbt/rsbt"
+homepage = "https://github.com/rsbt/rsbt"
+
+[workspace.dependencies]
+
+log = { version = "0.4", default-features = false }
+
+env_logger = { version = "0.9", default-features = false, features = [
+    "atty",
+    "termcolor",
+    "humantime",
+] }
+
+clap = { version = "4", default-features = false, features = [
+    "cargo",
+    "color",
+    "derive",
+    "env",
+    "error-context",
+    "help",
+    "std",
+    "suggestions",
+    "usage",
+] }
+
+dotenv = { version = "0.15", default-features = false }
 
 [profile.release]
 lto = true

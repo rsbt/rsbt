@@ -1,0 +1,33 @@
+[package]
+name = "rsbt"
+categories = []
+description = """
+rsbt description.
+"""
+keywords = []
+
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+rust-version.workspace = true
+readme.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[features]
+default = ["cli", "web"]
+cli = ["rsbt-cli"]
+web = ["rsbt-web"]
+
+[[bin]]
+name = "rsbt"
+required-features = ["web"]
+
+[[bin]]
+name = "rsbt-cli"
+required-features = ["cli"]
+
+[dependencies]
+rsbt-cli = { path = "../cli", optional = true }
+rsbt-web = { path = "../web", optional = true }

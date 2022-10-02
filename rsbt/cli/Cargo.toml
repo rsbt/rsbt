@@ -1,0 +1,37 @@
+[package]
+name = "rsbt-cli"
+categories = []
+description = """
+rsbt description.
+"""
+keywords = []
+
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+rust-version.workspace = true
+readme.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[features]
+default = ["rt_tokio_1"]
+rt_tokio_1 = ["tokio"]
+
+[dependencies]
+log = { workspace = true }
+env_logger =  { workspace = true }
+
+anyhow = "1"
+
+clap = { workspace = true }
+
+dotenv = { workspace = true }
+
+tokio = { version = "1", default-features = false, features = [
+    "rt-multi-thread",
+    "net",
+], optional = true }
+
+rsbt-app = { path = "../../rsbt-app" }

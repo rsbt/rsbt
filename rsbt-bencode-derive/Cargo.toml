@@ -1,17 +1,19 @@
 [package]
 name = "rsbt-bencode-derive"
-version = "0.1.0"
-authors = ["Alexander Korolev <alexander.korolev.germany@gmail.com>"]
-edition = "2021"
 categories = []
 description = """
 rsbt-bencode-derive description.
 """
-homepage = "https://github.com/rsbt/rsbt"
 keywords = []
-license = "Unlicense OR MIT"
-readme = "README.md"
-repository = "https://github.com/rsbt/rsbt"
+
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+rust-version.workspace = true
+readme.workspace = true
+repository.workspace = true
+homepage.workspace = true
 
 [lib]
 proc-macro = true
