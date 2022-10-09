@@ -2,7 +2,7 @@ use core::{cell::RefCell, convert::TryInto};
 
 use rsbt_bencode_nom::{Bencode, BencodeError, BencodeParse, Bencoded};
 
-use crate::{Arc, Vec};
+use crate::{Arc, Box, Vec};
 
 /// <div class="section" id="metainfo-files">
 /// <h1>metainfo files</h1>

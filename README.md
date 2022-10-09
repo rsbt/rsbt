@@ -23,6 +23,13 @@ rsbt = "0.1"
 
 ## Development information
 
+### no_std support
+
+Following crates support `no_std`:
+
+- rsbt-bencode-nom
+- rsbt-types
+
 ### Configuration directory
 
 Default config location: `$HOME/.rsbt/`

@@ -30,3 +30,5 @@ tokio = { version = "1", default-features = false, features = [
     "rt-multi-thread",
     "net",
 ], optional = true }
+
+rsbt-types = { path = "../rsbt-types" }

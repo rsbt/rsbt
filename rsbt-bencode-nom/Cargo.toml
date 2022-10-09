@@ -17,13 +17,14 @@ homepage.workspace = true
 
 [features]
 default = ["std", "derive"]
-std = ["nom/std"]
-alloc = ["nom/alloc"]
+std = ["nom/std", "rsbt-defs/std", "displaydoc/std"]
+alloc = ["nom/alloc", "rsbt-defs/alloc"]
 derive = ["rsbt-bencode-derive"]
 
 [dependencies]
-thiserror = "1"
+displaydoc = { version = "0.2", default-features = false }
 
 nom = { version = "7.1", default-features = false }
 
 rsbt-bencode-derive = { path = "../rsbt-bencode-derive", optional = true }
+rsbt-defs = { path = "../rsbt-defs" }

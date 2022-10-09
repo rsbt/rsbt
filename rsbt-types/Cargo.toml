@@ -18,13 +18,15 @@ homepage.workspace = true
 [features]
 
 default = ["std"]
-std = ["rsbt-bencode-nom/std", "sha1/std"]
-alloc = ["rsbt-bencode-nom/alloc"]
+std = ["rsbt-bencode-nom/std", "rsbt-defs/std", "sha1/std"]
+alloc = ["rsbt-bencode-nom/alloc", "rsbt-defs/alloc"]
 
 [dependencies]
 
 rsbt-bencode-nom = { path = "../rsbt-bencode-nom", default-features = false, features = [
     "derive",
 ] }
+
+rsbt-defs = { path = "../rsbt-defs", default-features = false }
 
 sha1 = { version = "0.10", default-features = false }

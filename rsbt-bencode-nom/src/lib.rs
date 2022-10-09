@@ -15,18 +15,10 @@ rsbt-bencode-nom = "0.1"
 
 */
 
-#[cfg(feature = "alloc")]
-extern crate alloc;
-
 mod parser;
 mod types;
 
-pub mod lib {
-    #[cfg(feature = "alloc")]
-    pub use alloc::{boxed::Box, sync::Arc, vec::Vec};
-    #[cfg(not(feature = "alloc"))]
-    pub use std::{boxed::Box, sync::Arc, vec::Vec};
-}
+pub(crate) use rsbt_defs::lib;
 
 #[cfg(feature = "derive")]
 #[allow(unused_imports)]

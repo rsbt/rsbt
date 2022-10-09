@@ -9,7 +9,7 @@ use nom::{
     IResult,
 };
 
-use crate::Bencode;
+use crate::{lib::Vec, Bencode};
 
 fn parse_string(input: &[u8]) -> IResult<&[u8], &[u8], Error<&[u8]>> {
     let (input, len) = character::u64(input)?;

@@ -1,4 +1,4 @@
-use crate::lib::{Box, Vec};
+use crate::lib::{format, Box, String, Vec};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Bencode<'a> {
@@ -17,7 +17,7 @@ impl<'a> TryFrom<&'a [u8]> for Bencode<'a> {
     fn try_from(value: &'a [u8]) -> Result<Self, Self::Error> {
         crate::parse_bencoded(value)
             .map(|(_, value)| value)
-            .map_err(|err| BencodeError::Parse(err.to_string()))
+            .map_err(|err| BencodeError::Parse(format!("{}", err)))
     }
 }
 
@@ -142,18 +142,39 @@ where
     }
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, displaydoc::Display)]
 pub enum BencodeError {
-    #[error("bencode parse error: {0}")]
+    /// bencode parse error: {0}
     Parse(String),
-    #[error("expected another type")]
+    /// expected another type
     NoMatch,
-    #[error("field {0} not found")]
+    /// field {0} not found
     NoField(String),
-    #[error(transparent)]
-    Utf8Error(#[from] core::str::Utf8Error),
-    #[error(transparent)]
-    TryFromInt(#[from] core::num::TryFromIntError),
-    #[error(transparent)]
-    TryFromSlice(#[from] core::array::TryFromSliceError),
+    /// {0}
+    Utf8Error(core::str::Utf8Error),
+    /// {0}
+    TryFromInt(core::num::TryFromIntError),
+    /// {0}
+    TryFromSlice(core::array::TryFromSliceError),
+}
+
+#[cfg(feature = "std")]
+impl std::error::Error for BencodeError {}
+
+impl From<core::str::Utf8Error> for BencodeError {
+    fn from(value: core::str::Utf8Error) -> Self {
+        Self::Utf8Error(value)
+    }
+}
+
+impl From<core::num::TryFromIntError> for BencodeError {
+    fn from(value: core::num::TryFromIntError) -> Self {
+        Self::TryFromInt(value)
+    }
+}
+
+impl From<core::array::TryFromSliceError> for BencodeError {
+    fn from(value: core::array::TryFromSliceError) -> Self {
+        Self::TryFromSlice(value)
+    }
 }

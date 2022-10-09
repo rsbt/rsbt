@@ -1,0 +1,22 @@
+[package]
+name = "rsbt-defs"
+categories = []
+description = """
+rsbt-defs description.
+"""
+keywords = []
+
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+rust-version.workspace = true
+readme.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[features]
+
+default = ["std"]
+std = []
+alloc = []

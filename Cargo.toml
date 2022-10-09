@@ -3,12 +3,11 @@
 members = [
     "rsbt/*",
     "rsbt-app",
-    #    "rsbt-bencode",
     "rsbt-bencode-nom",
     "rsbt-bencode-derive",
+    "rsbt-defs",
+    "rsbt-memory-hub",
     "rsbt-types",
-    # "rsbt-web-common",
-    # "rsbt-web-wizard",
 ]
 resolver = "2"
 

@@ -113,6 +113,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "displaydoc"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3bf95dc3f046b9da4f2d51833c0d3547d8564ef6910f5c1ed130306a75b92886"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "dotenv"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -294,6 +305,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "log",
+ "rsbt-types",
  "thiserror",
  "tokio",
 ]
@@ -312,9 +324,10 @@ dependencies = [
 name = "rsbt-bencode-nom"
 version = "0.1.0"
 dependencies = [
+ "displaydoc",
  "nom",
  "rsbt-bencode-derive",
- "thiserror",
+ "rsbt-defs",
 ]
 
 [[package]]
@@ -331,10 +344,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "rsbt-defs"
+version = "0.1.0"
+
+[[package]]
+name = "rsbt-memory-hub"
+version = "0.1.0"
+
+[[package]]
 name = "rsbt-types"
 version = "0.1.0"
 dependencies = [
  "rsbt-bencode-nom",
+ "rsbt-defs",
  "sha1",
 ]
 
