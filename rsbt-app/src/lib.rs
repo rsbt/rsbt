@@ -3,14 +3,15 @@ mod status;
 
 use std::path::PathBuf;
 
+use rsbt_rt::Runtime;
 use rsbt_types::Torrent;
+
+pub use rsbt_rt::DefaultRuntime;
 
 pub use crate::error::AppError;
 pub use crate::status::AppStatus;
 
 pub trait Output {}
-
-pub trait Runtime {}
 
 #[derive(Default)]
 pub struct App {}
@@ -80,7 +81,3 @@ impl From<PathBuf> for DefaultFileOutput {
 }
 
 impl Output for DefaultFileOutput {}
-
-pub struct DefaultRuntime;
-
-impl Runtime for DefaultRuntime {}

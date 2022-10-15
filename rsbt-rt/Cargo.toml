@@ -1,8 +1,8 @@
 [package]
-name = "rsbt-app"
+name = "rsbt-rt"
 categories = []
 description = """
-rsbt description.
+rsbt-rt description.
 """
 keywords = []
 
@@ -16,15 +16,12 @@ repository.workspace = true
 homepage.workspace = true
 
 [features]
-default = ["rt_tokio_1"]
-rt_tokio_1 = ["rsbt-rt/tokio_1"]
+
+default = ["tokio_1"]
+tokio_1 = ["tokio"]
 
 [dependencies]
-log = { workspace = true }
-
-thiserror = "1"
-
-clap = { workspace = true }
-
-rsbt-types = { path = "../rsbt-types" }
-rsbt-rt = { path = "../rsbt-rt" }
+tokio = { version = "1", default-features = false, features = [
+    "rt-multi-thread",
+    "net",
+], optional = true }

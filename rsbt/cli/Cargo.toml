@@ -17,7 +17,7 @@ homepage.workspace = true
 
 [features]
 default = ["rt_tokio_1"]
-rt_tokio_1 = ["tokio"]
+rt_tokio_1 = ["rsbt-app/rt_tokio_1"]
 
 [dependencies]
 log = { workspace = true }
@@ -28,10 +28,5 @@ anyhow = "1"
 clap = { workspace = true }
 
 dotenv = { workspace = true }
-
-tokio = { version = "1", default-features = false, features = [
-    "rt-multi-thread",
-    "net",
-], optional = true }
 
 rsbt-app = { path = "../../rsbt-app" }

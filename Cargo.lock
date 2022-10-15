@@ -305,9 +305,9 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "log",
+ "rsbt-rt",
  "rsbt-types",
  "thiserror",
- "tokio",
 ]
 
 [[package]]
@@ -340,7 +340,6 @@ dependencies = [
  "env_logger",
  "log",
  "rsbt-app",
- "tokio",
 ]
 
 [[package]]
@@ -350,6 +349,13 @@ version = "0.1.0"
 [[package]]
 name = "rsbt-memory-hub"
 version = "0.1.0"
+
+[[package]]
+name = "rsbt-rt"
+version = "0.1.0"
+dependencies = [
+ "tokio",
+]
 
 [[package]]
 name = "rsbt-types"

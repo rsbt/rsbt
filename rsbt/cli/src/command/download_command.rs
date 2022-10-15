@@ -19,7 +19,7 @@ impl Runnable for DownloadCommand {
     fn run(self) -> Result<(), AppError> {
         let app = rsbt_app::BlockingApp::builder()
             .output(DefaultFileOutput::from(self.out_dir))
-            .runtime(DefaultRuntime)
+            .runtime(DefaultRuntime::default())
             .build();
 
         // app.download(self.torrent);
