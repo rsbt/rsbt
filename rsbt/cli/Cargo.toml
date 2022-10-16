@@ -1,5 +1,5 @@
 [package]
-name = "rsbt-cli"
+name = "rsbt-commandline"
 categories = []
 description = """
 rsbt description.

@@ -17,7 +17,7 @@ homepage.workspace = true
 
 [features]
 default = ["cli", "web"]
-cli = ["rsbt-cli"]
+cli = ["rsbt-commandline"]
 web = ["rsbt-web"]
 
 [[bin]]
@@ -29,5 +29,5 @@ name = "rsbt-cli"
 required-features = ["cli"]
 
 [dependencies]
-rsbt-cli = { path = "../cli", optional = true }
+rsbt-commandline = { path = "../cli", optional = true }
 rsbt-web = { path = "../web", optional = true }
