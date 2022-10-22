@@ -46,6 +46,21 @@ impl Runtime for TokioRuntime {
         self.rt.block_on(future)
     }
 
+    /// Spawns a future onto the Tokio runtime.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use rsbt_rt::{Runtime, TokioRuntime};
+    ///
+    /// // Create the runtime
+    /// let rt = TokioRuntime::new().unwrap();
+    ///
+    /// // Spawn a future onto the runtime
+    /// rt.spawn(async {
+    ///     println!("now running on a worker thread");
+    /// });
+    /// ```
     fn spawn<F>(&self, future: F) -> JoinHandle<Self>
     where
         F: Future<Output = ()> + Send + 'static,

@@ -1,76 +1,49 @@
+mod app;
+mod blocking_app;
 mod error;
+mod message;
 mod status;
 
 use std::path::PathBuf;
 
-use rsbt_rt::Runtime;
-use rsbt_types::Torrent;
-
 pub use rsbt_rt::DefaultRuntime;
 
-pub use crate::error::AppError;
-pub use crate::status::AppStatus;
+pub use crate::{
+    app::App,
+    blocking_app::{BlockingApp, BlockingAppBuilder},
+    error::AppError,
+    message::Message,
+    status::AppStatus,
+};
+
+pub trait Actor {
+    type Handle: ActorHandle;
+}
+
+pub trait ActorHandle {}
+
+pub trait Input {}
 
 pub trait Output {}
 
-#[derive(Default)]
-pub struct App {}
-
-#[derive(Default)]
-pub struct BlockingApp<O: Output, R: Runtime> {
-    app: App,
+pub struct Download<I: Input, O: Output> {
+    input: I,
     output: O,
-    runtime: R,
 }
 
-impl<O, R> BlockingApp<O, R>
-where
-    O: Output,
-    R: Runtime,
-{
-    pub fn builder() -> BlockingAppBuilder<O, R> {
-        BlockingAppBuilder {
-            output: None,
-            runtime: None,
-        }
-    }
-
-    pub fn download<'item, I>(self, items: I)
-    where
-        I: IntoIterator<Item = Torrent<'item>>,
-    {
-        todo!()
+impl<I: Input, O: Output> Download<I, O> {
+    pub fn new(input: I, output: O) -> Self {
+        Self { input, output }
     }
 }
 
-pub struct BlockingAppBuilder<O: Output, R: Runtime> {
-    output: Option<O>,
-    runtime: Option<R>,
+impl<I: Input, O: Output> Actor for Download<I, O> {
+    type Handle = DownloadHandle;
 }
 
-impl<O, R> BlockingAppBuilder<O, R>
-where
-    O: Output,
-    R: Runtime,
-{
-    pub fn output(mut self, output: O) -> Self {
-        self.output = Some(output);
-        self
-    }
+pub struct DownloadHandle {}
 
-    pub fn runtime(mut self, runtime: R) -> Self {
-        self.runtime = Some(runtime);
-        self
-    }
-
-    pub fn build(self) -> BlockingApp<O, R> {
-        BlockingApp {
-            app: App {},
-            output: self.output.expect("output"),
-            runtime: self.runtime.expect("runtime"),
-        }
-    }
-}
+impl ActorHandle for DownloadHandle {}
 
 pub struct DefaultFileOutput(PathBuf);
 
@@ -81,3 +54,7 @@ impl From<PathBuf> for DefaultFileOutput {
 }
 
 impl Output for DefaultFileOutput {}
+
+pub struct PathBufInput(pub PathBuf);
+
+impl Input for PathBufInput {}

@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use rsbt_app::{DefaultFileOutput, DefaultRuntime};
+use rsbt_app::{DefaultFileOutput, DefaultRuntime, Download, PathBufInput};
 
 use super::{AppError, Parser, Runnable};
 
@@ -9,7 +9,7 @@ use super::{AppError, Parser, Runnable};
 pub struct DownloadCommand {
     /// Torrent(s).
     #[arg(required = true)]
-    torrent: Vec<PathBuf>,
+    torrents: Vec<PathBuf>,
     /// Output dir.
     #[arg(short, long)]
     out_dir: PathBuf,
@@ -18,11 +18,24 @@ pub struct DownloadCommand {
 impl Runnable for DownloadCommand {
     fn run(self) -> Result<(), AppError> {
         let app = rsbt_app::BlockingApp::builder()
-            .output(DefaultFileOutput::from(self.out_dir))
             .runtime(DefaultRuntime::new().map_err(AppError::Runtime)?)
             .build();
 
-        // app.download(self.torrent);
+        let mut message_receiver = app.message_receiver();
+
+        for torrent_download in self.torrents.into_iter().map(|x| {
+            Download::new(
+                PathBufInput(x),
+                DefaultFileOutput::from(self.out_dir.clone()),
+            )
+        }) {
+            let handler = app.start(torrent_download)?;
+            message_receiver.subscribe(handler)?;
+        }
+
+        while let Some(message) = message_receiver.next().transpose()? {}
+
+        app.shutdown()?;
 
         Ok(())
     }

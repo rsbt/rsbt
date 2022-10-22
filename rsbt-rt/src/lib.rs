@@ -57,14 +57,13 @@ where
     type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send + 'static>>;
 
     fn into_future(self) -> Self::IntoFuture {
-        use futures::TryFutureExt;
-        Box::pin(self.inner.into_future().map_err(|x| x))
+        Box::pin(self.inner.into_future())
     }
 }
 
 enum JoinError {
     #[cfg(feature = "tokio_1")]
-    Tokio1(tokio::task::JoinError)
+    Tokio1(tokio::task::JoinError),
 }
 
 #[cfg(feature = "tokio_1")]
@@ -77,4 +76,4 @@ pub use tokio_runtime::TokioRuntime;
 pub type DefaultRuntime = tokio_runtime::TokioRuntime;
 
 #[cfg(not(feature = "tokio_1"))]
-compile_error!("You must enable tokio_1 feature, as it is only one supported in the moment");
+compile_error!("You must enable tokio_1 feature, as it is only one supported at the moment");
