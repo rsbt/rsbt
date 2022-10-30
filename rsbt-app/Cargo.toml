@@ -26,5 +26,7 @@ thiserror = "1"
 
 clap = { workspace = true }
 
+futures = { workspace = true }
+
 rsbt-types = { path = "../rsbt-types" }
 rsbt-rt = { path = "../rsbt-rt" }

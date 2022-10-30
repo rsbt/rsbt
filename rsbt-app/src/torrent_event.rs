@@ -1,3 +1,3 @@
-pub enum Message {
+pub enum TorrentEvent {
     TorrentDownloaded,
 }

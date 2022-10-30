@@ -6,6 +6,17 @@ pub struct BlockingAppBuilder<R: Runtime> {
     pub(super) runtime: Option<R>,
 }
 
+impl<R> Default for BlockingAppBuilder<R>
+where
+    R: Runtime,
+{
+    fn default() -> Self {
+        Self {
+            runtime: Default::default(),
+        }
+    }
+}
+
 impl<R> BlockingAppBuilder<R>
 where
     R: Runtime,

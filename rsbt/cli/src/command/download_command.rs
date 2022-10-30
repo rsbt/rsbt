@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use rsbt_app::{DefaultFileOutput, DefaultRuntime, Download, PathBufInput};
+use rsbt_app::{DefaultFileOutput, DefaultRuntime, Download, PathBufInput, TorrentEvent};
 
 use super::{AppError, Parser, Runnable};
 
@@ -21,7 +21,7 @@ impl Runnable for DownloadCommand {
             .runtime(DefaultRuntime::new().map_err(AppError::Runtime)?)
             .build();
 
-        let mut message_receiver = app.message_receiver();
+        let message_channel = app.message_channel::<TorrentEvent>();
 
         for torrent_download in self.torrents.into_iter().map(|x| {
             Download::new(
@@ -30,10 +30,12 @@ impl Runnable for DownloadCommand {
             )
         }) {
             let handler = app.start(torrent_download)?;
-            message_receiver.subscribe(handler)?;
+            message_channel.subscribe(handler)?;
         }
 
-        while let Some(message) = message_receiver.next().transpose()? {}
+        let mut message_receiver = message_channel.listen();
+
+        while let Some(torrent_event) = message_receiver.next() {}
 
         app.shutdown()?;
 

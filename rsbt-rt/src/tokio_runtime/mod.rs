@@ -1,6 +1,11 @@
-use std::future::{Future, IntoFuture};
+use std::{
+    future::{Future, IntoFuture},
+    pin::Pin,
+};
 
-use crate::{JoinHandle, Runtime, RuntimeJoinHandle};
+use futures::TryFutureExt;
+
+use crate::{JoinError, Runtime, RuntimeHandle};
 
 pub struct TokioRuntime {
     rt: tokio::runtime::Runtime,
@@ -27,13 +32,25 @@ impl TokioRuntime {
 }
 
 impl Runtime for TokioRuntime {
-    type JoinHandle = TokioJoinHandle;
+    type Handle = TokioHandle;
+
+    fn handle(&self) -> Self::Handle {
+        TokioHandle(self.rt.handle().clone())
+    }
+}
+
+impl RuntimeHandle for TokioRuntime {
+    type JoinHandle<O> = TokioJoinHandle<O> where O: Send + 'static;
+    type MpscSender<T> = TokioMpscSender<T>where
+    T: Send + 'static;
+    type MpscReceiver<T> = TokioMpscReceiver<T>where
+    T: Send + Unpin + 'static;
     /// Runs a future to completion on the Tokio runtime. This is the runtime’s entry point.
     ///
     /// # Examples
     ///
     /// ```
-    /// use rsbt_rt::{Runtime, TokioRuntime};
+    /// use rsbt_rt::{Runtime, RuntimeHandle, TokioRuntime};
     ///
     /// let rt = TokioRuntime::new().unwrap();
     ///
@@ -51,7 +68,7 @@ impl Runtime for TokioRuntime {
     /// # Examples
     ///
     /// ```
-    /// use rsbt_rt::{Runtime, TokioRuntime};
+    /// use rsbt_rt::{Runtime, RuntimeHandle, TokioRuntime};
     ///
     /// // Create the runtime
     /// let rt = TokioRuntime::new().unwrap();
@@ -61,26 +78,102 @@ impl Runtime for TokioRuntime {
     ///     println!("now running on a worker thread");
     /// });
     /// ```
-    fn spawn<F>(&self, future: F) -> JoinHandle<Self>
+    fn spawn<F>(&self, future: F) -> Self::JoinHandle<F::Output>
     where
-        F: Future<Output = ()> + Send + 'static,
+        F: Future + Send + 'static,
+        F::Output: Send + 'static,
     {
-        JoinHandle::new(TokioJoinHandle(self.rt.spawn(future)))
+        TokioJoinHandle(self.rt.spawn(future))
+    }
+
+    fn channel<T: Send + Unpin + 'static>(
+        buffer: usize,
+    ) -> (Self::MpscSender<T>, Self::MpscReceiver<T>) {
+        channel(buffer)
     }
 }
 
-pub struct TokioJoinHandle(tokio::task::JoinHandle<()>);
+pub struct TokioJoinHandle<T>(tokio::task::JoinHandle<T>);
 
-impl RuntimeJoinHandle for TokioJoinHandle {
-    type Output = ();
-}
+impl<T: Send + 'static> IntoFuture for TokioJoinHandle<T> {
+    type Output = Result<T, JoinError>;
 
-impl IntoFuture for TokioJoinHandle {
-    type Output = Result<(), tokio::task::JoinError>;
-
-    type IntoFuture = tokio::task::JoinHandle<()>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Result<T, JoinError>> + Send + 'static>>;
 
     fn into_future(self) -> Self::IntoFuture {
-        self.0
+        Box::pin(self.0.map_err(JoinError::Tokio1))
     }
 }
+
+#[derive(Clone)]
+pub struct TokioHandle(tokio::runtime::Handle);
+
+impl RuntimeHandle for TokioHandle {
+    type JoinHandle<O> = TokioJoinHandle<O> where O: Send + 'static;
+    type MpscSender<T> = TokioMpscSender<T> where
+    T: Send + 'static;
+    type MpscReceiver<T> = TokioMpscReceiver<T> where
+    T: Send + Unpin + 'static;
+    /// Runs a future to completion on the Tokio runtime. This is the runtime’s entry point.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use rsbt_rt::{Runtime, RuntimeHandle, TokioRuntime};
+    ///
+    /// let rt = TokioRuntime::new().unwrap();
+    ///
+    /// let handle = rt.handle();
+    ///
+    /// // Execute the future, blocking the current thread until completion
+    /// handle.block_on(async {
+    ///     println!("hello");
+    /// });
+    /// ```
+    fn block_on<F: std::future::Future>(&self, future: F) -> F::Output {
+        self.0.block_on(future)
+    }
+
+    /// Spawns a future onto the Tokio runtime.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use rsbt_rt::{Runtime, RuntimeHandle, TokioRuntime};
+    ///
+    /// // Create the runtime
+    /// let rt = TokioRuntime::new().unwrap();
+    ///
+    /// let handle = rt.handle();
+    ///
+    /// // Spawn a future onto the runtime
+    /// handle.spawn(async {
+    ///     println!("now running on a worker thread");
+    /// });
+    /// ```
+    fn spawn<F>(&self, future: F) -> Self::JoinHandle<F::Output>
+    where
+        F: Future + Send + 'static,
+        F::Output: Send + 'static,
+    {
+        TokioJoinHandle(self.0.spawn(future))
+    }
+    fn channel<T: Send + Unpin + 'static>(
+        buffer: usize,
+    ) -> (Self::MpscSender<T>, Self::MpscReceiver<T>) {
+        channel(buffer)
+    }
+}
+
+#[inline]
+fn channel<T: Send + 'static>(buffer: usize) -> (TokioMpscSender<T>, TokioMpscReceiver<T>) {
+    let (sender, receiver) = tokio::sync::mpsc::channel(buffer);
+    (
+        TokioMpscSender::new(sender),
+        TokioMpscReceiver::from(receiver),
+    )
+}
+
+pub type TokioMpscSender<T> = tokio_util::sync::PollSender<T>;
+
+pub type TokioMpscReceiver<T> = tokio_stream::wrappers::ReceiverStream<T>;

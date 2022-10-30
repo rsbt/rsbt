@@ -18,12 +18,19 @@ homepage.workspace = true
 [features]
 
 default = ["tokio_1"]
-tokio_1 = ["tokio"]
+tokio_1 = ["tokio", "tokio-util", "tokio-stream"]
 
 [dependencies]
 tokio = { version = "1", default-features = false, features = [
+    "net",
     "rt-multi-thread",
+    "sync",
+], optional = true }
+tokio-util = { version = "0.7", default-features = false, features = [
+    "codec",
     "net",
 ], optional = true }
+tokio-stream = { version = "0.1", default-features = false, features = [
+], optional = true }
 
-futures = { version = "^0.3.0" }
+futures = { workspace = true }

@@ -1,49 +1,41 @@
+mod actor;
 mod app;
 mod blocking_app;
 mod error;
-mod message;
 mod status;
+mod torrent_event;
 
 use std::path::PathBuf;
 
 pub use rsbt_rt::DefaultRuntime;
+use rsbt_rt::{Runtime, RuntimeHandle};
 
 pub use crate::{
+    actor::{Download, DownloadHandle},
     app::App,
     blocking_app::{BlockingApp, BlockingAppBuilder},
     error::AppError,
-    message::Message,
     status::AppStatus,
+    torrent_event::TorrentEvent,
 };
 
 pub trait Actor {
+    // type Message;
     type Handle: ActorHandle;
+
+    // fn handle_message(&mut self, msg: Self::Message);
 }
 
 pub trait ActorHandle {}
 
+// pub struct ActorEventLoop<A: Actor, R: RuntimeHandle<DefaultTypeMap>> {
+// actor: A,
+// receiver:
+// }
+
 pub trait Input {}
 
 pub trait Output {}
-
-pub struct Download<I: Input, O: Output> {
-    input: I,
-    output: O,
-}
-
-impl<I: Input, O: Output> Download<I, O> {
-    pub fn new(input: I, output: O) -> Self {
-        Self { input, output }
-    }
-}
-
-impl<I: Input, O: Output> Actor for Download<I, O> {
-    type Handle = DownloadHandle;
-}
-
-pub struct DownloadHandle {}
-
-impl ActorHandle for DownloadHandle {}
 
 pub struct DefaultFileOutput(PathBuf);
 

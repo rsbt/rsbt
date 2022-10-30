@@ -1,5 +1,5 @@
 /*!
-# rsbt-rt description
+ # rsbt-rt description
 
 ## Features
 
@@ -14,54 +14,40 @@ rsbt-rt = "0.1"
 
 */
 
-use std::{
-    future::{Future, IntoFuture},
-    marker::PhantomData,
-    pin::Pin,
-};
+use std::future::{Future, IntoFuture};
 
-pub trait Runtime {
-    type JoinHandle: RuntimeJoinHandle + Send + 'static;
+use futures::{Sink, Stream};
+
+pub trait Runtime: RuntimeHandle {
+    type Handle: RuntimeHandle + Clone;
+
+    fn handle(&self) -> Self::Handle;
+}
+
+pub trait RuntimeHandle {
+    type JoinHandle<O>: IntoFuture<Output = Result<O, JoinError>>
+    where
+        O: Send + 'static;
+
+    type MpscSender<T>: Sink<T>
+    where
+        T: Send + 'static;
+    type MpscReceiver<T>: Stream<Item = T> + Unpin
+    where
+        T: Send + Unpin + 'static;
 
     fn block_on<F: Future>(&self, future: F) -> F::Output;
-    fn spawn<F>(&self, future: F) -> JoinHandle<Self>
+    fn spawn<F>(&self, future: F) -> Self::JoinHandle<F::Output>
     where
-        F: Future<Output = ()> + Send + 'static;
+        F: Future + Send + 'static,
+        F::Output: Send + 'static;
+
+    fn channel<T: Send + Unpin + 'static>(
+        buffer: usize,
+    ) -> (Self::MpscSender<T>, Self::MpscReceiver<T>);
 }
 
-pub trait RuntimeJoinHandle {
-    type Output;
-}
-
-pub struct JoinHandle<R: Runtime + ?Sized> {
-    inner: <R as Runtime>::JoinHandle,
-    _r: PhantomData<R>,
-}
-
-impl<R: Runtime + ?Sized> JoinHandle<R> {
-    pub fn new(inner: <R as Runtime>::JoinHandle) -> Self {
-        Self {
-            inner,
-            _r: PhantomData,
-        }
-    }
-}
-
-impl<R: Runtime + ?Sized, T, E> IntoFuture for JoinHandle<R>
-where
-    R::JoinHandle: IntoFuture<Output = Result<T, E>>,
-    <R::JoinHandle as IntoFuture>::IntoFuture: Send + 'static,
-{
-    type Output = Result<T, E>;
-
-    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send + 'static>>;
-
-    fn into_future(self) -> Self::IntoFuture {
-        Box::pin(self.inner.into_future())
-    }
-}
-
-enum JoinError {
+pub enum JoinError {
     #[cfg(feature = "tokio_1")]
     Tokio1(tokio::task::JoinError),
 }
