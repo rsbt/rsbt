@@ -22,6 +22,8 @@ pub trait Runtime: RuntimeHandle {
     type Handle: RuntimeHandle + Clone;
 
     fn handle(&self) -> Self::Handle;
+
+    fn shutdown_background(self);
 }
 
 pub trait RuntimeHandle {
@@ -38,6 +40,10 @@ pub trait RuntimeHandle {
 
     fn block_on<F: Future>(&self, future: F) -> F::Output;
     fn spawn<F>(&self, future: F) -> Self::JoinHandle<F::Output>
+    where
+        F: Future + Send + 'static,
+        F::Output: Send + 'static;
+    fn spawn_current<F>(future: F) -> Self::JoinHandle<F::Output>
     where
         F: Future + Send + 'static,
         F::Output: Send + 'static;

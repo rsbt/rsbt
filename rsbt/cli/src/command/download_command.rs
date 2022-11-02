@@ -29,8 +29,8 @@ impl Runnable for DownloadCommand {
                 DefaultFileOutput::from(self.out_dir.clone()),
             )
         }) {
-            let handler = app.start(torrent_download)?;
-            message_channel.subscribe(handler)?;
+            let handle = app.start(torrent_download);
+            message_channel.subscribe(handle)?;
         }
 
         let mut message_receiver = message_channel.listen();

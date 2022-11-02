@@ -11,27 +11,13 @@ pub use rsbt_rt::DefaultRuntime;
 use rsbt_rt::{Runtime, RuntimeHandle};
 
 pub use crate::{
-    actor::{Download, DownloadHandle},
+    actor::{Actor, ActorHandle, Download, DownloadHandle},
     app::App,
     blocking_app::{BlockingApp, BlockingAppBuilder},
     error::AppError,
     status::AppStatus,
     torrent_event::TorrentEvent,
 };
-
-pub trait Actor {
-    // type Message;
-    type Handle: ActorHandle;
-
-    // fn handle_message(&mut self, msg: Self::Message);
-}
-
-pub trait ActorHandle {}
-
-// pub struct ActorEventLoop<A: Actor, R: RuntimeHandle<DefaultTypeMap>> {
-// actor: A,
-// receiver:
-// }
 
 pub trait Input {}
 

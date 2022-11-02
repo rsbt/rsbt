@@ -37,6 +37,10 @@ impl Runtime for TokioRuntime {
     fn handle(&self) -> Self::Handle {
         TokioHandle(self.rt.handle().clone())
     }
+
+    fn shutdown_background(self) {
+        self.rt.shutdown_background()
+    }
 }
 
 impl RuntimeHandle for TokioRuntime {
@@ -84,6 +88,14 @@ impl RuntimeHandle for TokioRuntime {
         F::Output: Send + 'static,
     {
         TokioJoinHandle(self.rt.spawn(future))
+    }
+
+    fn spawn_current<F>(future: F) -> Self::JoinHandle<F::Output>
+    where
+        F: Future + Send + 'static,
+        F::Output: Send + 'static,
+    {
+        TokioJoinHandle(tokio::spawn(future))
     }
 
     fn channel<T: Send + Unpin + 'static>(
@@ -158,6 +170,15 @@ impl RuntimeHandle for TokioHandle {
     {
         TokioJoinHandle(self.0.spawn(future))
     }
+
+    fn spawn_current<F>(future: F) -> Self::JoinHandle<F::Output>
+    where
+        F: Future + Send + 'static,
+        F::Output: Send + 'static,
+    {
+        TokioJoinHandle(tokio::spawn(future))
+    }
+
     fn channel<T: Send + Unpin + 'static>(
         buffer: usize,
     ) -> (Self::MpscSender<T>, Self::MpscReceiver<T>) {

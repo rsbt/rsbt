@@ -1,6 +1,6 @@
 use rsbt_rt::{Runtime, RuntimeHandle};
 
-use crate::{app::MessageChannel, ActorHandle, AppError};
+use crate::{app::MessageChannel, Actor, ActorHandle, AppError};
 
 pub struct BlockingMessageChannel<R: Runtime, T: Send + Unpin + 'static> {
     pub(super) inner: MessageChannel<R, T>,
@@ -12,7 +12,10 @@ where
     R: Runtime,
     T: Send + Unpin + 'static,
 {
-    pub fn subscribe<H: ActorHandle>(&self, actor_handle: H) -> Result<(), AppError> {
+    pub fn subscribe<A>(&self, actor_handle: ActorHandle<A, R>) -> Result<(), AppError>
+    where
+        A: Actor<R>,
+    {
         todo!();
     }
 

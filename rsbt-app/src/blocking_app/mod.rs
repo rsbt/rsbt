@@ -1,6 +1,6 @@
 use rsbt_rt::Runtime;
 
-use crate::{Actor, App, AppError};
+use crate::{Actor, ActorHandle, App, AppError};
 
 mod builder;
 mod message_channel;
@@ -26,13 +26,17 @@ where
         }
     }
 
-    pub fn start<A: Actor>(&self, actor: A) -> Result<A::Handle, AppError> {
-        // _ = self.runtime.spawn(future)
-        todo!();
+    pub fn start<A: Actor<R>>(&self, actor: A) -> ActorHandle<A, R>
+    where
+        A::Message: Send + Unpin + 'static,
+    {
+        self.app.start(actor)
     }
 
-    pub fn shutdown(&self) -> Result<(), AppError> {
-        todo!();
+    pub fn shutdown(self) -> Result<(), AppError> {
+        self.runtime.shutdown_background();
+
+        Ok(())
     }
 }
 
