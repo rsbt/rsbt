@@ -30,7 +30,7 @@ where
     where
         A::Message: Send + Unpin + 'static,
     {
-        self.app.start(actor)
+        self.runtime.block_on(self.app.start(actor))
     }
 
     pub fn shutdown(self) -> Result<(), AppError> {

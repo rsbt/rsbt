@@ -16,7 +16,7 @@ impl App {
         MessageChannel::new(DEFAULT_CHANNEL_BUFFER)
     }
 
-    pub fn start<A: Actor<R>, R: Runtime>(&self, actor: A) -> ActorHandle<A, R> {
+    pub async fn start<A: Actor<R>, R: Runtime>(&self, actor: A) -> ActorHandle<A, R> {
         let (sender, receiver) = R::channel::<A::Message>(DEFAULT_CHANNEL_BUFFER);
         let _ = R::spawn_current(A::message_loop(actor, receiver));
         ActorHandle::new(sender)
