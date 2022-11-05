@@ -1,15 +1,10 @@
-use rsbt_rt::Runtime;
+use crate::{tokio::Runtime, App, BlockingApp};
 
-use crate::{App, BlockingApp};
-
-pub struct BlockingAppBuilder<R: Runtime> {
-    pub(super) runtime: Option<R>,
+pub struct BlockingAppBuilder {
+    pub(super) runtime: Option<Runtime>,
 }
 
-impl<R> Default for BlockingAppBuilder<R>
-where
-    R: Runtime,
-{
+impl Default for BlockingAppBuilder {
     fn default() -> Self {
         Self {
             runtime: Default::default(),
@@ -17,16 +12,13 @@ where
     }
 }
 
-impl<R> BlockingAppBuilder<R>
-where
-    R: Runtime,
-{
-    pub fn runtime(mut self, runtime: R) -> Self {
+impl BlockingAppBuilder {
+    pub fn runtime(mut self, runtime: Runtime) -> Self {
         self.runtime = Some(runtime);
         self
     }
 
-    pub fn build(self) -> BlockingApp<R> {
+    pub fn build(self) -> BlockingApp {
         BlockingApp {
             app: App {},
             runtime: self.runtime.expect("runtime"),

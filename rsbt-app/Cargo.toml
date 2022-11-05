@@ -25,7 +25,10 @@ thiserror = { workspace = true }
 
 clap = { workspace = true }
 
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+tokio-stream = { workspace = true }
+
 futures = { workspace = true }
 
 rsbt-types = { path = "../rsbt-types" }
-rsbt-rt = { path = "../rsbt-rt" }

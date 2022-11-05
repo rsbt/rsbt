@@ -1,32 +1,26 @@
-use rsbt_rt::Runtime;
-
-use crate::{Actor, ActorHandle, App, AppError};
+use crate::{tokio::Runtime, Actor, ActorHandle, App, AppError};
 
 mod builder;
 mod message_channel;
 
-#[derive(Default)]
-pub struct BlockingApp<R: Runtime> {
+pub struct BlockingApp {
     app: App,
-    runtime: R,
+    runtime: Runtime,
 }
 
-impl<R> BlockingApp<R>
-where
-    R: Runtime,
-{
-    pub fn builder() -> BlockingAppBuilder<R> {
+impl BlockingApp {
+    pub fn builder() -> BlockingAppBuilder {
         BlockingAppBuilder::default()
     }
 
-    pub fn message_channel<T: Send + Unpin + 'static>(&self) -> BlockingMessageChannel<R, T> {
+    pub fn message_channel<T: Send + Unpin + 'static>(&self) -> BlockingMessageChannel<T> {
         BlockingMessageChannel {
             inner: self.app.message_channel(),
-            handle: self.runtime.handle(),
+            handle: self.runtime.handle().clone(),
         }
     }
 
-    pub fn start<A: Actor<R>>(&self, actor: A) -> ActorHandle<A, R>
+    pub fn start<A: Actor>(&self, actor: A) -> ActorHandle<A>
     where
         A::Message: Send + Unpin + 'static,
     {

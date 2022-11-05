@@ -7,7 +7,6 @@ members = [
     "rsbt-bencode-derive",
     "rsbt-defs",
     "rsbt-memory-hub",
-    "rsbt-rt",
     "rsbt-types",
 ]
 resolver = "2"
@@ -46,6 +45,17 @@ clap = { version = "4", default-features = false, features = [
 ] }
 
 dotenv = { version = "0.15", default-features = false }
+
+tokio = { version = "1", default-features = false, features = [
+    "net",
+    "rt-multi-thread",
+    "sync",
+] }
+tokio-util = { version = "0.7", default-features = false, features = [
+    "codec",
+    "net",
+] }
+tokio-stream = { version = "0.1", default-features = false, features = [] }
 
 futures = { version = "^0.3.0" }
 

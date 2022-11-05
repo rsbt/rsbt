@@ -16,8 +16,7 @@ repository.workspace = true
 homepage.workspace = true
 
 [features]
-default = ["rt_tokio_1"]
-rt_tokio_1 = ["tokio"]
+default = []
 
 [dependencies]
 log = { workspace = true }

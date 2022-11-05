@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use rsbt_app::{DefaultFileOutput, DefaultRuntime, Download, PathBufInput, TorrentEvent};
+use rsbt_app::{DefaultFileOutput, DefaultRuntimeBuilder, Download, PathBufInput, TorrentEvent};
 
 use super::{AppError, Parser, Runnable};
 
@@ -18,7 +18,7 @@ pub struct DownloadCommand {
 impl Runnable for DownloadCommand {
     fn run(self) -> Result<(), AppError> {
         let app = rsbt_app::BlockingApp::builder()
-            .runtime(DefaultRuntime::new().map_err(AppError::RuntimeInit)?)
+            .runtime(DefaultRuntimeBuilder::build()?)
             .build();
 
         let message_channel = app.message_channel::<TorrentEvent>();

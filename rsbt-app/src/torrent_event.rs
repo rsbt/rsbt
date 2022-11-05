@@ -1,17 +1,12 @@
-use rsbt_rt::RuntimeHandle;
-
 use crate::actor::DownloadEvent;
 
 #[derive(Clone)]
-pub enum TorrentEvent<R: RuntimeHandle> {
-    Download(DownloadEvent<R>),
+pub enum TorrentEvent {
+    Download(DownloadEvent),
 }
 
-impl<R> From<DownloadEvent<R>> for TorrentEvent<R>
-where
-    R: RuntimeHandle,
-{
-    fn from(value: DownloadEvent<R>) -> Self {
+impl From<DownloadEvent> for TorrentEvent {
+    fn from(value: DownloadEvent) -> Self {
         Self::Download(value)
     }
 }

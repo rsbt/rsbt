@@ -16,8 +16,7 @@ repository.workspace = true
 homepage.workspace = true
 
 [features]
-default = ["rt_tokio_1"]
-rt_tokio_1 = ["rsbt-app/rt_tokio_1"]
+default = []
 
 [dependencies]
 log = { workspace = true }

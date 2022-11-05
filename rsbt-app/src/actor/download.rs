@@ -1,18 +1,19 @@
 use std::{future::Future, pin::Pin};
 
-use rsbt_rt::RuntimeHandle;
-
-use crate::{Actor, ActorHandle, Input, Output, TorrentEvent};
+use crate::{
+    tokio::{MpscReceiver, MpscSender},
+    Actor, Input, Output, TorrentEvent,
+};
 
 use super::{EventSubscription, Publisher};
 
-pub struct Download<I: Input, O: Output, R: RuntimeHandle> {
+pub struct Download<I: Input, O: Output> {
     input: I,
     output: O,
-    torrent_event_senders: Vec<R::MpscSender<TorrentEvent<R>>>,
+    torrent_event_senders: Vec<MpscSender<TorrentEvent>>,
 }
 
-impl<I: Input, O: Output, R: RuntimeHandle> Download<I, O, R> {
+impl<I: Input, O: Output> Download<I, O> {
     pub fn new(input: I, output: O) -> Self {
         Self {
             input,
@@ -21,7 +22,7 @@ impl<I: Input, O: Output, R: RuntimeHandle> Download<I, O, R> {
         }
     }
 
-    async fn notify(&mut self, event: TorrentEvent<R>) {
+    async fn notify(&mut self, event: TorrentEvent) {
         for torrent_event_sender in &mut self.torrent_event_senders {
             use futures::SinkExt;
             let _ = torrent_event_sender.send(event.clone()).await;
@@ -29,58 +30,53 @@ impl<I: Input, O: Output, R: RuntimeHandle> Download<I, O, R> {
     }
 }
 
-impl<I: Input + Send + 'static, O: Output + Send + 'static, R: RuntimeHandle> Actor<R>
-    for Download<I, O, R>
-{
-    type Message = DownloadEvent<R>;
+impl<I: Input + Send + 'static, O: Output + Send + 'static> Actor for Download<I, O> {
+    type Message = DownloadEvent;
 
     fn handle_message(&mut self, msg: Self::Message) {
-        todo!()
+        match msg {
+            DownloadEvent::Subscribe(sender) => self.register_subscriber(sender),
+            _ => (),
+        }
     }
 
     fn message_loop(
         mut actor: Self,
-        mut receiver: R::MpscReceiver<Self::Message>,
+        mut receiver: MpscReceiver<Self::Message>,
     ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
         Box::pin(async move {
-            use futures::StreamExt;
-            while let Some(message) = receiver.next().await {
+            while let Some(message) = receiver.recv().await {
                 actor.handle_message(message);
             }
         })
     }
 }
 
-impl<I: Input + Send + 'static, O: Output + Send + 'static, R: RuntimeHandle> Publisher<R>
-    for Download<I, O, R>
-{
-    type Event = TorrentEvent<R>;
+impl<I: Input + Send + 'static, O: Output + Send + 'static> Publisher for Download<I, O> {
+    type Event = TorrentEvent;
 
-    fn register_subscriber(&mut self, sender: <R as RuntimeHandle>::MpscSender<Self::Event>) {
+    fn register_subscriber(&mut self, sender: MpscSender<Self::Event>) {
         self.torrent_event_senders.push(sender)
     }
 }
 
-pub struct DownloadHandle<R: RuntimeHandle> {
-    sender: R::MpscSender<DownloadEvent<R>>,
+pub struct DownloadHandle {
+    sender: MpscSender<DownloadEvent>,
 }
 
 #[derive(Clone)]
-pub enum DownloadEvent<R: RuntimeHandle> {
+pub enum DownloadEvent {
     Started,
-    Subscribe(R::MpscSender<TorrentEvent<R>>),
+    Subscribe(MpscSender<TorrentEvent>),
 }
 
-impl<R> EventSubscription<R> for DownloadEvent<R>
-where
-    R: RuntimeHandle,
-{
-    type Event = TorrentEvent<R>;
+impl EventSubscription for DownloadEvent {
+    type Event = TorrentEvent;
 
-    fn message(sender: R::MpscSender<Self::Event>) -> Self
+    fn message(sender: MpscSender<Self::Event>) -> Self
     where
         Self: Sized + Send,
     {
-        todo!()
+        Self::Subscribe(sender)
     }
 }

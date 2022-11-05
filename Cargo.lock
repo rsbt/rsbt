@@ -407,9 +407,11 @@ dependencies = [
  "clap",
  "futures",
  "log",
- "rsbt-rt",
  "rsbt-types",
  "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tokio-util",
 ]
 
 [[package]]
@@ -451,17 +453,6 @@ version = "0.1.0"
 [[package]]
 name = "rsbt-memory-hub"
 version = "0.1.0"
-
-[[package]]
-name = "rsbt-rt"
-version = "0.1.0"
-dependencies = [
- "futures",
- "thiserror",
- "tokio",
- "tokio-stream",
- "tokio-util",
-]
 
 [[package]]
 name = "rsbt-types"
