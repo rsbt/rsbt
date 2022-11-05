@@ -5,7 +5,7 @@ use std::{
 
 use futures::TryFutureExt;
 
-use crate::{JoinError, Runtime, RuntimeHandle};
+use crate::{JoinError, Runtime, RuntimeError, RuntimeHandle};
 
 pub struct TokioRuntime {
     rt: tokio::runtime::Runtime,
@@ -198,3 +198,9 @@ fn channel<T: Send + 'static>(buffer: usize) -> (TokioMpscSender<T>, TokioMpscRe
 pub type TokioMpscSender<T> = tokio_util::sync::PollSender<T>;
 
 pub type TokioMpscReceiver<T> = tokio_stream::wrappers::ReceiverStream<T>;
+
+impl<T> From<tokio_util::sync::PollSendError<T>> for RuntimeError {
+    fn from(_: tokio_util::sync::PollSendError<T>) -> Self {
+        Self::Sink
+    }
+}

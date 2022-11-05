@@ -18,7 +18,7 @@ pub struct DownloadCommand {
 impl Runnable for DownloadCommand {
     fn run(self) -> Result<(), AppError> {
         let app = rsbt_app::BlockingApp::builder()
-            .runtime(DefaultRuntime::new().map_err(AppError::Runtime)?)
+            .runtime(DefaultRuntime::new().map_err(AppError::RuntimeInit)?)
             .build();
 
         let message_channel = app.message_channel::<TorrentEvent>();

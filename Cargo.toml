@@ -49,5 +49,7 @@ dotenv = { version = "0.15", default-features = false }
 
 futures = { version = "^0.3.0" }
 
+thiserror = "1"
+
 [profile.release]
 lto = true

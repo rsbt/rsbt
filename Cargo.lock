@@ -457,6 +457,7 @@ name = "rsbt-rt"
 version = "0.1.0"
 dependencies = [
  "futures",
+ "thiserror",
  "tokio",
  "tokio-stream",
  "tokio-util",

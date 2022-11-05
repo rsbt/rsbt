@@ -16,13 +16,12 @@ repository.workspace = true
 homepage.workspace = true
 
 [features]
-default = ["rt_tokio_1"]
-rt_tokio_1 = ["rsbt-rt/tokio_1"]
+default = []
 
 [dependencies]
 log = { workspace = true }
 
-thiserror = "1"
+thiserror = { workspace = true }
 
 clap = { workspace = true }
 

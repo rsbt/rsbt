@@ -21,6 +21,8 @@ default = ["tokio_1"]
 tokio_1 = ["tokio", "tokio-util", "tokio-stream"]
 
 [dependencies]
+thiserror = { workspace = true }
+
 tokio = { version = "1", default-features = false, features = [
     "net",
     "rt-multi-thread",

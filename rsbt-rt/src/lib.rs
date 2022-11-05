@@ -26,15 +26,15 @@ pub trait Runtime: RuntimeHandle {
     fn shutdown_background(self);
 }
 
-pub trait RuntimeHandle {
+pub trait RuntimeHandle: Send + 'static {
     type JoinHandle<O>: IntoFuture<Output = Result<O, JoinError>>
     where
         O: Send + 'static;
 
-    type MpscSender<T>: Sink<T>
+    type MpscSender<T>: Sink<T> + Send + Unpin + Clone
     where
         T: Send + 'static;
-    type MpscReceiver<T>: Stream<Item = T> + Unpin
+    type MpscReceiver<T>: Stream<Item = T> + Send + Unpin
     where
         T: Send + Unpin + 'static;
 
@@ -69,3 +69,9 @@ pub type DefaultRuntime = tokio_runtime::TokioRuntime;
 
 #[cfg(not(feature = "tokio_1"))]
 compile_error!("You must enable tokio_1 feature, as it is only one supported at the moment");
+
+#[derive(Debug, thiserror::Error)]
+pub enum RuntimeError {
+    #[error("Sink is closed.")]
+    Sink,
+}

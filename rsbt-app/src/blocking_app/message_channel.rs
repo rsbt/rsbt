@@ -1,6 +1,11 @@
-use rsbt_rt::{Runtime, RuntimeHandle};
+use futures::Sink;
+use rsbt_rt::{Runtime, RuntimeError, RuntimeHandle};
 
-use crate::{app::MessageChannel, Actor, ActorHandle, AppError};
+use crate::{
+    actor::{EventSubscription, Publisher},
+    app::MessageChannel,
+    ActorHandle, AppError,
+};
 
 pub struct BlockingMessageChannel<R: Runtime, T: Send + Unpin + 'static> {
     pub(super) inner: MessageChannel<R, T>,
@@ -14,9 +19,11 @@ where
 {
     pub fn subscribe<A>(&self, actor_handle: ActorHandle<A, R>) -> Result<(), AppError>
     where
-        A: Actor<R>,
+        A: Publisher<R, Event = T>,
+        A::Message: EventSubscription<R, Event = T>,
+        RuntimeError: From<<R::MpscSender<A::Message> as Sink<A::Message>>::Error>,
     {
-        todo!();
+        self.handle.block_on(self.inner.subscribe(actor_handle))
     }
 
     pub fn listen(self) -> BlockingMessageReceiver<R, T> {
