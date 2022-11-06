@@ -13,17 +13,14 @@ impl BlockingApp {
         BlockingAppBuilder::default()
     }
 
-    pub fn message_channel<T: Send + Unpin + 'static>(&self) -> BlockingMessageChannel<T> {
+    pub fn message_channel<T>(&self) -> BlockingMessageChannel<T> {
         BlockingMessageChannel {
             inner: self.app.message_channel(),
             handle: self.runtime.handle().clone(),
         }
     }
 
-    pub fn start<A: Actor>(&self, actor: A) -> ActorHandle<A>
-    where
-        A::Message: Send + Unpin + 'static,
-    {
+    pub fn start<A: Actor>(&self, actor: A) -> ActorHandle<A> {
         self.runtime.block_on(self.app.start(actor))
     }
 

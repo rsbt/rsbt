@@ -4,15 +4,12 @@ use crate::{
     ActorHandle, AppError,
 };
 
-pub struct MessageChannel<T: Send + Unpin + 'static> {
+pub struct MessageChannel<T> {
     mpsc_receiver: MpscReceiver<T>,
     mpsc_sender: MpscSender<T>,
 }
 
-impl<T> MessageChannel<T>
-where
-    T: Send + Unpin + 'static,
-{
+impl<T> MessageChannel<T> {
     pub fn new(buffer: usize) -> Self {
         let (mpsc_sender, mpsc_receiver) = mpsc_channel(buffer);
 

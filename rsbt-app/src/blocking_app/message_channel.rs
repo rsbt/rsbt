@@ -1,5 +1,3 @@
-use futures::Sink;
-
 use crate::{
     actor::{EventSubscription, Publisher},
     app::MessageChannel,
@@ -7,15 +5,12 @@ use crate::{
     ActorHandle, AppError,
 };
 
-pub struct BlockingMessageChannel<T: Send + Unpin + 'static> {
+pub struct BlockingMessageChannel<T> {
     pub(super) inner: MessageChannel<T>,
     pub(super) handle: Handle,
 }
 
-impl<T> BlockingMessageChannel<T>
-where
-    T: Send + Unpin + 'static,
-{
+impl<T> BlockingMessageChannel<T> {
     pub fn subscribe<A>(&self, actor_handle: ActorHandle<A>) -> Result<(), AppError>
     where
         A: Publisher<Event = T>,
@@ -33,7 +28,7 @@ where
     }
 }
 
-pub struct BlockingMessageReceiver<T: Send> {
+pub struct BlockingMessageReceiver<T> {
     pub(super) inner: MpscReceiver<T>,
     pub(super) handle: Handle,
 }

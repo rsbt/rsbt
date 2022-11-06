@@ -10,7 +10,7 @@ mod download;
 pub use download::{Download, DownloadEvent, DownloadHandle};
 
 pub trait Actor {
-    type Message: Send + Unpin + 'static;
+    type Message;
 
     fn handle_message(&mut self, msg: Self::Message);
 
@@ -31,24 +31,23 @@ impl<A: Actor> ActorHandle<A> {
 }
 
 pub trait Publisher: Actor {
-    type Event: Send + Unpin + 'static;
+    type Event;
 
     fn register_subscriber(&mut self, sender: MpscSender<Self::Event>);
 }
 
 pub trait EventSubscription {
-    type Event: Send + Unpin + 'static;
+    type Event;
 
     fn message(sender: MpscSender<Self::Event>) -> Self
     where
-        Self: Sized + Send;
+        Self: Sized;
 }
 
 impl<A, E> ActorHandle<A>
 where
     A: Publisher<Event = E>,
     A::Message: EventSubscription<Event = E>,
-    E: Send,
 {
     pub async fn subscribe(&mut self, sender: MpscSender<A::Event>) -> Result<(), AppError> {
         let message = A::Message::message(sender);
