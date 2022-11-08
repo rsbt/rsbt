@@ -1,4 +1,4 @@
-use std::{future::Future, pin::Pin};
+use std::{future::Future, marker::PhantomData, pin::Pin};
 
 use crate::{
     tokio::{MpscReceiver, MpscSender},
@@ -7,25 +7,36 @@ use crate::{
 
 mod download;
 
-pub use download::{Download, DownloadEvent, DownloadHandle};
+pub use download::{Download, DownloadHandle, DownloadMessage};
 
 pub trait Actor {
     type Message;
 
     fn handle_message(&mut self, msg: Self::Message);
+}
 
-    fn message_loop(
-        actor: Self,
-        receiver: MpscReceiver<Self::Message>,
-    ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>;
+#[derive(Default)]
+pub(crate) struct ActorMessageLoop<A: Actor>(PhantomData<A>);
+
+impl<A> ActorMessageLoop<A>
+where
+    A: Actor,
+{
+    pub async fn message_loop(mut actor: A, mut receiver: MpscReceiver<ActorCommand<A::Message>>) {
+        while let Some(message) = receiver.recv().await {
+            match message {
+                ActorCommand::Message(message) => actor.handle_message(message),
+            }
+        }
+    }
 }
 
 pub struct ActorHandle<A: Actor> {
-    sender: MpscSender<A::Message>,
+    sender: MpscSender<ActorCommand<A::Message>>,
 }
 
 impl<A: Actor> ActorHandle<A> {
-    pub fn new(sender: MpscSender<A::Message>) -> Self {
+    pub fn new(sender: MpscSender<ActorCommand<A::Message>>) -> Self {
         Self { sender }
     }
 }
@@ -50,11 +61,15 @@ where
     A::Message: EventSubscription<Event = E>,
 {
     pub async fn subscribe(&mut self, sender: MpscSender<A::Event>) -> Result<(), AppError> {
-        let message = A::Message::message(sender);
+        let message = ActorCommand::Message(A::Message::message(sender));
 
         self.sender
             .send(message)
             .await
             .map_err(|_| AppError::Unknown) // TODO: error handling
     }
+}
+
+pub enum ActorCommand<M> {
+    Message(M),
 }

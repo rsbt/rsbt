@@ -7,6 +7,7 @@ mod torrent_event;
 
 use std::path::PathBuf;
 
+pub(crate) use crate::actor::ActorMessageLoop;
 pub use crate::{
     actor::{Actor, ActorHandle, Download, DownloadHandle},
     app::App,

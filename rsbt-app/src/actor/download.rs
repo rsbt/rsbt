@@ -1,9 +1,4 @@
-use std::{future::Future, pin::Pin};
-
-use crate::{
-    tokio::{MpscReceiver, MpscSender},
-    Actor, Input, Output, TorrentEvent,
-};
+use crate::{tokio::MpscSender, Actor, Input, Output, TorrentEvent};
 
 use super::{EventSubscription, Publisher};
 
@@ -24,31 +19,19 @@ impl<I: Input, O: Output> Download<I, O> {
 
     async fn notify(&mut self, event: TorrentEvent) {
         for torrent_event_sender in &mut self.torrent_event_senders {
-            use futures::SinkExt;
             let _ = torrent_event_sender.send(event.clone()).await;
         }
     }
 }
 
 impl<I: Input + Send + 'static, O: Output + Send + 'static> Actor for Download<I, O> {
-    type Message = DownloadEvent;
+    type Message = DownloadMessage;
 
     fn handle_message(&mut self, msg: Self::Message) {
         match msg {
-            DownloadEvent::Subscribe(sender) => self.register_subscriber(sender),
+            DownloadMessage::Subscribe(sender) => self.register_subscriber(sender),
             _ => (),
         }
-    }
-
-    fn message_loop(
-        mut actor: Self,
-        mut receiver: MpscReceiver<Self::Message>,
-    ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
-        Box::pin(async move {
-            while let Some(message) = receiver.recv().await {
-                actor.handle_message(message);
-            }
-        })
     }
 }
 
@@ -61,16 +44,15 @@ impl<I: Input + Send + 'static, O: Output + Send + 'static> Publisher for Downlo
 }
 
 pub struct DownloadHandle {
-    sender: MpscSender<DownloadEvent>,
+    sender: MpscSender<DownloadMessage>,
 }
 
 #[derive(Clone)]
-pub enum DownloadEvent {
-    Started,
+pub enum DownloadMessage {
     Subscribe(MpscSender<TorrentEvent>),
 }
 
-impl EventSubscription for DownloadEvent {
+impl EventSubscription for DownloadMessage {
     type Event = TorrentEvent;
 
     fn message(sender: MpscSender<Self::Event>) -> Self

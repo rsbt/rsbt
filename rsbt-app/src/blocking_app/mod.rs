@@ -20,7 +20,11 @@ impl BlockingApp {
         }
     }
 
-    pub fn start<A: Actor>(&self, actor: A) -> ActorHandle<A> {
+    pub fn start<A>(&self, actor: A) -> ActorHandle<A>
+    where
+        A: Actor + Send + 'static,
+        A::Message: Send,
+    {
         self.runtime.block_on(self.app.start(actor))
     }
 
