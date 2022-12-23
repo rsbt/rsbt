@@ -17,6 +17,8 @@ pub use crate::{
     torrent_event::TorrentEvent,
 };
 
+const DEFAULT_CHANNEL_BUFFER: usize = 8;
+
 pub trait Input {}
 
 pub trait Output {}
@@ -42,6 +44,7 @@ pub(crate) mod tokio {
     pub type MpscReceiver<T> = tokio::sync::mpsc::Receiver<T>;
     pub use tokio::spawn;
     pub use tokio::sync::mpsc::channel as mpsc_channel;
+    pub use tokio::sync::mpsc::error::SendError as MpscSendError;
 }
 
 pub struct DefaultRuntimeBuilder;

@@ -1,15 +1,8 @@
 use crate::{tokio::Runtime, App, BlockingApp};
 
+#[derive(Default)]
 pub struct BlockingAppBuilder {
     pub(super) runtime: Option<Runtime>,
-}
-
-impl Default for BlockingAppBuilder {
-    fn default() -> Self {
-        Self {
-            runtime: Default::default(),
-        }
-    }
 }
 
 impl BlockingAppBuilder {

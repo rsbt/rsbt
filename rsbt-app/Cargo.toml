@@ -30,5 +30,6 @@ tokio-util = { workspace = true }
 tokio-stream = { workspace = true }
 
 futures = { workspace = true }
+async-trait = { workspace = true }
 
 rsbt-types = { path = "../rsbt-types" }

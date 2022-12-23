@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::{tokio::MpscSender, Actor, Input, Output, TorrentEvent};
 
 use super::{EventSubscription, Publisher};
@@ -24,10 +26,11 @@ impl<I: Input, O: Output> Download<I, O> {
     }
 }
 
+#[async_trait]
 impl<I: Input + Send + 'static, O: Output + Send + 'static> Actor for Download<I, O> {
     type Message = DownloadMessage;
 
-    fn handle_message(&mut self, msg: Self::Message) {
+    async fn handle_message(&mut self, msg: Self::Message) {
         match msg {
             DownloadMessage::Subscribe(sender) => self.register_subscriber(sender),
             _ => (),

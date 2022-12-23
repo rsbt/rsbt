@@ -1,18 +1,31 @@
-use std::{future::Future, marker::PhantomData, pin::Pin};
+use std::{future::IntoFuture, marker::PhantomData};
 
 use crate::{
-    tokio::{MpscReceiver, MpscSender},
-    AppError,
+    tokio::{self, mpsc_channel, spawn, MpscReceiver, MpscSender},
+    AppError, DEFAULT_CHANNEL_BUFFER,
 };
 
 mod download;
-
 pub use download::{Download, DownloadHandle, DownloadMessage};
 
+use async_trait::async_trait;
+use thiserror::Error;
+
+#[async_trait]
 pub trait Actor {
     type Message;
 
-    fn handle_message(&mut self, msg: Self::Message);
+    async fn handle_message(&mut self, msg: Self::Message);
+}
+
+pub async fn start<A>(actor: A) -> ActorHandle<A>
+where
+    A: Actor + Send + 'static,
+    A::Message: Send,
+{
+    let (sender, receiver) = mpsc_channel(DEFAULT_CHANNEL_BUFFER);
+    let _ = spawn(ActorMessageLoop::message_loop(actor, receiver));
+    ActorHandle::new(sender)
 }
 
 #[derive(Default)]
@@ -25,7 +38,7 @@ where
     pub async fn message_loop(mut actor: A, mut receiver: MpscReceiver<ActorCommand<A::Message>>) {
         while let Some(message) = receiver.recv().await {
             match message {
-                ActorCommand::Message(message) => actor.handle_message(message),
+                ActorCommand::Message(message) => actor.handle_message(message).await,
             }
         }
     }
@@ -38,6 +51,13 @@ pub struct ActorHandle<A: Actor> {
 impl<A: Actor> ActorHandle<A> {
     pub fn new(sender: MpscSender<ActorCommand<A::Message>>) -> Self {
         Self { sender }
+    }
+
+    pub async fn send(&self, message: A::Message) -> Result<(), ActorError> {
+        self.sender
+            .send(ActorCommand::Message(message))
+            .await
+            .map_err(|_| ActorError::Send)
     }
 }
 
@@ -72,4 +92,10 @@ where
 
 pub enum ActorCommand<M> {
     Message(M),
+}
+
+#[derive(Debug, Error)]
+pub enum ActorError {
+    #[error("Could not send message to actor")]
+    Send,
 }

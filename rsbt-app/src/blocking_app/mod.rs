@@ -1,5 +1,6 @@
-use crate::{tokio::Runtime, Actor, ActorHandle, App, AppError};
+use crate::{actor, tokio::Runtime, Actor, ActorHandle, App, AppError};
 
+mod blocking_actor_handle;
 mod builder;
 mod message_channel;
 
@@ -25,7 +26,7 @@ impl BlockingApp {
         A: Actor + Send + 'static,
         A::Message: Send,
     {
-        self.runtime.block_on(self.app.start(actor))
+        self.runtime.block_on(actor::start(actor))
     }
 
     pub fn shutdown(self) -> Result<(), AppError> {

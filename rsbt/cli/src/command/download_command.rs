@@ -23,14 +23,16 @@ impl Runnable for DownloadCommand {
 
         let message_channel = app.message_channel::<TorrentEvent>();
 
+        let mut handles = vec![];
         for torrent_download in self.torrents.into_iter().map(|x| {
             Download::new(
                 PathBufInput(x),
                 DefaultFileOutput::from(self.out_dir.clone()),
             )
         }) {
-            let handle = app.start(torrent_download);
-            message_channel.subscribe(handle)?;
+            let mut handle = app.start(torrent_download);
+            message_channel.subscribe(&mut handle)?;
+            handles.push(handle);
         }
 
         let mut message_receiver = message_channel.listen();

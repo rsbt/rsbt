@@ -11,7 +11,7 @@ pub struct BlockingMessageChannel<T> {
 }
 
 impl<T> BlockingMessageChannel<T> {
-    pub fn subscribe<A>(&self, actor_handle: ActorHandle<A>) -> Result<(), AppError>
+    pub fn subscribe<A>(&self, actor_handle: &mut ActorHandle<A>) -> Result<(), AppError>
     where
         A: Publisher<Event = T>,
         A::Message: EventSubscription<Event = T>,

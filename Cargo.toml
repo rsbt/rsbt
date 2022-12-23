@@ -59,6 +59,8 @@ tokio-stream = { version = "0.1", default-features = false, features = [] }
 
 futures = { version = "^0.3.0" }
 
+async-trait = { version = "0.1" }
+
 thiserror = "1"
 
 [profile.release]

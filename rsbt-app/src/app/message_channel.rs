@@ -23,7 +23,7 @@ impl<T> MessageChannel<T> {
         self.mpsc_receiver
     }
 
-    pub async fn subscribe<A>(&self, mut actor_handle: ActorHandle<A>) -> Result<(), AppError>
+    pub async fn subscribe<A>(&self, actor_handle: &mut ActorHandle<A>) -> Result<(), AppError>
     where
         A: Publisher<Event = T>,
         A::Message: EventSubscription<Event = T>,
