@@ -19,15 +19,9 @@ homepage.workspace = true
 default = []
 
 [dependencies]
-log = { workspace = true }
-env_logger = { workspace = true }
-
 anyhow = "1"
-
 clap = { workspace = true }
-
 dotenv = { workspace = true }
-
 tokio = { version = "1", default-features = false, features = [
     "rt-multi-thread",
     "net",

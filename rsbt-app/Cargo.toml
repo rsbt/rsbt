@@ -19,17 +19,13 @@ homepage.workspace = true
 default = []
 
 [dependencies]
-log = { workspace = true }
+clap.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+trait-variant.workspace = true
 
-thiserror = { workspace = true }
+tokio.workspace = true
+tokio-util.workspace = true
+tokio-stream.workspace = true
 
-clap = { workspace = true }
-
-tokio = { workspace = true }
-tokio-util = { workspace = true }
-tokio-stream = { workspace = true }
-
-futures = { workspace = true }
-async-trait = { workspace = true }
-
-rsbt-types = { path = "../rsbt-types" }
+rsbt-types.workspace = true

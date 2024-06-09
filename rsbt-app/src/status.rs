@@ -1,5 +1,7 @@
 use std::process::{ExitCode, Termination};
 
+use tracing::error;
+
 use crate::AppError;
 
 pub enum AppStatus {
@@ -15,7 +17,7 @@ impl Termination for AppStatus {
             Self::Success | Self::CommandLineFail => ExitCode::SUCCESS,
             Self::CommandLineFailStderr => ExitCode::from(2),
             Self::Failure(err) => {
-                log::error!("{err}");
+                error!("{err}");
                 ExitCode::FAILURE
             }
         }

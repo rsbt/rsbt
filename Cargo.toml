@@ -12,7 +12,6 @@ members = [
 resolver = "2"
 
 [workspace.package]
-
 rust-version = "1.65"
 edition = "2021"
 authors = ["Alexander Korolev <alexander.korolev.germany@gmail.com>"]
@@ -23,15 +22,6 @@ repository = "https://github.com/rsbt/rsbt"
 homepage = "https://github.com/rsbt/rsbt"
 
 [workspace.dependencies]
-
-log = { version = "0.4", default-features = false }
-
-env_logger = { version = "0.9", default-features = false, features = [
-    "atty",
-    "termcolor",
-    "humantime",
-] }
-
 clap = { version = "4", default-features = false, features = [
     "cargo",
     "color",
@@ -43,9 +33,8 @@ clap = { version = "4", default-features = false, features = [
     "suggestions",
     "usage",
 ] }
-
 dotenv = { version = "0.15", default-features = false }
-
+thiserror = "1"
 tokio = { version = "1", default-features = false, features = [
     "net",
     "rt-multi-thread",
@@ -56,12 +45,22 @@ tokio-util = { version = "0.7", default-features = false, features = [
     "net",
 ] }
 tokio-stream = { version = "0.1", default-features = false, features = [] }
+tracing = { version = "0.1", default-features = false, features = [] }
+tracing-subscriber = { version = "0.3", default-features = false, features = [
+    "ansi",
+    "fmt",
+] }
+trait-variant = "0.1.2"
 
-futures = { version = "^0.3.0" }
-
-async-trait = { version = "0.1" }
-
-thiserror = "1"
+rsbt = { version = "0.1.0", path = "rsbt/bins" }
+rsbt-commandline = { version = "0.1.0", path = "rsbt/cli" }
+rsbt-web = { version = "0.1.0", path = "rsbt/web" }
+rsbt-app = { version = "0.1.0", path = "rsbt-app" }
+rsbt-bencode-derive = { version = "0.1.0", path = "rsbt-bencode-derive" }
+rsbt-bencode-nom = { version = "0.1.0", path = "rsbt-bencode-nom" }
+rsbt-defs = { version = "0.1.0", path = "rsbt-defs" }
+rsbt-memory-hub = { version = "0.1.0", path = "rsbt-memory-hub" }
+rsbt-types = { version = "0.1.0", path = "rsbt-types" }
 
 [profile.release]
 lto = true

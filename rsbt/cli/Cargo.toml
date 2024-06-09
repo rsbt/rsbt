@@ -19,13 +19,11 @@ homepage.workspace = true
 default = []
 
 [dependencies]
-log = { workspace = true }
-env_logger =  { workspace = true }
-
 anyhow = "1"
 
-clap = { workspace = true }
-
-dotenv = { workspace = true }
+clap.workspace = true
+dotenv.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
 
 rsbt-app = { path = "../../rsbt-app" }

@@ -29,5 +29,5 @@ name = "rsbt-cli"
 required-features = ["cli"]
 
 [dependencies]
-rsbt-commandline = { path = "../cli", optional = true }
-rsbt-web = { path = "../web", optional = true }
+rsbt-commandline = { workspace = true, optional = true }
+rsbt-web = { workspace = true, optional = true }

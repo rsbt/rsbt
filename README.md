@@ -1,4 +1,4 @@
-# rsbt description
+# rsbt - Rust BitTorrent
 
 <img alt="RSBT" src="_rsbt-web-common/web/img/01.svg" width="256px" height="256px">
 

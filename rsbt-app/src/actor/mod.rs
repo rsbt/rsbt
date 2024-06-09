@@ -1,18 +1,17 @@
-use std::{future::IntoFuture, marker::PhantomData};
+use std::marker::PhantomData;
+
+use thiserror::Error;
 
 use crate::{
-    tokio::{self, mpsc_channel, spawn, MpscReceiver, MpscSender},
+    tokio::{mpsc_channel, spawn, MpscReceiver, MpscSender},
     AppError, DEFAULT_CHANNEL_BUFFER,
 };
 
 mod download;
 pub use download::{Download, DownloadHandle, DownloadMessage};
 
-use async_trait::async_trait;
-use thiserror::Error;
-
-#[async_trait]
-pub trait Actor {
+#[trait_variant::make(Actor: Send)]
+pub trait LocalActor {
     type Message;
 
     async fn handle_message(&mut self, msg: Self::Message);
