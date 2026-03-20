@@ -1,4 +1,5 @@
 use rsbt_app::{AppError, Config};
+use tracing;
 
 const HTML_TEMPLATE: &str = r#"<!DOCTYPE html>
 <html lang="en">
@@ -93,8 +94,8 @@ pub fn serve_wizard(config: Config) -> Result<(), AppError> {
     let addr = "127.0.0.1:7878";
     let listener = TcpListener::bind(addr).map_err(|e| AppError::Config(e.to_string()))?;
 
-    println!("Web wizard available at http://{}/", addr);
-    println!("Press Ctrl+C to cancel...");
+    tracing::info!("Web wizard available at http://{}/", addr);
+    tracing::info!("Press Ctrl+C to cancel...");
 
     for stream in listener.incoming() {
         let mut stream = match stream {
