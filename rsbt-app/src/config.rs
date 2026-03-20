@@ -5,6 +5,7 @@ pub const TORRENTS_TOML: &str = "torrents.toml";
 pub const DOWNLOAD_DIR: &str = "download";
 pub const TORRENTS_DIR: &str = "torrents";
 
+#[derive(Clone)]
 pub struct Config {
     pub config_dir: PathBuf,
 }

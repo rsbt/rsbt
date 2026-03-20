@@ -421,6 +421,7 @@ dependencies = [
  "clap",
  "dotenvy",
  "rsbt-app",
+ "rsbt-web",
  "tracing",
  "tracing-subscriber",
 ]

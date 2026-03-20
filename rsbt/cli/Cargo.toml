@@ -27,3 +27,4 @@ tracing.workspace = true
 tracing-subscriber.workspace = true
 
 rsbt-app = { path = "../../rsbt-app" }
+rsbt-web = { path = "../web" }
