@@ -24,7 +24,7 @@ derive = ["rsbt-bencode-derive"]
 [dependencies]
 displaydoc = { version = "0.2", default-features = false }
 
-nom = { version = "7.1", default-features = false }
+nom = { version = "8", default-features = false }
 
 rsbt-bencode-derive = { path = "../rsbt-bencode-derive", optional = true }
 rsbt-defs = { path = "../rsbt-defs" }
