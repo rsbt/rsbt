@@ -34,7 +34,7 @@ clap = { version = "4", default-features = false, features = [
     "usage",
 ] }
 dotenvy = "0.15"
-thiserror = "1"
+thiserror = "2"
 tokio = { version = "1", default-features = false, features = [
     "net",
     "rt-multi-thread",
