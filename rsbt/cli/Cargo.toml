@@ -22,7 +22,7 @@ default = []
 anyhow = "1"
 
 clap.workspace = true
-dotenv.workspace = true
+dotenvy.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 
