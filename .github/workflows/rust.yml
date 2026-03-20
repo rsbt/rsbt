@@ -12,6 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - uses: dtolnay/rust-action@1.94.0
     - name: Build
       run: cargo build --verbose
     - name: Run tests
