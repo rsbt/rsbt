@@ -12,8 +12,8 @@ members = [
 resolver = "2"
 
 [workspace.package]
-rust-version = "1.65"
-edition = "2021"
+rust-version = "1.94.0"
+edition = "2024"
 authors = ["Alexander Korolev <alexander.korolev.germany@gmail.com>"]
 version = "0.1.0"
 license = "Unlicense OR MIT"
