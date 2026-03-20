@@ -215,3 +215,24 @@ pub enum AppError {
 - Binary targets in `rsbt/bins/src/bin/`
 - The workspace uses resolver version 2
 - Release profile has LTO enabled (`lto = true`)
+
+## Contributing Guidelines
+
+### Pull Requests
+- **Always create a PR** for any implementation work, no matter how small
+- Use feature branches: `feature/`, `fix/`, `refactor/` prefixes
+- Keep PRs focused and atomic
+- Include tests and documentation
+- Run `cargo test` and `cargo clippy` before submitting
+
+### Issues
+- **Create an issue first** for complex/complicated work that requires research or design
+- Use issue for tracking technical debt, refactoring, or architectural changes
+- Label appropriately: `bug`, `enhancement`, `documentation`, `dependencies`
+
+### Branch Naming
+- `feature/` - New features
+- `fix/` - Bug fixes
+- `upgrade/` - Dependency upgrades
+- `refactor/` - Code refactoring
+- `docs/` - Documentation changes

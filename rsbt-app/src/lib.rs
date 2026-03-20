@@ -1,3 +1,5 @@
+mod config;
+
 mod actor;
 mod app;
 mod blocking_app;
@@ -12,6 +14,7 @@ pub use crate::{
     actor::{Actor, ActorHandle, Download, DownloadHandle},
     app::App,
     blocking_app::{BlockingApp, BlockingAppBuilder},
+    config::{Config, default_config_dir, need_initial_configuration},
     error::AppError,
     status::AppStatus,
     torrent_event::TorrentEvent,
