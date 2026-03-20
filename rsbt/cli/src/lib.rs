@@ -22,10 +22,10 @@ pub fn run() -> AppStatus {
         // Start web wizard in background if not explicitly disabled
         let config_dir_for_web = cli.config_dir.clone();
         if !cli.no_web {
-            println!("Starting web wizard at http://localhost:7878/ (Ctrl+C to skip)");
+            tracing::info!("Starting web wizard at http://localhost:7878/ (Ctrl+C to skip)");
             std::thread::spawn(move || {
                 if let Err(e) = rsbt_web::run_web_wizard(config_dir_for_web) {
-                    eprintln!("Web wizard error: {}", e);
+                    tracing::error!("Web wizard error: {}", e);
                 }
             });
         }
@@ -33,10 +33,10 @@ pub fn run() -> AppStatus {
         // Run CLI wizard in foreground
         match wizard::run_wizard(config) {
             Ok(_) => {
-                println!("Configuration complete!");
+                tracing::info!("Configuration complete!");
             }
             Err(e) => {
-                eprintln!("Wizard failed: {}", e);
+                tracing::error!("Wizard failed: {}", e);
                 return AppStatus::CommandLineFail;
             }
         }
@@ -47,11 +47,11 @@ pub fn run() -> AppStatus {
     match cli.command.run() {
         Ok(_) => AppStatus::Success,
         Err(AppError::Config(msg)) => {
-            eprintln!("{}", msg);
+            tracing::error!("{}", msg);
             AppStatus::CommandLineFail
         }
         Err(err) => {
-            eprintln!("Error: {}", err);
+            tracing::error!("Error: {}", err);
             AppStatus::CommandLineFail
         }
     }

@@ -1,18 +1,19 @@
 use rsbt_app::{AppError, Config};
+use tracing;
 
 pub fn run_wizard(config: Config) -> Result<(), AppError> {
-    println!("===========================================");
-    println!("  Welcome to rsbt - Rust BitTorrent!");
-    println!("===========================================");
-    println!();
-    println!("It looks like this is your first time running rsbt.");
-    println!("Let me help you set up the configuration.");
-    println!();
+    tracing::info!("===========================================");
+    tracing::info!("  Welcome to rsbt - Rust BitTorrent!");
+    tracing::info!("===========================================");
+    tracing::info!("");
+    tracing::info!("It looks like this is your first time running rsbt.");
+    tracing::info!("Let me help you set up the configuration.");
+    tracing::info!("");
 
     // Step 1: Download directory
     let default_download = config.download_dir();
-    println!("Download directory: {}", default_download.display());
-    println!("  (Press Enter to use default, or type a new path)");
+    tracing::info!("Download directory: {}", default_download.display());
+    tracing::info!("  (Press Enter to use default, or type a new path)");
 
     // For now, use default - can be enhanced with stdin input later
     let download_dir = read_line_or_default(&default_download.display().to_string());
@@ -23,9 +24,9 @@ pub fn run_wizard(config: Config) -> Result<(), AppError> {
         std::path::PathBuf::from(download_dir)
     };
 
-    println!();
-    println!("Download directory set to: {}", download_path.display());
-    println!();
+    tracing::info!("");
+    tracing::info!("Download directory set to: {}", download_path.display());
+    tracing::info!("");
 
     // Create directories
     config
@@ -45,17 +46,17 @@ pub fn run_wizard(config: Config) -> Result<(), AppError> {
         );
         std::fs::write(&config_path, default_config)
             .map_err(|e| AppError::Config(e.to_string()))?;
-        println!("Created configuration file: {}", config_path.display());
+        tracing::info!("Created configuration file: {}", config_path.display());
     }
 
-    println!();
-    println!("===========================================");
-    println!("  Setup complete!");
-    println!("===========================================");
-    println!();
-    println!("Your files will be saved to: {}", download_path.display());
-    println!("Configuration saved to: {}", config_path.display());
-    println!();
+    tracing::info!("");
+    tracing::info!("===========================================");
+    tracing::info!("  Setup complete!");
+    tracing::info!("===========================================");
+    tracing::info!("");
+    tracing::info!("Your files will be saved to: {}", download_path.display());
+    tracing::info!("Configuration saved to: {}", config_path.display());
+    tracing::info!("");
 
     Ok(())
 }
