@@ -5,20 +5,20 @@ use nom::{
     combinator::{consumed, map, map_res},
     error::Error,
     multi::many0,
-    sequence::{delimited, tuple},
-    IResult,
+    sequence::delimited,
+    IResult, Parser,
 };
 
 use crate::{lib::Vec, Bencode};
 
 fn parse_string(input: &[u8]) -> IResult<&[u8], &[u8], Error<&[u8]>> {
     let (input, len) = character::u64(input)?;
-    let (input, _) = character::char(':')(input)?;
-    take(len)(input)
+    let (input, _) = character::char(':').parse(input)?;
+    take(len).parse(input)
 }
 
 fn parse_integer(input: &[u8]) -> IResult<&[u8], i64, Error<&[u8]>> {
-    delimited(character::char('i'), character::i64, character::char('e'))(input)
+    delimited(character::char('i'), character::i64, character::char('e')).parse(input)
 }
 
 fn parse_list(input: &[u8]) -> IResult<&[u8], Vec<Bencode>, Error<&[u8]>> {
@@ -26,31 +26,30 @@ fn parse_list(input: &[u8]) -> IResult<&[u8], Vec<Bencode>, Error<&[u8]>> {
         character::char('l'),
         many0(parse_bencoded),
         character::char('e'),
-    )(input)
+    )
+    .parse(input)
 }
 
 type BencodeEntry<'a> = (&'a str, Bencode<'a>);
 
 fn parse_dictionary(input: &[u8]) -> IResult<&[u8], Vec<BencodeEntry<'_>>, Error<&[u8]>> {
+    let tuple_parser = (map_res(parse_string, core::str::from_utf8), parse_bencoded);
     delimited(
         character::char('d'),
-        many0(tuple((
-            map_res(parse_string, core::str::from_utf8),
-            parse_bencoded,
-        ))),
+        many0(tuple_parser),
         character::char('e'),
-    )(input)
+    )
+    .parse(input)
 }
 
 pub fn parse_bencoded(input: &[u8]) -> IResult<&[u8], Bencode, Error<&[u8]>> {
-    alt((
-        map(parse_string, Bencode::String),
-        map(parse_integer, Bencode::Integer),
-        map(parse_list, Bencode::List),
-        map(consumed(parse_dictionary), |(input, entries)| {
-            Bencode::Dictionary { input, entries }
-        }),
-    ))(input)
+    let string_parser = map(parse_string, Bencode::String);
+    let integer_parser = map(parse_integer, Bencode::Integer);
+    let list_parser = map(parse_list, Bencode::List);
+    let dict_parser = map(consumed(parse_dictionary), |(input, entries)| {
+        Bencode::Dictionary { input, entries }
+    });
+    alt((string_parser, integer_parser, list_parser, dict_parser)).parse(input)
 }
 
 #[cfg(test)]
