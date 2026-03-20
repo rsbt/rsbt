@@ -51,6 +51,7 @@ tracing-subscriber = { version = "0.3", default-features = false, features = [
     "fmt",
 ] }
 trait-variant = "0.1.2"
+dirs = "5"
 
 rsbt = { version = "0.1.0", path = "rsbt/bins" }
 rsbt-commandline = { version = "0.1.0", path = "rsbt/cli" }
