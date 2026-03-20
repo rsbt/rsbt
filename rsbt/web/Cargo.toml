@@ -21,7 +21,7 @@ default = []
 [dependencies]
 anyhow = "1"
 clap = { workspace = true }
-dotenv = { workspace = true }
+dotenvy = { workspace = true }
 tokio = { version = "1", default-features = false, features = [
     "rt-multi-thread",
     "net",

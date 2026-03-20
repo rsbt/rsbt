@@ -14,7 +14,7 @@ struct Cli {
 }
 
 pub fn run() -> AppStatus {
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     let Ok(_) = tracing::subscriber::set_global_default(subscriber) else {
         return AppStatus::CommandLineFail;
