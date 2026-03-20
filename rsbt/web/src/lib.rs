@@ -1,15 +1,8 @@
-/*!
-# rsbt description
+pub mod wizard;
 
-## Features
+pub fn run_web_wizard(config_dir: Option<std::path::PathBuf>) -> Result<(), rsbt_app::AppError> {
+    use rsbt_app::{Config, need_initial_configuration};
 
-## Usage
-
-Add dependency to Cargo.toml:
-
-```toml
-[dependencies]
-rsbt = "0.1"
-```
-
-*/
+    let config = Config::new(config_dir);
+    wizard::serve_wizard(config)
+}
