@@ -35,7 +35,7 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
 
     let data = &ast.data;
 
-    let gen = match data {
+    let r#gen = match data {
         syn::Data::Struct(data_struct) => match &data_struct.fields {
             syn::Fields::Named(fields_named) => {
                 let mut field_ids: Vec<_> = fields_named
@@ -152,7 +152,7 @@ fn impl_bencode_parse(ast: &syn::DeriveInput) -> TokenStream {
         syn::Data::Union(_) => abort!(name, "unions are not supported"),
     };
 
-    gen.into()
+    r#gen.into()
 }
 
 fn field_attribute(attrs: &[syn::Attribute], name: &str) -> Option<String> {

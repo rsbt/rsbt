@@ -15,4 +15,10 @@ readme.workspace = true
 repository.workspace = true
 homepage.workspace = true
 
+[features]
+default = ["std", "alloc"]
+std = []
+alloc = []
+
 [dependencies]
+rsbt-defs.workspace = true
